@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MA Hospitalar - Dashboard de Pedidos 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        body { background-color: #0b0f17; color: #f0f6fc; }
+        .custom-card { background-color: #121824; border: 1px solid #1f293d; border-radius: 12px; }
+        .custom-ia-card { background-color: #121a2e; border: 1px solid #233a66; border-radius: 12px; box-shadow: 0 0 15px rgba(56, 139, 253, 0.15); }
+    </style>
+</head>
+<body class="p-6 md:p-10">
+
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-gray-800 pb-5">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-white">📦 PEDIDOS MARKETPLACES - OPERATIONS DASHBOARD 2026</h1>
+            <p class="text-sm text-gray-400 mt-1">MA Hospitalar | Atualização via upload manual de CSV</p>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <input type="file" id="csvFileInput" accept=".csv" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"/>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="custom-card p-6">
+            <p class="text-xs font-semibold text-gray-400 tracking-wider uppercase">Total de Pedidos</p>
+            <h2 id="kpiTotal" class="text-4xl font-bold text-blue-400 my-2">0</h2>
+            <span class="text-xs text-green-400">↑ Base 2026 Carregada</span>
+        </div>
+        <div class="custom-card p-6">
+            <p class="text-xs font-semibold text-gray-400 tracking-wider uppercase">Pedidos Faturados</p>
+            <h2 id="kpiFaturados" class="text-4xl font-bold text-green-400 my-2">0</h2>
+            <span class="text-xs text-green-400">✓ NF emitida no Protheus</span>
+        </div>
+        <div class="custom-card p-6">
+            <p class="text-xs font-semibold text-gray-400 tracking-wider uppercase">Pedidos em Aberto / Gargalo</p>
+            <h2 id="kpiAberto" class="text-4xl font-bold text-orange-400 my-2">0</h2>
+            <span class="text-xs text-orange-300">⚠️ Requer tratamento logístico</span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="custom-card p-6">
+            <h3 class="text-lg font-semibold text-white mb-4">Marketplace Performance: Faturados vs. Aberto</h3>
+            <div class="h-64 flex items-center justify-center">
+                <canvas id="chartMarketplace"></canvas>
+            </div>
+        </div>
+        <div class="custom-card p-6">
+            <h3 class="text-lg font-semibold text-white mb-4">Volumetria por Status Logístico</h3>
+            <div class="h-64 flex items-center justify-center">
+                <canvas id="chartStatus"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="custom-ia-card p-6">
+            <h4 class="text-md font-bold text-red-400 mb-3 flex items-center">🤖 Hub de IA: Principais Gaps</h4>
+            <p class="text-sm text-gray-300 leading-relaxed mb-4">Análise preditiva baseada nos cruzamentos das colunas Linx e Protheus:</p>
+            <ul class="text-xs text-gray-400 space-y-3 list-disc pl-4">
+                <li><b class="text-orange-400">Gargalo de Integração:</b> Pedidos com "PV Gerado atendimento" travados sem geração de nota fiscal há mais de 48h.</li>
+                <li><b class="text-red-400">SLA de Devolução:</b> Necessário checar o campo 'Observações' para processar solicitações de estorno urgentes.</li>
+            </ul>
+        </div>
+        <div class="custom-card p-6 lg:col-span-2">
+            <h4 class="text-md font-bold text-white mb-4">Fila de Pedidos Operacionais (Ação Imediata)</h4>
+            <div class="overflow-x-auto max-h-60 border border-gray-800 rounded-md">
+                <table class="min-w-full text-xs text-left text-gray-400">
+                    <thead class="bg-gray-900 text-gray-300 uppercase sticky top-0">
+                        <tr>
+                            <th class="p-3">Data</th>
+                            <th class="p-3">Canal</th>
+                            <th class="p-3">Nº Pedido</th>
+                            <th class="p-3">Status Log</th>
+                            <th class="p-3">Nota</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td colspan="5" class="p-4 text-center text-gray-500">Aguardando upload do arquivo CSV...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let chart1 = null;
+        let chart2 = null;
+
+        document.getElementById('csvFileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            Papa.parse(file, {
+                header: true,
+                delimiter: ";",
+                skipEmptyLines: true,
+                complete: function(results) {
+                    processData(results.data);
+                }
+            });
+        });
+
+        function processData(data) {
+            let total = data.length;
+            let faturados = 0;
+            let canais = {};
+            let statusLog = {};
+
+            // Limpa a tabela anterior
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            data.forEach((row, index) => {
+                let status = (row['STATUS DO PEDIDO - LOG'] || 'NÃO INFORMADO').toUpperCase().trim();
+                let canal = (row['CANAL'] || 'OUTROS').trim();
+                
+                // Regra de Faturamento
+                let isFaturado = status.includes('FATURAD');
+                if (isFaturado) faturados++;
+
+                // Agrupando Canais
+                if (!canais[canal]) canais[canal] = { faturado: 0, open: 0 };
+                if (isFaturado) canais[canal].faturado++;
+                else canais[canal].open++;
+
+                // Agrupando Status
+                statusLog[status] = (statusLog[status] || 0) + 1;
+
+                // Popula as primeiras 50 linhas na tabela para performance
+                if (index < 50) {
+                    let tr = document.createElement('tr');
+                    tr.className = "border-b border-gray-800 hover:bg-gray-900";
+                    tr.innerHTML = `
+                        <td class="p-3">${row['DATA'] || ''}</td>
+                        <td class="p-3 font-semibold text-white">${canal}</td>
+                        <td class="p-3">${row['Nº DO PEDIDO'] || ''}</td>
+                        <td class="p-3"><span class="px-2 py-1 rounded text-[10px] ${isFaturado ? 'bg-green-900 text-green-300' : 'bg-orange-900 text-orange-300'}">${status}</span></td>
+                        <td class="p-3 text-blue-400">${row['NOTA'] || '---'}</td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            });
+
+            // Atualiza KPIs
+            let abertos = total - faturados;
+            document.getElementById('kpiTotal').innerText = total.toLocaleString('pt-BR');
+            document.getElementById('kpiFaturados').innerText = faturados.toLocaleString('pt-BR');
+            document.getElementById('kpiAberto').innerText = abertos.toLocaleString('pt-BR');
+
+            // Renderiza Gráficos
+            renderCharts(canais, statusLog);
+        }
+
+        function renderCharts(canais, statusLog) {
+            if (chart1) chart1.destroy();
+            if (chart2) chart2.destroy();
+
+            // Gráfico 1: Performance Marketplaces
+            const labelsCanal = Object.keys(canais);
+            const dadosFaturados = labelsCanal.map(c => canais[c].faturado);
+            const dadosAbertos = labelsCanal.map(c => canais[c].open);
+
+            const ctx1 = document.getElementById('chartMarketplace').getContext('2d');
+            chart1 = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: labelsCanal,
+                    datasets: [
+                        { label: 'Faturado', data: dadosFaturados, backgroundColor: '#388bff' },
+                        { label: 'Open', data: dadosAbertos, backgroundColor: '#ffa657' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { color: '#1f293d' } }, x: { grid: { display: false } } } }
+            });
+
+            // Gráfico 2: Status Logístico
+            const ctx2 = document.getElementById('chartStatus').getContext('2d');
+            chart2 = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(statusLog),
+                    datasets: [{ label: 'Pedidos', data: Object.values(statusLog), backgroundColor: '#58a6ff' }]
+                },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { grid: { color: '#1f293d' } }, y: { grid: { display: false } } } }
+            });
+        }
+    </script>
+</body>
+</html>
