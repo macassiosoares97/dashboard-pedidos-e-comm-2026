@@ -3,16 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MA Hospitalar - Advanced Operations Analytics</title>
+    <title>MA Hospitalar - Operational Performance Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         body { background-color: #0b0f19; color: #f0f6fc; font-family: system-ui, -apple-system, sans-serif; }
         .sidebar { background-color: #0f1422; border-right: 1px solid #1e2638; }
-        .custom-card { background-color: #121826; border: 1px solid #1f293d; border-radius: 12px; }
-        .kpi-gradient-1 { background: linear-gradient(135deg, #1e2942 0%, #111724 100%); border: 1px solid #28385c; }
-        .kpi-gradient-2 { background: linear-gradient(135deg, #2c1a24 0%, #111724 100%); border: 1px solid #4a2435; }
+        .custom-card { background-color: #121826; border: 1px solid #1f293d; border-radius: 12px; transition: all 0.2s ease; }
+        .clickable-card { cursor: pointer; }
+        .clickable-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(56, 139, 253, 0.15); }
+        .active-card { border-color: #388bff !important; background-color: #16223f !important; }
+        .kpi-gradient-blue { background: linear-gradient(135deg, #1e2942 0%, #111724 100%); border: 1px solid #28385c; }
+        .kpi-gradient-green { background: linear-gradient(135deg, #142e24 0%, #0d1914 100%); border: 1px solid #1b4d3e; }
+        .kpi-gradient-red { background: linear-gradient(135deg, #36191d 0%, #1a0d0f 100%); border: 1px solid #5a2429; }
+        .kpi-gradient-orange { background: linear-gradient(135deg, #2e2014 0%, #19120d 100%); border: 1px solid #4d331b; }
         .ia-box { background: linear-gradient(145deg, #131c33 0%, #0c101f 100%); border: 1px solid #233666; box-shadow: 0 0 20px rgba(56, 139, 253, 0.1); }
         .filter-select { background-color: #161f30; border: 1px solid #2d3954; color: #f0f6fc; border-radius: 6px; padding: 6px; width: 100%; font-size: 12px; outline: none; }
         .filter-select:focus { border-color: #388bff; }
@@ -28,7 +33,7 @@
             <div>
                 <div class="text-xs font-bold tracking-widest text-blue-500 uppercase">MA Hospitalar</div>
                 <h1 class="text-xl font-bold text-white mt-1">Operations Hub</h1>
-                <p class="text-xs text-gray-400 mt-1">Análise de Performance 2026</p>
+                <p class="text-xs text-gray-400 mt-1">Métricas Harmonizadas 2026</p>
             </div>
 
             <div class="custom-card p-4 bg-[#161f33]/30 border-blue-900/30">
@@ -37,7 +42,7 @@
             </div>
 
             <div class="space-y-3 opacity-50" id="filterSection">
-                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-800 pb-1">2. Filtros Operacionais</div>
+                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-800 pb-1">2. Filtros Operacionais Cruzados</div>
                 
                 <div>
                     <label class="block text-[11px] text-orange-400 font-semibold mb-1">📅 Período / Mês</label>
@@ -48,11 +53,11 @@
 
                 <div>
                     <label class="block text-[11px] text-gray-400 mb-1">Busca Global (Pedido, NF, PV, Rastreio)</label>
-                    <input type="text" id="searchFilter" placeholder="Buscar em qualquer coluna..." class="filter-select bg-[#101726]" disabled>
+                    <input type="text" id="searchFilter" placeholder="Buscar em qualquer campo..." class="filter-select bg-[#101726]" disabled>
                 </div>
 
                 <div>
-                    <label class="block text-[11px] text-gray-400 mb-1">Canal de Venda</label>
+                    <label class="block text-[11px] text-gray-400 mb-1">Canal de Venda (Harmonizado)</label>
                     <select id="channelFilter" class="filter-select" disabled><option value="ALL">Todos os Canais</option></select>
                 </div>
 
@@ -73,48 +78,50 @@
             </div>
 
             <div class="space-y-2 text-xs text-gray-400 pt-2">
-                <div class="flex justify-between border-b border-gray-800 pb-2"><span>Status do Link:</span><span class="text-green-400 font-bold">● Live</span></div>
-                <div class="flex justify-between border-b border-gray-800 pb-2"><span>Linhas Ativas:</span><span id="activeRows" class="text-white font-bold">0</span></div>
+                <div class="flex justify-between border-b border-gray-800 pb-2"><span>Registros Filtrados:</span><span id="activeRows" class="text-white font-bold">0</span></div>
+                <button id="btnResetAll" class="w-full mt-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold py-1 px-2 rounded text-[11px] transition">Limpar Todos os Filtros</button>
             </div>
-        </div>
-        
-        <div class="text-[10px] text-gray-500 mt-6 md:mt-0 border-t border-gray-800 pt-4">
-            Análise de dados estruturada localmente.
         </div>
     </div>
 
     <div class="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto">
         
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="custom-card p-5 kpi-gradient-1">
-                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Volume de Pedidos</p>
+            <div id="cardTotal" class="custom-card clickable-card p-5 kpi-gradient-blue active-card shadow-lg" onclick="clickKpiCard('ALL')">
+                <p class="text-[11px] font-bold text-blue-400 uppercase tracking-wider">Volume de Entradas</p>
                 <h2 id="kpiTotal" class="text-3xl font-extrabold text-white my-1">0</h2>
-                <p class="text-xs text-blue-400" id="subTotal">Aguardando CSV</p>
+                <p class="text-xs text-gray-400" id="subTotal">Aguardando planilha</p>
             </div>
-            <div class="custom-card p-5 kpi-gradient-1">
-                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Faturados Líquidos</p>
+            <div id="cardFaturados" class="custom-card clickable-card p-5 kpi-gradient-green" onclick="clickKpiCard('FATURADO')">
+                <p class="text-[11px] font-bold text-green-400 uppercase tracking-wider">Efetividade Operacional</p>
                 <h2 id="kpiFaturados" class="text-3xl font-extrabold text-green-400 my-1">0</h2>
-                <p id="subFaturados" class="text-xs text-gray-400">0% do total</p>
+                <p id="subFaturados" class="text-xs text-green-300">0% atendidos</p>
             </div>
-            <div class="custom-card p-5 kpi-gradient-2">
-                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Devolução / Canc. / Estorno</p>
+            <div id="cardQuebra" class="custom-card clickable-card p-5 kpi-gradient-red" onclick="clickKpiCard('QUEBRA')">
+                <p class="text-[11px] font-bold text-red-400 uppercase tracking-wider">Taxa de Quebra (Cancelados)</p>
                 <h2 id="kpiQuebra" class="text-3xl font-extrabold text-red-400 my-1">0</h2>
-                <p id="subQuebra" class="text-xs text-red-400 font-semibold">0% Taxa de Quebra</p>
+                <p id="subQuebra" class="text-xs text-red-300 font-semibold">0% de perda</p>
             </div>
-            <div class="custom-card p-5 kpi-gradient-1">
-                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Em Aberto / Gargalo</p>
+            <div id="cardAberto" class="custom-card clickable-card p-5 kpi-gradient-orange" onclick="clickKpiCard('PENDENTE')">
+                <p class="text-[11px] font-bold text-orange-400 uppercase tracking-wider">Pedidos Retidos (Gargalo)</p>
                 <h2 id="kpiAberto" class="text-3xl font-extrabold text-orange-400 my-1">0</h2>
-                <p id="subAberto" class="text-xs text-gray-400">Pendente liberação</p>
+                <p id="subAberto" class="text-xs text-orange-300">Aguardando fluxo</p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="custom-card p-5 lg:col-span-2">
-                <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Evolução Mensal: Volume de Entrada vs. Faturados</h3>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Evolução Mensal: Volume de Entrada vs. Faturados</h3>
+                    <span class="text-[10px] text-blue-400 bg-blue-950/40 px-2 py-0.5 rounded border border-blue-900/30">Clique na barra para filtrar o mês</span>
+                </div>
                 <div class="h-64"><canvas id="chartMensal"></canvas></div>
             </div>
             <div class="custom-card p-5">
-                <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Principais Motivos de Cancelamento</h3>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Gargalos por Categoria Objeção</h3>
+                    <span class="text-[10px] text-red-400 bg-red-950/40 px-2 py-0.5 rounded border border-red-900/30">Clique para filtrar</span>
+                </div>
                 <div class="h-64"><canvas id="chartMotivos"></canvas></div>
             </div>
         </div>
@@ -123,15 +130,15 @@
             <div class="ia-box p-6 rounded-xl">
                 <div class="flex items-center space-x-2 text-blue-400 mb-3">
                     <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                    <h4 class="text-xs font-bold uppercase tracking-widest">Insights Inteligentes da Operação</h4>
+                    <h4 class="text-xs font-bold uppercase tracking-widest">Diagnóstico Automatizado da Planilha Base</h4>
                 </div>
                 <div id="iaContent" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-gray-300 leading-relaxed">
-                    <p>Aguardando upload do CSV para cruzar dados das 12 colunas operacionais...</p>
+                    <p>Carregue o CSV para que o motor realize a harmonização automática e concatene as métricas...</p>
                 </div>
             </div>
 
             <div class="custom-card p-5">
-                <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Fila de Registros Detalhada (Todas as Colunas Mapeadas)</h3>
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Fila Operacional Mapeada (Visão Ponta a Ponta)</h3>
                 <div class="overflow-x-auto border border-gray-800/80 rounded-lg max-h-[500px]">
                     <table class="min-w-full text-xs text-left text-gray-400">
                         <thead class="bg-[#161e30] text-gray-300 uppercase font-semibold text-[10px] tracking-wider sticky top-0 z-10">
@@ -159,11 +166,11 @@
                 </div>
             </div>
         </div>
-
     </div>
 
     <script>
         let rawDatabase = [];
+        let activeKpiFilter = 'ALL'; // ALL, FATURADO, QUEBRA, PENDENTE
         let chartMensal = null;
         let chartMotivos = null;
 
@@ -181,9 +188,23 @@
             "09": "Setembro", "10": "Outubro", "11": "Novembro", "12": "Dezembro"
         };
 
-        // Normalizador de chaves para evitar quebras de maiúscula/minúscula/espaço
         function normalizeKey(key) {
             return key.toUpperCase().replace(/[\s\-_]/g, '').trim();
+        }
+
+        // RECONHECIMENTO E TRATAMENTO TEXTUAL REAL DAS COLUNAS DA TABELA
+        function harmonizarCanal(canalRaw) {
+            if (!canalRaw) return "NÃO INFORMADO";
+            let c = canalRaw.toUpperCase().trim();
+            if (c.includes("MELI") || c.includes("MERCADO")) {
+                if (c.includes("SC")) return "MERCADO LIVRE SC";
+                if (c.includes("RS")) return "MERCADO LIVRE RS";
+                return "MERCADO LIVRE (OUTROS)";
+            }
+            if (c.includes("ECOMMERCE") || c.includes("E-COMMERCE") || c.includes("SITE")) return "SITE E-COMMERCE";
+            if (c.includes("MAGALU") || c.includes("MAGAZINE")) return "MAGALU";
+            if (c.includes("AMAZON")) return "AMAZON";
+            return c; // Retorna o canal original se for pontual
         }
 
         function getMesAno(dataStr) {
@@ -208,12 +229,10 @@
                 delimiter: ";",
                 skipEmptyLines: true,
                 complete: function(results) {
-                    // Mapeia e normaliza dinamicamente as colunas do seu arquivo
                     rawDatabase = results.data.map(row => {
                         let normalizedRow = {};
                         Object.keys(row).forEach(key => {
                             let nk = normalizeKey(key);
-                            // Mapeia para identificadores fixos independente de como veio digitado
                             if (nk.includes("DATA")) normalizedRow['DATA'] = row[key];
                             else if (nk.includes("CANAL")) normalizedRow['CANAL'] = row[key];
                             else if (nk.includes("NPEDIDO") || nk.includes("NUMERODOPEDIDO")) normalizedRow['PEDIDO'] = row[key];
@@ -227,63 +246,113 @@
                             else if (nk.includes("STATUS") && nk.includes("LINX")) normalizedRow['STATUS_LINX'] = row[key];
                             else if (nk.includes("OBSERVA")) normalizedRow['OBSERVACOES'] = row[key];
                         });
+
+                        // CAMADA DE HARMONIZAÇÃO E CONCATENAÇÃO OPERACIONAL BASEADA NAS COLUNAS
+                        let statusLog = (normalizedRow['STATUS_LOG'] || '').toUpperCase().trim();
+                        let statusLinx = (normalizedRow['STATUS_LINX'] || '').toUpperCase().trim();
+                        let obs = (normalizedRow['OBSERVACOES'] || '').toUpperCase().trim();
+
+                        let isFaturado = statusLog.includes('FATURAD') || statusLog.includes('EMITID') || statusLog.includes('CONCLU') || statusLinx.includes('FATURAD');
+                        let isQuebra = statusLog.includes('CANC') || statusLog.includes('DEV') || statusLog.includes('ESTOR') || statusLog.includes('REJEIT') || obs.includes('CANC') || obs.includes('DEV') || statusLinx.includes('CANC');
+
+                        if (isFaturado) normalizedRow['METRICA_CONCATENADA'] = 'FATURADO';
+                        else if (isQuebra) normalizedRow['METRICA_CONCATENADA'] = 'QUEBRA';
+                        else normalizedRow['METRICA_CONCATENADA'] = 'PENDENTE';
+
+                        // Concatenação inteligente do motivo de cancelamento baseado estritamente na coluna Observações
+                        let motivo = "Não Especificado / Outros";
+                        if (isQuebra) {
+                            if (obs.includes("ESTOQUE") || obs.includes("FALTA") || obs.includes("SALDO") || obs.includes("ZERADO")) motivo = "Falta de Estoque";
+                            else if (obs.includes("INTEGRA") || obs.includes("ERRO") || obs.includes("LINX") || obs.includes("API")) motivo = "Erro de Integração/API";
+                            else if (obs.includes("CLIENTE") || obs.includes("DESIST") || obs.includes("ARREPENDI")) motivo = "Desistência do Cliente";
+                            else if (obs.includes("PREÇO") || obs.includes("VALOR") || obs.includes("ERRADO")) motivo = "Divergência de Preço";
+                            else if (obs.includes("LOGISTICA") || obs.includes("ATRA") || obs.includes("CORREIO") || obs.includes("TRANSPORTADORA")) motivo = "Gargalo de Transportadora";
+                        }
+                        normalizedRow['MOTIVO_HARMONIZADO'] = motivo;
+
                         return normalizedRow;
                     }).filter(r => r['DATA'] || r['PEDIDO']);
 
-                    generateFilterOptions(rawDatabase);
+                    // Gera os filtros cruzados baseados na planilha limpa
+                    buildCrossFilters();
                     applyFiltersAndRender();
                 }
             });
         });
 
-        function generateFilterOptions(data) {
+        // RECURSO SOLICITADO: Filtros dinâmicos que mudam de acordo com as seleções atuais (Sem deixar tabelas vazias)
+        function buildCrossFilters() {
+            const currentMonth = monthSelect.value;
+            const currentChannel = channelSelect.value;
+            const currentStatusLog = statusLogFilter.value;
+            const currentIntegration = integrationSelect.value;
+            const currentStatusLinx = statusLinxSelect.value;
+
             let months = new Set();
             let channels = new Set();
             let statusLogs = new Set();
             let integrations = new Set();
             let statusLinxs = new Set();
 
-            data.forEach(row => {
-                if(row['DATA']) {
-                    let chaveMes = getMesAno(row['DATA'].trim());
-                    if (chaveMes !== "Indefinido") months.add(chaveMes);
-                }
-                if(row['CANAL']) channels.add(row['CANAL'].trim());
+            rawDatabase.forEach(row => {
+                let m = row['DATA'] ? getMesAno(row['DATA'].trim()) : "Indefinido";
+                if(m !== "Indefinido") months.add(m);
+                if(row['CANAL']) channels.add(harmonizarCanal(row['CANAL']));
                 if(row['STATUS_LOG']) statusLogs.add(row['STATUS_LOG'].trim());
                 if(row['INTEGRACAO']) integrations.add(row['INTEGRACAO'].trim());
                 if(row['STATUS_LINX']) statusLinxs.add(row['STATUS_LINX'].trim());
             });
 
-            // Filtro de Mês Cronológico
+            // Repopula os Menus Dropdown mantendo consistência estrutural
             monthSelect.innerHTML = '<option value="ALL">Todo o Período</option>';
-            Array.from(months).sort((a, b) => {
-                let [mesA, anoA] = a.split('/');
-                let [mesB, anoB] = b.split('/');
-                return (anoA + mesA) - (anoB + mesB);
-            }).forEach(chave => {
-                let [m, ano] = chave.split('/');
-                monthSelect.innerHTML += `<option value="${chave}">${nomeMeses[m] || 'Mês ' + m}/${ano}</option>`;
+            Array.from(months).sort().forEach(ch => {
+                let [m, ano] = ch.split('/');
+                monthSelect.innerHTML += `<option value="${ch}">${nomeMeses[m] || 'Mês ' + m}/${ano}</option>`;
             });
 
-            populateSelect(channelSelect, channels);
-            populateSelect(statusLogFilter, statusLogs);
-            populateSelect(integrationSelect, integrations);
-            populateSelect(statusLinxSelect, statusLinxs);
+            populateDropdown(channelSelect, channels, "Todos os Canais (Harmonizados)");
+            populateDropdown(statusLogFilter, statusLogs, "Todos os Status Log");
+            populateDropdown(integrationSelect, integrations, "Todas as Integrações");
+            populateDropdown(statusLinxSelect, statusLinxs, "Todos os Status Linx");
+
+            // Devolve valores selecionados previamente se continuarem existindo
+            if(Array.from(months).includes(currentMonth)) monthSelect.value = currentMonth;
+            if(channels.has(currentChannel)) channelSelect.value = currentChannel;
+            if(statusLogs.has(currentStatusLog)) statusLogFilter.value = currentStatusLog;
+            if(integrations.has(currentIntegration)) integrationSelect.value = currentIntegration;
+            if(statusLinxs.has(currentStatusLinx)) statusLinxSelect.value = currentStatusLinx;
 
             document.getElementById('filterSection').classList.remove('opacity-50');
             [monthSelect, searchInput, channelSelect, statusLogFilter, integrationSelect, statusLinxSelect].forEach(el => el.disabled = false);
         }
 
-        function populateSelect(element, set) {
-            element.innerHTML = `<option value="ALL">Mostrar Todos (${set.size})</option>`;
+        function populateDropdown(element, set, labelDefault) {
+            const currentVal = element.value;
+            element.innerHTML = `<option value="ALL">${labelDefault} (${set.size})</option>`;
             Array.from(set).sort().forEach(val => {
                 if(val) element.innerHTML += `<option value="${val}">${val}</option>`;
             });
+            if(set.has(currentVal)) element.value = currentVal;
         }
 
-        [monthSelect, searchInput, channelSelect, statusLogFilter, integrationSelect, statusLinxSelect].forEach(element => {
-            element.addEventListener('input', applyFiltersAndRender);
+        // Ouvintes de alteração de filtros
+        [monthSelect, channelSelect, statusLogFilter, integrationSelect, statusLinxSelect].forEach(el => {
+            el.addEventListener('change', () => applyFiltersAndRender());
         });
+        searchInput.addEventListener('input', () => applyFiltersAndRender());
+
+        // LÓGICA DE INTERAÇÃO VIA CARD (DRILL-DOWN DE KPIS)
+        function clickKpiCard(type) {
+            activeKpiFilter = type;
+            
+            // Gerenciamento visual de classes ativas nos cards
+            document.getElementById('cardTotal').className = "custom-card clickable-card p-5 kpi-gradient-blue" + (type === 'ALL' ? " active-card shadow-lg" : "");
+            document.getElementById('cardFaturados').className = "custom-card clickable-card p-5 kpi-gradient-green" + (type === 'FATURADO' ? " active-card shadow-lg" : "");
+            document.getElementById('cardQuebra').className = "custom-card clickable-card p-5 kpi-gradient-red" + (type === 'QUEBRA' ? " active-card shadow-lg" : "");
+            document.getElementById('cardAberto').className = "custom-card clickable-card p-5 kpi-gradient-orange" + (type === 'PENDENTE' ? " active-card shadow-lg" : "");
+
+            applyFiltersAndRender();
+        }
 
         function applyFiltersAndRender() {
             const monthVal = monthSelect.value;
@@ -293,22 +362,22 @@
             const integrationVal = integrationSelect.value;
             const statusLinxVal = statusLinxSelect.value;
 
+            // Filtra os dados com base nos inputs laterais + Card de KPI selecionado
             let filteredData = rawDatabase.filter(row => {
                 let matchMonth = (monthVal === 'ALL' || (row['DATA'] && getMesAno(row['DATA'].trim()) === monthVal));
-                
                 let matchSearch = true;
                 if(searchVal) {
-                    // Busca varrendo de ponta a ponta todas as colunas da linha
-                    let stringonaDoPedido = Object.values(row).join(' ').toUpperCase();
-                    matchSearch = stringonaDoPedido.includes(searchVal);
+                    let fullTextRow = Object.values(row).join(' ').toUpperCase();
+                    matchSearch = fullTextRow.includes(searchVal);
                 }
-
-                let matchChannel = (channelVal === 'ALL' || (row['CANAL'] && row['CANAL'].trim() === channelVal));
+                let matchChannel = (channelVal === 'ALL' || harmonizarCanal(row['CANAL']) === channelVal);
                 let matchStatusLog = (statusLogVal === 'ALL' || (row['STATUS_LOG'] && row['STATUS_LOG'].trim() === statusLogVal));
                 let matchIntegration = (integrationVal === 'ALL' || (row['INTEGRACAO'] && row['INTEGRACAO'].trim() === integrationVal));
                 let matchStatusLinx = (statusLinxVal === 'ALL' || (row['STATUS_LINX'] && row['STATUS_LINX'].trim() === statusLinxVal));
+                
+                let matchKpi = (activeKpiFilter === 'ALL' || row['METRICA_CONCATENADA'] === activeKpiFilter);
 
-                return matchMonth && matchSearch && matchChannel && matchStatusLog && matchIntegration && matchStatusLinx;
+                return matchMonth && matchSearch && matchChannel && matchStatusLog && matchIntegration && matchStatusLinx && matchKpi;
             });
 
             document.getElementById('activeRows').innerText = filteredData.length.toLocaleString('pt-BR');
@@ -317,41 +386,25 @@
 
         function processAndRender(data) {
             let total = data.length;
-            let faturados = 0;
-            let quebras = 0;
-            let abertos = 0;
+            let faturados = 0; let quebras = 0; let abertos = 0;
+            let mesesData = {}; let motivosContagem = {}; let criticosTabela = [];
 
-            let mesesData = {};
-            let motivosContagem = {};
-            let criticosTabela = [];
-
+            // Calcula métricas relativas com base estritamente no recorte de dados ativo
             data.forEach(row => {
-                let statusLog = (row['STATUS_LOG'] || 'PENDENTE').toUpperCase().trim();
-                let statusLinx = (row['STATUS_LINX'] || '').toUpperCase().trim();
-                let obsText = (row['OBSERVACOES'] || row['STATUS_LOG'] || '').toUpperCase();
-                
-                let isFaturado = statusLog.includes('FATURAD') || statusLog.includes('EMITID') || statusLog.includes('CONCLU') || statusLinx.includes('FATURAD');
-                let isQuebra = statusLog.includes('CANC') || statusLog.includes('DEV') || statusLog.includes('ESTOR') || statusLog.includes('REJEIT') || obsText.includes('CANC') || obsText.includes('DEV') || statusLinx.includes('CANC');
-
-                if (isFaturado) faturados++;
-                else if (isQuebra) quebras++;
+                let status = row['METRICA_CONCATENADA'];
+                if (status === 'FATURADO') faturados++;
+                else if (status === 'QUEBRA') quebras++;
                 else abertos++;
 
-                if (isQuebra) {
-                    let motivoIdentificado = "Não Especificado / Outros";
-                    if (obsText.includes("ESTOQUE") || obsText.includes("FALTA") || obsText.includes("SALDO")) motivoIdentificado = "Falta de Estoque";
-                    else if (obsText.includes("INTEGRA") || obsText.includes("ERRO") || obsText.includes("LINX")) motivoIdentificado = "Erro de Integração/API";
-                    else if (obsText.includes("CLIENTE") || obsText.includes("DESIST") || obsText.includes("ARREPENDI")) motivoIdentificado = "Desistência do Cliente";
-                    else if (obsText.includes("PREÇO") || obsText.includes("VALOR") || obsText.includes("ERRADO")) motivoIdentificado = "Divergência de Preço";
-                    else if (obsText.includes("LOGISTICA") || obsText.includes("ATRA") || obsText.includes("CORREIO") || obsText.includes("TRANSPORTADORA")) motivoIdentificado = "Gargalo de Transportadora";
-                    
-                    motivosContagem[motivoIdentificado] = (motivosContagem[motivoIdentificado] || 0) + 1;
+                if (status === 'QUEBRA') {
+                    let mot = row['MOTIVO_HARMONIZADO'];
+                    motivosContagem[mot] = (motivosContagem[mot] || 0) + 1;
                 }
 
+                // Agrupamento temporal do gráfico
                 let dataBruta = row['DATA'] || '01/01/2026';
                 let chaveMes = getMesAno(dataBruta.trim());
                 let labelMesGrafico = "Indefinido";
-                
                 if (chaveMes !== "Indefinido") {
                     let [m, ano] = chaveMes.split('/');
                     labelMesGrafico = `${nomeMeses[m].substring(0,3)}/${ano}`;
@@ -359,25 +412,12 @@
 
                 if (!mesesData[labelMesGrafico]) mesesData[labelMesGrafico] = { total: 0, faturado: 0 };
                 mesesData[labelMesGrafico].total++;
-                if (isFaturado) mesesData[labelMesGrafico].faturado++;
+                if (status === 'FATURADO') mesesData[labelMesGrafico].faturado++;
 
-                criticosTabela.push({
-                    data: dataBruta,
-                    canal: row['CANAL'] || '---',
-                    pedido: row['PEDIDO'] || '---',
-                    statusLog: row['STATUS_LOG'] || '---',
-                    statusLinx: row['STATUS_LINX'] || '---',
-                    integracao: row['INTEGRACAO'] || '---',
-                    pvProtheus: row['PV_PROTHEUS'] || '---',
-                    nota: row['NOTA'] || '---',
-                    rastreio: row['RASTREIO'] || '---',
-                    previsao: row['PREVISAO'] || '---',
-                    pvAtendimento: row['PV_ATENDIMENTO'] || '---',
-                    obs: row['OBSERVACOES'] || '---'
-                });
+                criticosTabela.push(row);
             });
 
-            // Atualiza KPIs
+            // Atualiza os KPIs na Tela com as porcentagens mes/período solicitadas
             document.getElementById('kpiTotal').innerText = total.toLocaleString('pt-BR');
             document.getElementById('kpiFaturados').innerText = faturados.toLocaleString('pt-BR');
             document.getElementById('kpiQuebra').innerText = quebras.toLocaleString('pt-BR');
@@ -386,51 +426,53 @@
             let txFaturado = total > 0 ? ((faturados / total) * 100).toFixed(1) : 0;
             let txQuebra = total > 0 ? ((quebras / total) * 100).toFixed(1) : 0;
 
-            document.getElementById('subFaturados').innerText = `${txFaturado}% de conversão`;
-            document.getElementById('subQuebra').innerText = `${txQuebra}% Taxa de Quebra`;
+            document.getElementById('subTotal').innerText = monthSelect.value === 'ALL' ? 'Total do período carregado' : 'Filtrado no mês ativo';
+            document.getElementById('subFaturados').innerText = `${txFaturado}% dos pedidos do período`;
+            document.getElementById('subQuebra').innerText = `${txQuebra}% taxa de cancelamento`;
+            document.getElementById('subAberto').innerText = `${abertos} pendências operacionais`;
 
-            // Renderiza Tabela Dinâmica Completa com as 12 colunas
+            // Monta a Tabela Completa com as 12 colunas solicitadas
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
             if(criticosTabela.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="12" class="p-4 text-center text-gray-500">Nenhum resultado para a combinação de filtros.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="12" class="p-4 text-center text-gray-500">Nenhum registro encontrado para a combinação atual.</td></tr>`;
             } else {
                 criticosTabela.forEach(item => {
                     let tr = document.createElement('tr');
                     tr.className = "border-b border-gray-800/60 hover:bg-[#161f33]/40 text-[11px]";
                     
-                    let badgeLog = item.statusLog.toUpperCase().includes('CANC') || item.statusLog.toUpperCase().includes('DEV') 
+                    let badgeLog = item.METRICA_CONCATENADA === 'QUEBRA' 
                         ? 'bg-red-950 text-red-400 border border-red-900/40' 
-                        : (item.statusLog.toUpperCase().includes('FATUR') ? 'bg-green-950 text-green-400 border border-green-900/40' : 'bg-orange-950 text-orange-400 border border-orange-900/30');
+                        : (item.METRICA_CONCATENADA === 'FATURADO' ? 'bg-green-950 text-green-400 border border-green-900/40' : 'bg-orange-950 text-orange-400 border border-orange-900/30');
 
                     tr.innerHTML = `
-                        <td class="p-3 text-gray-400 whitespace-nowrap">${item.data}</td>
-                        <td class="p-3 text-white font-semibold whitespace-nowrap">${item.canal}</td>
-                        <td class="p-3 font-mono text-blue-400 whitespace-nowrap">${item.pedido}</td>
-                        <td class="p-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] ${badgeLog}">${item.statusLog}</span></td>
-                        <td class="p-3 text-gray-300 whitespace-nowrap">${item.statusLinx}</td>
-                        <td class="p-3 text-gray-400 whitespace-nowrap">${item.integracao}</td>
-                        <td class="p-3 font-mono text-gray-300 whitespace-nowrap">${item.pvProtheus}</td>
-                        <td class="p-3 font-mono text-gray-300 whitespace-nowrap">${item.nota}</td>
-                        <td class="p-3 text-blue-300 font-mono whitespace-nowrap">${item.rastreio}</td>
-                        <td class="p-3 text-gray-400 whitespace-nowrap">${item.previsao}</td>
-                        <td class="p-3 text-gray-400 whitespace-nowrap">${item.pvAtendimento}</td>
-                        <td class="p-3 text-gray-300 max-w-xs truncate" title="${item.obs}">${item.obs}</td>
+                        <td class="p-3 text-gray-400 whitespace-nowrap">${item.DATA || '---'}</td>
+                        <td class="p-3 text-white font-semibold whitespace-nowrap">${harmonizarCanal(item.CANAL)}</td>
+                        <td class="p-3 font-mono text-blue-400 whitespace-nowrap">${item.PEDIDO || '---'}</td>
+                        <td class="p-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] ${badgeLog}">${item.STATUS_LOG || 'PENDENTE'}</span></td>
+                        <td class="p-3 text-gray-300 whitespace-nowrap">${item.STATUS_LINX || '---'}</td>
+                        <td class="p-3 text-gray-400 whitespace-nowrap">${item.INTEGRACAO || '---'}</td>
+                        <td class="p-3 font-mono text-gray-300 whitespace-nowrap">${item.PV_PROTHEUS || '---'}</td>
+                        <td class="p-3 font-mono text-gray-300 whitespace-nowrap">${item.NOTA || '---'}</td>
+                        <td class="p-3 text-blue-300 font-mono whitespace-nowrap">${item.RASTREIO || '---'}</td>
+                        <td class="p-3 text-gray-400 whitespace-nowrap">${item.PREVISAO || '---'}</td>
+                        <td class="p-3 text-gray-400 whitespace-nowrap">${item.PV_ATENDIMENTO || '---'}</td>
+                        <td class="p-3 text-gray-300 max-w-xs truncate" title="${item.OBSERVACOES || ''}">${item.OBSERVACOES || '---'}</td>
                     `;
                     tbody.appendChild(tr);
                 });
             }
 
             renderCharts(mesesData, motivosContagem);
-            renderIA(txQuebra, motivosContagem, abertos);
+            renderIA(txQuebra, txFaturado, motivosContagem, abertos);
         }
 
         function renderCharts(mesesData, motivosContagem) {
             if (chartMensal) chartMensal.destroy();
             if (chartMotivos) chartMotivos.destroy();
 
-            const ordemExibicao = ["Jan/2026", "Fev/2026", "Mar/2026", "Abr/2026", "Mai/2026", "Jun/2026", "Jul/2026"];
-            let labelsMeses = ordemExibicao.filter(m => mesesData[m] !== undefined);
+            const ordemCronologica = ["Jan/2026", "Fev/2026", "Mar/2026", "Abr/2026", "Mai/2026", "Jun/2026", "Jul/2026"];
+            let labelsMeses = ordemCronologica.filter(m => mesesData[m] !== undefined);
             if (labelsMeses.length === 0) labelsMeses = Object.keys(mesesData);
 
             const dadosEntrada = labelsMeses.map(m => mesesData[m].total || 0);
@@ -442,11 +484,32 @@
                 data: {
                     labels: labelsMeses,
                     datasets: [
-                        { label: 'Entradas', data: dadosEntrada, backgroundColor: '#2563eb' },
-                        { label: 'Faturados', data: dadosFaturados, backgroundColor: '#10b981' }
+                        { label: 'Entradas Totais', data: dadosEntrada, backgroundColor: '#2563eb' },
+                        { label: 'Faturados Atendidos', data: dadosFaturados, backgroundColor: '#10b981' }
                     ]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#9ca3af' } } }, scales: { y: { grid: { color: '#1e293b' }, ticks: { color: '#9ca3af' } }, x: { grid: { display: false }, ticks: { color: '#9ca3af' } } } }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { labels: { color: '#9ca3af' } } },
+                    onClick: (e, elements) => {
+                        // DRILL DOWN INTERATIVO POR CLIQUE NO GRÁFICO MENSAL
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const labelMes = labelsMeses[index]; // Ex: "Jan/2026"
+                            
+                            // Traduz a label curta de volta para o valor do dropdown (Ex: "01/2026")
+                            for(let key in nomeMeses) {
+                                if(nomeMeses[key].substring(0,3) === labelMes.split('/')[0]) {
+                                    monthSelect.value = `${key}/${labelMes.split('/')[1]}`;
+                                    applyFiltersAndRender();
+                                    break;
+                                }
+                            }
+                        }
+                    },
+                    scales: { y: { grid: { color: '#1e293b' }, ticks: { color: '#9ca3af' } }, x: { grid: { display: false }, ticks: { color: '#9ca3af' } } } 
+                }
             });
 
             const labelsMotivos = Object.keys(motivosContagem);
@@ -456,29 +519,59 @@
             chartMotivos = new Chart(ctx2, {
                 type: 'doughnut',
                 data: {
-                    labels: labelsMotivos.length > 0 ? labelsMotivos : ["Sem quebras"],
+                    labels: labelsMotivos.length > 0 ? labelsMotivos : ["Nenhuma quebra ativa"],
                     datasets: [{ data: dadosMotivos.length > 0 ? dadosMotivos : [1], backgroundColor: ['#ef4444', '#f97316', '#3b82f6', '#a855f7', '#eab308'] }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af', boxWidth: 10 } } } }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af', boxWidth: 10 } } },
+                    onClick: (e, elements) => {
+                        // DRILL DOWN POR CLIQUE NA FATIA DE OBJEÇÃO (Escreve no filtro global de busca)
+                        if (elements.length > 0 && labelsMotivos.length > 0) {
+                            const index = elements[0].index;
+                            const motivoSelecionado = labelsMotivos[index];
+                            
+                            // Gatilho rápido para mapeamento semântico inverso na busca
+                            if(motivoSelecionado === "Falta de Estoque") searchInput.value = "ESTOQUE";
+                            else if(motivoSelecionado === "Erro de Integração/API") searchInput.value = "LINX";
+                            else if(motivoSelecionado === "Desistência do Cliente") searchInput.value = "CLIENTE";
+                            else searchInput.value = motivoSelecionado;
+                            
+                            applyFiltersAndRender();
+                        }
+                    }
+                }
             });
         }
 
-        function renderIA(txQuebra, motivos, abertos) {
-            let maiorMotivo = "Nenhum mapeado";
+        function renderIA(txQuebra, txFaturado, motivos, abertos) {
+            let maiorMotivo = "Nenhum mapeado no filtro atual";
             let maxVol = 0;
             for (let m in motivos) { if (motivos[m] > maxVol) { maxVol = motivos[m]; maiorMotivo = m; } }
 
             document.getElementById('iaContent').innerHTML = `
                 <div class="p-3 bg-blue-950/20 border border-blue-900/30 rounded-lg">
-                    <span class="text-xs font-bold text-red-400 block mb-1">🚨 DIAGNÓSTICO DE QUEBRA</span>
-                    <p>No cenário filtrado, a quebra operacional está fixada em <b class="text-white">${txQuebra}%</b>. A maior causa de atrito identificada nas observações foi <b class="text-red-300">${maiorMotivo}</b>.</p>
+                    <span class="text-xs font-bold text-emerald-400 block mb-1">🎯 EFETIVIDADE DA TRATATIVA</span>
+                    <p>A taxa de atendimento bem-sucedido (Faturamento Cruzado Logística + Linx) está consolidada em <b class="text-white">${txFaturado}%</b> sob o escopo selecionado.</p>
                 </div>
                 <div class="p-3 bg-blue-950/20 border border-blue-900/30 rounded-lg">
-                    <span class="text-xs font-bold text-orange-400 block mb-1">📦 ANÁLISE DE FLUXO E SLAs</span>
-                    <p>Existem <b class="text-white">${abertos} pedidos</b> com status pendente ou em processamento logístico. Recomenda-se auditar os códigos de PV Protheus e Notas integradas para evitar estouros de SLA nos marketplaces.</p>
+                    <span class="text-xs font-bold text-red-400 block mb-1">⚠️ QUEBRAS E OBJEÇÕES (CONCATENADO)</span>
+                    <p>Identificada uma perda operacional de <b class="text-white">${txQuebra}%</b>. Avaliando a coluna de Observações, a maior causa-raiz isolada neste cenário é: <b class="text-red-300">${maiorMotivo}</b>.</p>
                 </div>
             `;
         }
+
+        // Reseta todos os estados para a visão padrão limpa
+        document.getElementById('btnResetAll').addEventListener('click', () => {
+            monthSelect.value = 'ALL';
+            searchInput.value = '';
+            channelSelect.value = 'ALL';
+            statusLogFilter.value = 'ALL';
+            integrationSelect.value = 'ALL';
+            statusLinxSelect.value = 'ALL';
+            clickKpiCard('ALL');
+        });
     </script>
 </body>
 </html>
