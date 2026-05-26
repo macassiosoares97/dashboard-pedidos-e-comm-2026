@@ -11,6 +11,9 @@
         body { background-color: #0b0f19; color: #f0f6fc; font-family: system-ui, -apple-system, sans-serif; }
         .sidebar { background-color: #0f1422; border-right: 1px solid #1e2638; }
         .custom-card { background-color: #121826; border: 1px solid #1f293d; border-radius: 12px; transition: all 0.2s ease; }
+        .clickable-card { cursor: pointer; }
+        .clickable-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(56, 139, 253, 0.15); }
+        .active-card { border-color: #388bff !important; background-color: #16223f !important; }
         .filter-select { background-color: #161f30; border: 1px solid #2d3954; color: #f0f6fc; border-radius: 6px; padding: 6px; width: 100%; font-size: 12px; outline: none; }
         .filter-select:focus { border-color: #388bff; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -80,22 +83,22 @@
     <div class="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto">
         
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="custom-card p-4 bg-slate-900 border-slate-800">
+            <div id="cardTotal" class="custom-card p-4 bg-slate-900 border-slate-800 clickable-card active-card">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total de pedidos</p>
                 <h2 id="kpiTotal" class="text-2xl font-extrabold text-white mt-1">0</h2>
                 <p class="text-[11px] text-gray-500 mt-0.5">Base consolidada sob filtros</p>
             </div>
-            <div class="custom-card p-4 border-green-900/50 bg-green-950/20">
+            <div id="cardAtendidos" class="custom-card p-4 border-green-900/50 bg-green-950/20 clickable-card">
                 <p class="text-[10px] font-bold text-green-400 uppercase tracking-wider">Atendidos</p>
                 <h2 id="kpiAtendidos" class="text-2xl font-extrabold text-green-400 mt-1">0</h2>
                 <p class="text-[11px] text-green-500/70 mt-0.5">Pedidos faturados e entregues</p>
             </div>
-            <div class="custom-card p-4 border-red-900/50 bg-red-950/20">
+            <div id="cardDevolucoes" class="custom-card p-4 border-red-900/50 bg-red-950/20 clickable-card">
                 <p class="text-[10px] font-bold text-red-400 uppercase tracking-wider">Devoluções</p>
                 <h2 id="kpiDevolucoes" class="text-2xl font-extrabold text-red-400 mt-1">0</h2>
                 <p class="text-[11px] text-red-500/70 mt-0.5">Cancelamentos e estornos</p>
             </div>
-            <div class="custom-card p-4 border-amber-900/50 bg-amber-950/20">
+            <div id="cardAguarda" class="custom-card p-4 border-amber-900/50 bg-amber-950/20 clickable-card">
                 <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Aguarda atendimento</p>
                 <h2 id="kpiAguardaAtendimento" class="text-2xl font-extrabold text-amber-400 mt-1">0</h2>
                 <p class="text-[11px] text-amber-500/70 mt-0.5">Fila pendente e casos do dia</p>
@@ -152,6 +155,7 @@
         let rawDatabase = [];
         let chartMensal = null;
         let chartMotivos = null;
+        let currentKpiFilter = 'ALL'; // Controla qual card superior está ativo
 
         const monthSelect = document.getElementById('monthFilter');
         const searchInput = document.getElementById('searchFilter');
@@ -288,19 +292,43 @@
             Array.from(set).sort().forEach(val => { if(val) element.innerHTML += `<option value="${val}">${val}</option>`; });
         }
 
+        // Configuração dos gatilhos de clique nos Cards KPI
+        function setupKpiClick(cardId, typeValue) {
+            document.getElementById(cardId).addEventListener('click', () => {
+                // Remove destaque de todos
+                document.querySelectorAll('.clickable-card').forEach(c => c.classList.remove('active-card'));
+                // Adiciona destaque no selecionado
+                document.getElementById(cardId).classList.add('active-card');
+                currentKpiFilter = typeValue;
+                applyFiltersAndRender(true); // Evita recalcular volume total do cabeçalho ao mudar apenas de aba
+            });
+        }
+
+        setupKpiClick('cardTotal', 'ALL');
+        setupKpiClick('cardAtendidos', 'FATURADO');
+        setupKpiClick('cardDevolucoes', 'CANCELADO');
+        setupKpiClick('cardAguarda', 'PENDENTE');
+
         [monthSelect, channelSelect, statusLogFilter, criticalSelect].forEach(el => {
-            el.addEventListener('change', () => applyFiltersAndRender());
+            el.addEventListener('change', () => {
+                // Ao mexer em filtro fixo da lateral, reseta o clique para o total geral
+                document.querySelectorAll('.clickable-card').forEach(c => c.classList.remove('active-card'));
+                document.getElementById('cardTotal').classList.add('active-card');
+                currentKpiFilter = 'ALL';
+                applyFiltersAndRender();
+            });
         });
         searchInput.addEventListener('input', () => applyFiltersAndRender());
 
-        function applyFiltersAndRender() {
+        function applyFiltersAndRender(isKpiSwitchOnly = false) {
             const monthVal = monthSelect.value;
             const searchVal = searchInput.value.toUpperCase();
             const channelVal = channelSelect.value;
             const statusLogVal = statusLogFilter.value;
             const criticalVal = criticalSelect.value;
 
-            let filteredData = rawDatabase.filter(row => {
+            // Filtro das réguas de cima e lateral combinadas
+            let baseFiltered = rawDatabase.filter(row => {
                 let matchMonth = (monthVal === 'ALL' || (row['DATA'] && extrairMesAno(row['DATA'].trim()) === monthVal));
                 let matchSearch = !searchVal || Object.values(row).join(' ').toUpperCase().includes(searchVal);
                 let matchChannel = (channelVal === 'ALL' || harmonizarCanal(row['CANAL']) === channelVal);
@@ -314,20 +342,37 @@
                 return matchMonth && matchSearch && matchChannel && matchStatusLog && matchCritical;
             });
 
-            document.getElementById('activeRows').innerText = filteredData.length.toLocaleString('pt-BR');
-            processAndRender(filteredData);
+            // Se for clique nos cards superiores, aplica o sub-filtro na tabela analítica
+            let tableFiltered = baseFiltered.filter(row => {
+                return currentKpiFilter === 'ALL' || row['STATUS_CONSOLIDADO'] === currentKpiFilter;
+            });
+
+            document.getElementById('activeRows').innerText = tableFiltered.length.toLocaleString('pt-BR');
+            processAndRender(baseFiltered, tableFiltered, isKpiSwitchOnly);
         }
 
-        function processAndRender(data) {
-            let total = data.length;
-            let atendidos = 0; let devolucoes = 0; let aguardaAtendimento = 0;
-            let mesesData = {}; let motivosContagem = {}; let listagemFinal = [];
+        function processAndRender(baseData, tableData, isKpiSwitchOnly) {
+            let mesesData = {}; let motivosContagem = {}; 
 
-            data.forEach(row => {
-                if(row['STATUS_CONSOLIDADO'] === 'FATURADO') atendidos++;
-                else if(row['STATUS_CONSOLIDADO'] === 'CANCELADO') devolucoes++;
-                else if(row['STATUS_CONSOLIDADO'] === 'PENDENTE') aguardaAtendimento++;
+            // Se o usuário mexeu nos filtros estruturais da esquerda, precisamos recalcular os totais dos cards
+            if (!isKpiSwitchOnly) {
+                let total = baseData.length;
+                let atendidos = 0; let devolucoes = 0; let aguardaAtendimento = 0;
 
+                baseData.forEach(row => {
+                    if(row['STATUS_CONSOLIDADO'] === 'FATURADO') atendidos++;
+                    else if(row['STATUS_CONSOLIDADO'] === 'CANCELADO') devolucoes++;
+                    else if(row['STATUS_CONSOLIDADO'] === 'PENDENTE') aguardaAtendimento++;
+                });
+
+                document.getElementById('kpiTotal').innerText = total.toLocaleString('pt-BR');
+                document.getElementById('kpiAtendidos').innerText = atendidos.toLocaleString('pt-BR');
+                document.getElementById('kpiDevolucoes').innerText = devolucoes.toLocaleString('pt-BR');
+                document.getElementById('kpiAguardaAtendimento').innerText = aguardaAtendimento.toLocaleString('pt-BR');
+            }
+
+            // Monta gráficos baseados na seleção estrutural
+            baseData.forEach(row => {
                 if (row['STATUS_CONSOLIDADO'] === 'CANCELADO') {
                     let mot = "Falta de Estoque / Saldo Zerado";
                     let obs = (row['OBSERVACOES'] || '').toUpperCase();
@@ -344,22 +389,16 @@
                     mesesData[label].total++;
                     if (row['STATUS_CONSOLIDADO'] === 'FATURADO') mesesData[label].faturado++;
                 }
-
-                listagemFinal.push(row);
             });
 
-            document.getElementById('kpiTotal').innerText = total.toLocaleString('pt-BR');
-            document.getElementById('kpiAtendidos').innerText = atendidos.toLocaleString('pt-BR');
-            document.getElementById('kpiDevolucoes').innerText = devolucoes.toLocaleString('pt-BR');
-            document.getElementById('kpiAguardaAtendimento').innerText = aguardaAtendimento.toLocaleString('pt-BR');
-
+            // Alimenta a tabela apenas com as linhas refinadas pelo card clicado
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
 
-            if(listagemFinal.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="12" class="p-4 text-center text-gray-500">Nenhum registro encontrado para os critérios selecionados.</td></tr>`;
+            if(tableData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="12" class="p-4 text-center text-gray-500">Nenhum registro encontrado para esta categoria de filtro.</td></tr>`;
             } else {
-                listagemFinal.forEach(item => {
+                tableData.forEach(item => {
                     let tr = document.createElement('tr');
                     tr.className = "border-b border-gray-800/60 hover:bg-[#161f33]/40 text-[11px]";
                     
@@ -385,7 +424,9 @@
                 });
             }
 
-            renderCharts(mesesData, motivosContagem);
+            if (!isKpiSwitchOnly) {
+                renderCharts(mesesData, motivosContagem);
+            }
         }
 
         function renderCharts(mesesData, motivosContagem) {
@@ -425,6 +466,9 @@
 
         document.getElementById('btnResetAll').addEventListener('click', () => {
             monthSelect.value = 'ALL'; searchInput.value = ''; channelSelect.value = 'ALL'; statusLogFilter.value = 'ALL'; criticalSelect.value = 'ALL';
+            document.querySelectorAll('.clickable-card').forEach(c => c.classList.remove('active-card'));
+            document.getElementById('cardTotal').classList.add('active-card');
+            currentKpiFilter = 'ALL';
             applyFiltersAndRender();
         });
     </script>
