@@ -40,13 +40,6 @@
                 <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-800 pb-1">2. Filtros Operacionais</div>
                 
                 <div>
-                    <label class="block text-[11px] text-orange-400 font-semibold mb-1">📅 Período / Mês</label>
-                    <select id="monthFilter" class="filter-select border-orange-900/50" disabled>
-                        <option value="ALL">Todo o Período</option>
-                    </select>
-                </div>
-
-                <div>
                     <label class="block text-[11px] text-gray-400 mb-1">Busca Rápida (Pedido, Nota, PV)</label>
                     <input type="text" id="searchFilter" placeholder="Digite para buscar..." class="filter-select bg-[#101726]" disabled>
                 </div>
@@ -132,7 +125,7 @@
                 </div>
                 <div class="mt-4 pt-3 border-t border-blue-900/30 flex justify-between text-[10px] text-blue-400/70">
                     <span>Mapeamento Dinâmico</span>
-                    <span>v2.7</span>
+                    <span>v2.5</span>
                 </div>
             </div>
 
@@ -168,35 +161,11 @@
         let chartMotivos = null;
 
         // Elementos de Filtro
-        const monthSelect = document.getElementById('monthFilter');
         const searchInput = document.getElementById('searchFilter');
         const channelSelect = document.getElementById('channelFilter');
         const statusLogSelect = document.getElementById('statusLogFilter');
         const integrationSelect = document.getElementById('integrationFilter');
         const statusLinxSelect = document.getElementById('statusLinxFilter');
-
-        // Mapeamento auxiliar de meses
-        const nomeMeses = {
-            "01": "Janeiro", "02": "Fevereiro", "03": "Março", "04": "Abril",
-            "05": "Maio", "06": "Junho", "07": "Julho", "08": "Agosto",
-            "09": "Setembro", "10": "Outubro", "11": "Novembro", "12": "Dezembro"
-        };
-
-        // Função para extrair a chave "MM/AAAA" ou identificar o mês de forma segura
-        function getMesAno(dataStr) {
-            if (!dataStr) return "Indefinido";
-            // Tenta formato DD/MM/AAAA
-            if (dataStr.includes('/')) {
-                let partes = dataStr.split('/');
-                if (partes[1]) return `${partes[1]}/${partes[2] ? partes[2].substring(0,4) : '2026'}`;
-            }
-            // Tenta formato AAAA-MM-DD
-            if (dataStr.includes('-')) {
-                let partes = dataStr.split('-');
-                if (partes[1]) return `${partes[1]}/${partes[0]}`;
-            }
-            return "Indefinido";
-        }
 
         document.getElementById('csvFileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -216,33 +185,16 @@
 
         // Configura e popula dinamicamente as opções dos filtros com base no CSV
         function generateFilterOptions(data) {
-            let months = new Set();
             let channels = new Set();
             let statusLogs = new Set();
             let integrations = new Set();
             let statusLinxs = new Set();
 
             data.forEach(row => {
-                let dataBruta = row['DATA'] || row['DATA EMISSÃO'];
-                if(dataBruta) {
-                    let chaveMes = getMesAno(dataBruta.trim());
-                    if (chaveMes !== "Indefinido") months.add(chaveMes);
-                }
                 if(row['CANAL']) channels.add(row['CANAL'].trim());
                 if(row['STATUS DO PEDIDO - LOG']) statusLogs.add(row['STATUS DO PEDIDO - LOG'].trim());
                 if(row['INTEGRAÇÃO']) integrations.add(row['INTEGRAÇÃO'].trim());
                 if(row['STATUS DO PEDIDO - linx']) statusLinxs.add(row['STATUS DO PEDIDO - linx'].trim());
-            });
-
-            // Popula filtro de meses ordenado cronologicamente
-            monthSelect.innerHTML = '<option value="ALL">Todo o Período</option>';
-            Array.from(months).sort((a, b) => {
-                let [mesA, anoA] = a.split('/');
-                let [mesB, anoB] = b.split('/');
-                return (anoA + mesA) - (anoB + mesB);
-            }).forEach(chave => {
-                let [m, ano] = chave.split('/');
-                monthSelect.innerHTML += `<option value="${chave}">${nomeMeses[m] || 'Mês ' + m}/${ano}</option>`;
             });
 
             populateSelect(channelSelect, channels);
@@ -252,7 +204,7 @@
 
             // Ativa visualmente a barra de filtros
             document.getElementById('filterSection').classList.remove('opacity-50');
-            [monthSelect, searchInput, channelSelect, statusLogSelect, integrationSelect, statusLinxSelect].forEach(el => el.disabled = false);
+            [searchInput, channelSelect, statusLogSelect, integrationSelect, statusLinxSelect].forEach(el => el.disabled = false);
         }
 
         function populateSelect(element, set) {
@@ -263,12 +215,11 @@
         }
 
         // Ouvintes de eventos para os filtros aplicarem em tempo real
-        [monthSelect, searchInput, channelSelect, statusLogSelect, integrationSelect, statusLinxSelect].forEach(element => {
+        [searchInput, channelSelect, statusLogSelect, integrationSelect, statusLinxSelect].forEach(element => {
             element.addEventListener('input', applyFiltersAndRender);
         });
 
         function applyFiltersAndRender() {
-            const monthVal = monthSelect.value;
             const searchVal = searchInput.value.toUpperCase();
             const channelVal = channelSelect.value;
             const statusLogVal = statusLogSelect.value;
@@ -277,12 +228,6 @@
 
             // Executa a filtragem lógica multidimensional
             let filteredData = rawDatabase.filter(row => {
-                let matchMonth = true;
-                if(monthVal !== 'ALL') {
-                    let dataBruta = row['DATA'] || row['DATA EMISSÃO'];
-                    matchMonth = (dataBruta && getMesAno(dataBruta.trim()) === monthVal);
-                }
-
                 let matchSearch = true;
                 if(searchVal) {
                     let ped = (row['Nº DO PEDIDO'] || '').toUpperCase();
@@ -296,7 +241,7 @@
                 let matchIntegration = (integrationVal === 'ALL' || row['INTEGRAÇÃO'] === integrationVal);
                 let matchStatusLinx = (statusLinxVal === 'ALL' || row['STATUS DO PEDIDO - linx'] === statusLinxVal);
 
-                return matchMonth && matchSearch && matchChannel && matchStatusLog && matchIntegration && matchStatusLinx;
+                return matchSearch && matchChannel && matchStatusLog && matchIntegration && matchStatusLinx;
             });
 
             document.getElementById('activeRows').innerText = filteredData.length.toLocaleString('pt-BR');
@@ -336,24 +281,22 @@
                 }
 
                 let dataBruta = row['DATA'] || '01/01/2026';
-                let chaveMes = getMesAno(dataBruta.trim());
-                let labelMesGrafico = "Indefinido";
-                
-                if (chaveMes !== "Indefinido") {
-                    let [m, ano] = chaveMes.split('/');
-                    labelMesGrafico = `${nomeMeses[m].substring(0,3)}/${ano}`;
-                }
+                let mes = "Jan/2026"; 
+                if (dataBruta.includes('/02/') || dataBruta.includes('-02-')) mes = "Fev/2026";
+                else if (dataBruta.includes('/03/') || dataBruta.includes('-03-')) mes = "Mar/2026";
+                else if (dataBruta.includes('/04/') || dataBruta.includes('-04-')) mes = "Abr/2026";
+                else if (dataBruta.includes('/05/') || dataBruta.includes('-05-')) mes = "Mai/2026";
 
-                if (!mesesData[labelMesGrafico]) mesesData[labelMesGrafico] = { total: 0, faturado: 0 };
-                mesesData[labelMesGrafico].total++;
-                if (isFaturado) mesesData[labelMesGrafico].faturado++;
+                if (!mesesData[mes]) mesesData[mes] = { total: 0, faturado: 0 };
+                mesesData[mes].total++;
+                if (isFaturado) mesesData[mes].faturado++;
 
                 criticosTabela.push({
                     data: dataBruta,
                     canal: row['CANAL'] || 'Marketplace',
                     id: row['Nº DO PEDIDO'] || '---',
                     status: status,
-                    notaPv: `NF: ${row['NOTA'] || '---'} / PV: ${row['PV PROTHEUS'] || '---']}`,
+                    notaPv: `NF: ${row['NOTA'] || '---'} / PV: ${row['PV PROTHEUS'] || '---'}`,
                     obs: row['Observações'] || 'Sem observação'
                 });
             });
@@ -403,13 +346,7 @@
             if (chartMensal) chartMensal.destroy();
             if (chartMotivos) chartMotivos.destroy();
 
-            // Ordenação padrão cronológica para exibição de eixos do gráfico
-            const ordemExibicao = ["Jan/2026", "Fev/2026", "Mar/2026", "Abr/2026", "Mai/2026", "Jun/2026"];
-            
-            // Filtra os meses que realmente contêm dados na seleção atual
-            let labelsMeses = ordemExibicao.filter(m => mesesData[m] !== undefined);
-            if (labelsMeses.length === 0) labelsMeses = Object.keys(mesesData);
-
+            const labelsMeses = ["Jan/2026", "Fev/2026", "Mar/2026", "Abr/2026", "Mai/2026"].filter(m => mesesData[m] !== undefined);
             const dadosEntrada = labelsMeses.map(m => mesesData[m].total);
             const dadosFaturados = labelsMeses.map(m => mesesData[m].faturado);
 
