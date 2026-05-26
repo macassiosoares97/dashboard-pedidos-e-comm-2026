@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MA Hospitalar - AI & Daily Operations Control</title>
+    <title>MA Hospitalar - Painel de Controle Operacional</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
@@ -14,7 +14,7 @@
         .clickable-card { cursor: pointer; }
         .clickable-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(56, 139, 253, 0.15); }
         .active-card { border-color: #388bff !important; background-color: #16223f !important; }
-        .ia-box { background: linear-gradient(145deg, #131c33 0%, #0c101f 100%); border: 1px solid #233666; box-shadow: 0 0 20px rgba(56, 139, 253, 0.15); }
+        .ia-box { background: linear-gradient(145deg, #131c33 0%, #0c101f 100%); border: 1px solid #233666; }
         .filter-select { background-color: #161f30; border: 1px solid #2d3954; color: #f0f6fc; border-radius: 6px; padding: 6px; width: 100%; font-size: 12px; outline: none; }
         .filter-select:focus { border-color: #388bff; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -28,61 +28,56 @@
         <div class="space-y-5">
             <div>
                 <div class="text-xs font-bold tracking-widest text-blue-500 uppercase">MA Hospitalar</div>
-                <h1 class="text-xl font-bold text-white mt-1">Operations Hub</h1>
-                <p class="text-xs text-gray-400 mt-1">Auditoria Lógica de SLAs</p>
+                <h1 class="text-xl font-bold text-white mt-1">Hub de Operações</h1>
+                <p class="text-xs text-gray-400 mt-1">Gestão de Carteira e SLAs</p>
             </div>
 
             <div class="custom-card p-4 bg-[#161f33]/30 border-blue-900/30">
-                <label class="block text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-2">1. Upload do Repositório CSV</label>
+                <label class="block text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-2">1. Upload da Base de Pedidos</label>
                 <input type="file" id="csvFileInput" accept=".csv" class="block w-full text-xs text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"/>
             </div>
 
-            <div class="custom-card p-4 border-amber-500/30 bg-amber-950/10">
-                <button id="btnDailyAttention" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-3 rounded-lg text-xs tracking-wider uppercase transition shadow-lg flex items-center justify-center gap-2" disabled>
-                    ⚠️ Ativar Visão de Atenção Diária
-                </button>
-                <p class="text-[10px] text-gray-400 text-center mt-2">Foca o painel apenas em pendências críticas de rotina</p>
+            <div class="custom-card p-4 border-amber-500/40 bg-amber-950/10">
+                <label class="block text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-2">⚡ Triagem Operacional</label>
+                <select id="criticalFilter" class="filter-select border-amber-500/30 bg-amber-950/20 text-amber-300 font-semibold" disabled>
+                    <option value="ALL">Exibir Toda a Base</option>
+                    <option value="PENDENTES_VIVOS">⚠️ Apenas Atendimentos Pendentes</option>
+                    <option value="SLA_CRITICO">🚨 Critério 1: SLA de Compra Estourado</option>
+                    <option value="TRAVA_INTEGRACAO">🔌 Critério 2: Travado na API (Sem NF)</option>
+                    <option value="SEM_TRACKING">📦 Critério 3: Despachado s/ Rastreio</option>
+                </select>
+                <p class="text-[10px] text-gray-400 mt-1.5 leading-relaxed">Filtre diretamente os casos que dependem de ação diária para destravar o faturamento.</p>
             </div>
 
             <div class="space-y-3 opacity-50" id="filterSection">
-                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-800 pb-1">2. Segmentação de Escopo</div>
+                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-800 pb-1">2. Filtros de Apoio</div>
                 
                 <div>
-                    <label class="block text-[11px] text-orange-400 font-semibold mb-1">📅 Período Fiscal / Mês</label>
-                    <select id="monthFilter" class="filter-select border-orange-900/50" disabled>
+                    <label class="block text-[11px] text-gray-400 mb-1">Mês do Pedido</label>
+                    <select id="monthFilter" class="filter-select" disabled>
                         <option value="ALL">Histórico Consolidado</option>
                     </select>
                 </div>
 
                 <div>
-                    <label class="block text-[11px] text-gray-400 mb-1">Busca Direta por Ativo (Pedido, NF, PV)</label>
-                    <input type="text" id="searchFilter" placeholder="Filtrar registro..." class="filter-select bg-[#101726]" disabled>
+                    <label class="block text-[11px] text-gray-400 mb-1">Busca Rápida (Pedido, PV, NF)</label>
+                    <input type="text" id="searchFilter" placeholder="Digite para buscar..." class="filter-select bg-[#101726]" disabled>
                 </div>
 
                 <div>
-                    <label class="block text-[11px] text-gray-400 mb-1">Canal de Origem (Harmonizado)</label>
+                    <label class="block text-[11px] text-gray-400 mb-1">Marketplace / Canal</label>
                     <select id="channelFilter" class="filter-select" disabled><option value="ALL">Todos os Canais</option></select>
                 </div>
 
                 <div>
-                    <label class="block text-[11px] text-gray-400 mb-1">Nível Logístico (WMS/LOG)</label>
-                    <select id="statusLogFilter" class="filter-select" disabled><option value="ALL">Todos os Status Log</option></select>
-                </div>
-
-                <div>
-                    <label class="block text-[11px] text-gray-400 mb-1">Camada de Integração (Gateway)</label>
-                    <select id="integrationFilter" class="filter-select" disabled><option value="ALL">Todas as Integrações</option></select>
-                </div>
-
-                <div>
-                    <label class="block text-[11px] text-gray-400 mb-1">Nível ERP (Linx Core)</label>
-                    <select id="statusLinxFilter" class="filter-select" disabled><option value="ALL">Todos os Status Linx</option></select>
+                    <label class="block text-[11px] text-gray-400 mb-1">Status Logística</label>
+                    <select id="statusLogFilter" class="filter-select" disabled><option value="ALL">Todos</option></select>
                 </div>
             </div>
 
             <div class="space-y-2 text-xs text-gray-400 pt-2">
-                <div class="flex justify-between border-b border-gray-800 pb-2"><span>Registros Filtrados:</span><span id="activeRows" class="text-white font-bold">0</span></div>
-                <button id="btnResetAll" class="w-full mt-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold py-1.5 px-2 rounded text-[11px] transition">Redefinir Filtros</button>
+                <div class="flex justify-between border-b border-gray-800 pb-2"><span>Linhas sob esta Visão:</span><span id="activeRows" class="text-white font-bold">0</span></div>
+                <button id="btnResetAll" class="w-full mt-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold py-1.5 px-2 rounded text-[11px] transition">Resetar Filtros</button>
             </div>
         </div>
     </div>
@@ -90,94 +85,76 @@
     <div class="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto">
         
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div id="cardTotal" class="custom-card p-4 bg-slate-900 border-slate-800">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Volume sob Escopo</p>
+            <div class="custom-card p-4 bg-slate-900 border-slate-800">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pedidos Recebidos</p>
                 <h2 id="kpiTotal" class="text-2xl font-extrabold text-white mt-1">0</h2>
-                <p class="text-[11px] text-gray-500 mt-0.5" id="subTotal">Aguardando dados</p>
+                <p class="text-[11px] text-gray-500 mt-0.5">Volume total na visão</p>
             </div>
             <div class="custom-card p-4 border-red-900/50 bg-red-950/20">
-                <p class="text-[10px] font-bold text-red-400 uppercase tracking-wider">🚨 SLAs de Compra Vencidos</p>
+                <p class="text-[10px] font-bold text-red-400 uppercase tracking-wider">🚨 SLA Estourado</p>
                 <h2 id="kpiSlaVencido" class="text-2xl font-extrabold text-red-500 mt-1">0</h2>
-                <p class="text-[11px] text-red-300 mt-0.5">Ações críticas pendentes</p>
+                <p class="text-[11px] text-red-300 mt-0.5">Prazo de envio estourado</p>
             </div>
             <div class="custom-card p-4 border-amber-900/50 bg-amber-950/20">
-                <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">🔌 Descompasso Linx vs LOG</p>
+                <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">🔌 Travados na Integração</p>
                 <h2 id="kpiDescompassoTI" class="text-2xl font-extrabold text-amber-500 mt-1">0</h2>
-                <p class="text-[11px] text-amber-300 mt-0.5">Falhas ou latências de API</p>
+                <p class="text-[11px] text-amber-300 mt-0.5">Faturado no ERP sem NF</p>
             </div>
             <div class="custom-card p-4 border-blue-900/50 bg-blue-950/20">
-                <p class="text-[10px] font-bold text-blue-400 uppercase tracking-wider">📦 Pendências de Rastreio</p>
+                <p class="text-[10px] font-bold text-blue-400 uppercase tracking-wider">📦 Despacho sem Rastreio</p>
                 <h2 id="kpiSemRastreio" class="text-2xl font-extrabold text-blue-500 mt-1">0</h2>
-                <p class="text-[11px] text-blue-300 mt-0.5">Aguardando código do transportador</p>
+                <p class="text-[11px] text-blue-300 mt-0.5">Falta código do transportador</p>
             </div>
         </div>
 
         <div id="chartsContainer" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="custom-card p-5 lg:col-span-2">
-                <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Entrada Temporal vs. Faturamento bem-sucedido</h3>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Fluxo Temporal de Atendimento (Recebidos vs Faturados)</h3>
                 <div class="h-48"><canvas id="chartMensal"></canvas></div>
             </div>
             <div class="custom-card p-5">
-                <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Pareto de Ofensores (Motivos de Quebra)</h3>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Principais Ofensores de Quebra de Estoque</h3>
                 <div class="h-48"><canvas id="chartMotivos"></canvas></div>
             </div>
         </div>
 
-        <div class="ia-box p-5 rounded-xl">
-            <div class="flex items-center justify-between border-b border-blue-900/50 pb-2 mb-3">
-                <h4 class="text-xs font-bold uppercase tracking-widest text-slate-200 flex items-center gap-2">
-                    🤖 PARECER TÁTICO OPERACIONAL — GEMINI API
-                </h4>
-                <span id="aiStatus" class="text-[9px] text-gray-400 bg-gray-900 px-2 py-0.5 rounded border border-gray-800">Aguardando</span>
-            </div>
-            <div id="geminiOutput" class="text-xs text-gray-300 leading-relaxed font-normal whitespace-pre-wrap">
-                Carregue o arquivo de vendas para gerar as diretrizes de governança diária.
-            </div>
-        </div>
-
         <div class="custom-card p-5">
-            <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-2">
+            <div class="flex justify-between items-center mb-4">
                 <div>
-                    <h3 id="tableTitle" class="text-sm font-bold text-white uppercase tracking-wider">Mapeamento Analítico da Fila</h3>
-                    <p class="text-[11px] text-gray-400 mt-0.5">Lista geral de registros e atendimentos consolidados.</p>
-                </div>
-                <div id="viewBadge" class="text-[10px] bg-slate-800 text-slate-300 px-2.5 py-1 rounded font-bold uppercase border border-slate-700 tracking-wider">
-                    Visão Geral
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Mapeamento Analítico da Fila</h3>
+                    <p class="text-[11px] text-gray-400 mt-0.5">Dados estruturados e higienizados em tempo real.</p>
                 </div>
             </div>
             <div class="overflow-x-auto border border-gray-800/80 rounded-lg max-h-[450px]">
                 <table class="min-w-full text-xs text-left text-gray-400">
                     <thead class="bg-[#161e30] text-gray-300 uppercase font-semibold text-[10px] tracking-wider sticky top-0 z-10">
                         <tr>
-                            <th class="p-3 whitespace-nowrap">🚨 Criticidade</th>
-                            <th class="p-3 whitespace-nowrap">Ação Sugerida</th>
-                            <th class="p-3 whitespace-nowrap">Data</th>
-                            <th class="p-3 whitespace-nowrap">Canal</th>
-                            <th class="p-3 whitespace-nowrap">Pedido</th>
-                            <th class="p-3 whitespace-nowrap">Status Log</th>
+                            <th class="p-3 whitespace-nowrap">Status Operacional</th>
+                            <th class="p-3 whitespace-nowrap">Ação Corretiva</th>
+                            <th class="p-3 whitespace-nowrap">Data Entrada</th>
+                            <th class="p-3 whitespace-nowrap">Canal/Mktplace</th>
+                            <th class="p-3 whitespace-nowrap">Nº Pedido</th>
+                            <th class="p-3 whitespace-nowrap">Status Logística</th>
                             <th class="p-3 whitespace-nowrap">Status Linx</th>
                             <th class="p-3 whitespace-nowrap">PV Protheus</th>
                             <th class="p-3 whitespace-nowrap">Nota Fiscal</th>
-                            <th class="p-3 whitespace-nowrap">Previsão Compra</th>
-                            <th class="p-3 whitespace-nowrap">Rastreio</th>
+                            <th class="p-3 whitespace-nowrap">Previsão Envio</th>
+                            <th class="p-3 whitespace-nowrap">Código Rastreio</th>
                             <th class="p-3 whitespace-nowrap">Observações</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
                         <tr>
-                            <td colspan="12" class="p-4 text-center text-gray-500">Nenhum registro processado.</td>
+                            <td colspan="12" class="p-4 text-center text-gray-500">Aguardando importação do arquivo CSV...</td>
                         </tr>
-                    </table>
-                </div>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
-        const GEMINI_API_KEY = "INSIRA_SUA_API_KEY_AQUI"; 
-        
         let rawDatabase = [];
-        let isDailyAttentionMode = false;
         let chartMensal = null;
         let chartMotivos = null;
 
@@ -185,9 +162,7 @@
         const searchInput = document.getElementById('searchFilter');
         const channelSelect = document.getElementById('channelFilter');
         const statusLogFilter = document.getElementById('statusLogFilter');
-        const integrationSelect = document.getElementById('integrationFilter');
-        const statusLinxSelect = document.getElementById('statusLinxFilter');
-        const btnDailyAttention = document.getElementById('btnDailyAttention');
+        const criticalSelect = document.getElementById('criticalFilter');
 
         const nomeMeses = {"01":"Janeiro","02":"Fevereiro","03":"Março","04":"Abril","05":"Maio","06":"Junho","07":"Julho","08":"Agosto","09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"};
 
@@ -202,18 +177,19 @@
             return c;
         }
 
-        function harmonizarGenerico(txt) {
-            if(!txt) return "Não Especificado";
-            let t = txt.toUpperCase().trim();
-            if(t.includes("FATURAD")) return "FATURADO";
-            if(t.includes("CANC")) return "CANCELADO";
-            return txt.trim();
-        }
-
-        function getMesAno(dataStr) {
+        // Blinda a leitura de datas tratando hifens, barras e problemas de parsing (Conserta o mês de Março)
+        function extrairMesAno(dataStr) {
             if (!dataStr) return "Indefinido";
-            let partes = dataStr.includes('/') ? dataStr.split('/') : dataStr.split('-');
-            if (partes[1]) return `${partes[1].padStart(2, '0')}/${partes[2] ? partes[2].substring(0,4) : '2026'}`;
+            let limpo = dataStr.trim();
+            let partes = [];
+            
+            if (limpo.includes('-')) { // Formato YYYY-MM-DD
+                partes = limpo.split('-');
+                if (partes[1]) return `${partes[1].padStart(2, '0')}/${partes[0]}`;
+            } else if (limpo.includes('/')) { // Formato DD/MM/YYYY
+                partes = limpo.split('/');
+                if (partes[1]) return `${partes[1].padStart(2, '0')}/${partes[2] ? partes[2].substring(0,4) : '2026'}`;
+            }
             return "Indefinido";
         }
 
@@ -233,86 +209,63 @@
                             if (nk.includes("DATA")) n['DATA'] = row[key];
                             else if (nk.includes("CANAL")) n['CANAL'] = row[key];
                             else if (nk.includes("NPEDIDO") || nk.includes("NUMERODOPEDIDO")) n['PEDIDO'] = row[key];
-                            else if (nk.includes("INTEGRA")) n['INTEGRACAO'] = row[key];
                             else if (nk.includes("STATUS") && nk.includes("LOG")) n['STATUS_LOG'] = row[key];
                             else if (nk.includes("RASTREIO")) n['RASTREIO'] = row[key];
                             else if (nk.includes("PREVISAO")) n['PREVISAO'] = row[key];
                             else if (nk.includes("PVPROTHEUS")) n['PV_PROTHEUS'] = row[key];
                             else if (nk.includes("NOTA")) n['NOTA'] = row[key];
-                            else if (nk.includes("PVGERADO")) n['PV_ATENDIMENTO'] = row[key];
                             else if (nk.includes("STATUS") && nk.includes("LINX")) n['STATUS_LINX'] = row[key];
                             else if (nk.includes("OBSERVA")) n['OBSERVACOES'] = row[key];
                         });
 
-                        let stLog = (n['STATUS_LOG'] || '').toUpperCase();
-                        let stLinx = (n['STATUS_LINX'] || '').toUpperCase();
-                        let obs = (n['OBSERVACOES'] || '').toUpperCase();
+                        let stLog = (n['STATUS_LOG'] || '').toUpperCase().trim();
+                        let stLinx = (n['STATUS_LINX'] || '').toUpperCase().trim();
+                        let obs = (n['OBSERVACOES'] || '').toUpperCase().trim();
 
-                        let isFaturado = stLog.includes('FATURAD') || stLog.includes('EMITID') || stLinx.includes('FATURAD') || n['NOTA'];
-                        let isQuebra = stLog.includes('CANC') || stLog.includes('DEV') || obs.includes('CANC') || stLinx.includes('CANC');
+                        // Regra de Ouro: Identificação correta de faturados, cancelados e o verdadeiro Backlog Pendente
+                        let faturado = stLog.includes('FATURAD') || stLog.includes('EMITID') || stLinx.includes('FATURAD') || n['NOTA'];
+                        let cancelado = stLog.includes('CANC') || stLog.includes('DEV') || stLinx.includes('CANC') || obs.includes('CANC');
 
-                        n['STATUS_CONSOLIDADO'] = isFaturado ? 'FATURADO' : (isQuebra ? 'QUEBRA' : 'PENDENTE');
+                        if (faturado) n['STATUS_CONSOLIDADO'] = 'FATURADO';
+                        else if (cancelado) n['STATUS_CONSOLIDADO'] = 'CANCELADO';
+                        else n['STATUS_CONSOLIDADO'] = 'PENDENTE';
 
-                        // Mapeamento dos Motivos de Quebra
-                        let mot = "Outros";
-                        if (isQuebra) {
-                            if (obs.includes("ESTOQUE") || obs.includes("SALDO")) mot = "Ruptura de Estoque";
-                            else if (obs.includes("INTEGRA") || obs.includes("LINX")) mot = "Falha sistêmica/API";
-                            else if (obs.includes("DESIST") || obs.includes("ARREPENDI")) mot = "Desistência do Cliente";
-                        }
-                        n['MOTIVO'] = mot;
-
-                        // 💡 CLASSIFICAÇÃO DA ROTINA DE ATENÇÃO DIÁRIA
-                        let criticidade = "BAIXA";
-                        let acao = "Nenhuma (Concluído)";
-                        let atencaoDiaria = false;
+                        // Análise de Riscos Diários para o Backlog Vivo
+                        let acao = "Fluxo Encerrado";
+                        let riscoSla = false;
+                        let riscoIntegracao = false;
+                        let riscoTracking = false;
 
                         if (n['STATUS_CONSOLIDADO'] === 'PENDENTE') {
-                            const hoje = new Date(2026, 4, 26); // Base operacional do sistema: 26/05/2026
-                            
-                            // Gatilho 1: SLA Estourado
-                            let slaVencido = false;
+                            const hoje = new Date(2026, 4, 26); // Data base: 26 de Maio de 2026
+
                             if (n['PREVISAO']) {
                                 let p = n['PREVISAO'].split('/');
                                 if (p.length === 3) {
                                     let dt = new Date(p[2], p[1]-1, p[0]);
-                                    if (dt < hoje) slaVencido = true;
+                                    if (dt < hoje) riscoSla = true;
                                 }
                             }
 
-                            // Gatilho 2: Descompasso de API (Linx Faturado, mas sem fluxo concluído no LOG)
-                            let descompassoTI = stLinx.includes("FATUR") && !stLog.includes("FATUR") && !n['NOTA'];
+                            // Faturado em uma ponta, mas sem documento fiscal emitido
+                            if (stLinx.includes("FATUR") && !n['NOTA']) riscoIntegracao = true;
+                            if (!n['RASTREIO'] && stLog.includes("DESPACH")) riscoTracking = true;
 
-                            // Gatilho 3: Falta de Rastreio em Processamento Antigo
-                            let semRastreio = !n['RASTREIO'];
-
-                            if (slaVencido) {
-                                criticidade = "CRÍTICA";
-                                acao = "🚨 Despachar/Cobrar Urgente (SLA Vencido)";
-                                atencaoDiaria = true;
-                            } else if (descompassoTI) {
-                                criticidade = "ALTA";
-                                acao = "🔌 Sincronizar API / Emitir NF";
-                                atencaoDiaria = true;
-                            } else if (semRastreio) {
-                                criticidade = "MÉDIA";
-                                acao = "📦 Vincular Código de Rastreio";
-                                atencaoDiaria = true;
-                            } else {
-                                criticidade = "MÉDIA";
-                                acao = "⏳ Acompanhar Fila Corrente";
-                                atencaoDiaria = true; // Todo pendente necessita atenção na rotina de fila
-                            }
+                            if (riscoSla) acao = "🚨 Acionar Expedição (SLA Vencido)";
+                            else if (riscoIntegracao) acao = "🔌 Forçar Sincronismo de NF / API";
+                            else if (riscoTracking) acao = "📦 Vincular Código de Rastreio";
+                            else acao = "⏳ Monitorar Fila Corrente";
                         }
 
-                        n['CRITICIDADE'] = criticidade;
-                        n['ACAO_SUGERIDA'] = acao;
-                        n['REQUER_ATENCAO_DIARIA'] = atencaoDiaria;
+                        n['ACAO_OPERACIONAL'] = acao;
+                        n['RISCO_SLA'] = riscoSla;
+                        n['RISCO_INTEGRACAO'] = riscoIntegracao;
+                        n['RISCO_TRACKING'] = riscoTracking;
 
                         return n;
                     }).filter(r => r['DATA'] || r['PEDIDO']);
 
-                    btnDailyAttention.disabled = false;
+                    criticalSelect.disabled = false;
                     buildCrossFilters();
                     applyFiltersAndRender();
                 }
@@ -320,83 +273,62 @@
         });
 
         function buildCrossFilters() {
-            let months = new Set(); let channels = new Set(); let statusLogs = new Set(); let integrations = new Set(); let statusLinxs = new Set();
+            let months = new Set(); let channels = new Set(); let statusLogs = new Set();
             rawDatabase.forEach(row => {
-                let m = row['DATA'] ? getMesAno(row['DATA'].trim()) : "Indefinido";
+                let m = row['DATA'] ? extrairMesAno(row['DATA'].trim()) : "Indefinido";
                 if(m !== "Indefinido") months.add(m);
                 if(row['CANAL']) channels.add(harmonizarCanal(row['CANAL']));
-                if(row['STATUS_LOG']) statusLogs.add(harmonizarGenerico(row['STATUS_LOG']));
-                if(row['INTEGRACAO']) integrations.add(harmonizarGenerico(row['INTEGRACAO']));
-                if(row['STATUS_LINX']) statusLinxs.add(harmonizarGenerico(row['STATUS_LINX']));
+                if(row['STATUS_LOG']) statusLogs.add(row['STATUS_LOG'].trim());
             });
 
+            // Geração limpa e estruturada do seletor mensal consolidado
             monthSelect.innerHTML = '<option value="ALL">Histórico Consolidado</option>';
-            Array.from(months).sort().forEach(ch => {
+            Array.from(months).sort((a,b) => {
+                let [mA, aA] = a.split('/'), [mB, aB] = b.split('/');
+                return aA === aB ? mA - mB : aA - aB;
+            }).forEach(ch => {
                 let [m, ano] = ch.split('/');
-                monthSelect.innerHTML += `<option value="${ch}">${nomeMeses[m] || 'Mês ' + m}/${ano}</option>`;
+                monthSelect.innerHTML += `<option value="${ch}">${nomeMeses[m] || 'Mês ' + m} de ${ano}</option>`;
             });
 
-            populateDropdown(channelSelect, channels, "Filtrar por Canal");
-            populateDropdown(statusLogFilter, statusLogs, "Filtrar por Status Log");
-            populateDropdown(integrationSelect, integrations, "Filtrar por Integração");
-            populateDropdown(statusLinxSelect, statusLinxs, "Filtrar por Status Linx");
+            populateDropdown(channelSelect, channels, "Todos os Canais");
+            populateDropdown(statusLogFilter, statusLogs, "Todos os Status");
 
             document.getElementById('filterSection').classList.remove('opacity-50');
-            [monthSelect, searchInput, channelSelect, statusLogFilter, integrationSelect, statusLinxSelect].forEach(el => el.disabled = false);
+            [monthSelect, searchInput, channelSelect, statusLogFilter].forEach(el => el.disabled = false);
         }
 
         function populateDropdown(element, set, labelDefault) {
-            element.innerHTML = `<option value="ALL">${labelDefault} (${set.size})</option>`;
+            element.innerHTML = `<option value="ALL">${labelDefault}</option>`;
             Array.from(set).sort().forEach(val => { if(val) element.innerHTML += `<option value="${val}">${val}</option>`; });
         }
 
-        // Event Listeners dos Filtros
-        [monthSelect, channelSelect, statusLogFilter, integrationSelect, statusLinxSelect].forEach(el => {
+        [monthSelect, channelSelect, statusLogFilter, criticalSelect].forEach(el => {
             el.addEventListener('change', () => applyFiltersAndRender());
         });
         searchInput.addEventListener('input', () => applyFiltersAndRender());
-
-        // Acionamento do Filtro de Atenção Diária
-        btnDailyAttention.addEventListener('click', () => {
-            isDailyAttentionMode = !isDailyAttentionMode;
-            if(isDailyAttentionMode) {
-                btnDailyAttention.className = "w-full bg-amber-700 text-amber-200 border-2 border-amber-400 font-bold py-2.5 px-3 rounded-lg text-xs tracking-wider uppercase transition shadow-inner flex items-center justify-center gap-2";
-                btnDailyAttention.innerText = "✨ Exibindo Atenção Diária";
-                document.getElementById('tableTitle').innerText = "Fila de Atendimento - Atenção Diária (Casos Vivos)";
-                document.getElementById('viewBadge').innerText = "Atenção Diária Ativa";
-                document.getElementById('viewBadge').className = "text-[10px] bg-amber-950 text-amber-400 px-2.5 py-1 rounded font-bold uppercase border border-amber-800 tracking-wider";
-                document.getElementById('chartsContainer').classList.add('hidden'); // Oculta gráficos para focar na tabela operacional de ação
-            } else {
-                btnDailyAttention.className = "w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-3 rounded-lg text-xs tracking-wider uppercase transition shadow-lg flex items-center justify-center gap-2";
-                btnDailyAttention.innerText = "⚠️ Ativar Visão de Atenção Diária";
-                document.getElementById('tableTitle').innerText = "Mapeamento Analítico da Fila";
-                document.getElementById('viewBadge').innerText = "Visão Geral";
-                document.getElementById('viewBadge').className = "text-[10px] bg-slate-800 text-slate-300 px-2.5 py-1 rounded font-bold uppercase border border-slate-700 tracking-wider";
-                document.getElementById('chartsContainer').classList.remove('hidden');
-            }
-            applyFiltersAndRender();
-        });
 
         function applyFiltersAndRender() {
             const monthVal = monthSelect.value;
             const searchVal = searchInput.value.toUpperCase();
             const channelVal = channelSelect.value;
             const statusLogVal = statusLogFilter.value;
-            const integrationVal = integrationSelect.value;
-            const statusLinxVal = statusLinxSelect.value;
+            const criticalVal = criticalSelect.value;
 
             let filteredData = rawDatabase.filter(row => {
-                let matchMonth = (monthVal === 'ALL' || (row['DATA'] && getMesAno(row['DATA'].trim()) === monthVal));
+                let matchMonth = (monthVal === 'ALL' || (row['DATA'] && extrairMesAno(row['DATA'].trim()) === monthVal));
                 let matchSearch = !searchVal || Object.values(row).join(' ').toUpperCase().includes(searchVal);
                 let matchChannel = (channelVal === 'ALL' || harmonizarCanal(row['CANAL']) === channelVal);
-                let matchStatusLog = (statusLogVal === 'ALL' || harmonizarGenerico(row['STATUS_LOG']) === statusLogVal);
-                let matchIntegration = (integrationVal === 'ALL' || harmonizarGenerico(row['INTEGRACAO']) === integrationVal);
-                let matchStatusLinx = (statusLinxVal === 'ALL' || harmonizarGenerico(row['STATUS_LINX']) === statusLinxVal);
+                let matchStatusLog = (statusLogVal === 'ALL' || row['STATUS_LOG'] === statusLogVal);
                 
-                // Aplicação do Filtro Tático de Atenção Diária
-                let matchDailyMode = !isDailyAttentionMode || row['REQUER_ATENCAO_DIARIA'] === true;
+                // Aplicação da Fila de Críticos Requerida
+                let matchCritical = true;
+                if (criticalVal === 'PENDENTES_VIVOS') matchCritical = row['STATUS_CONSOLIDADO'] === 'PENDENTE';
+                else if (criticalVal === 'SLA_CRITICO') matchCritical = row['RISCO_SLA'] === true;
+                else if (criticalVal === 'TRAVA_INTEGRACAO') matchCritical = row['RISCO_INTEGRACAO'] === true;
+                else if (criticalVal === 'SEM_TRACKING') matchCritical = row['RISCO_TRACKING'] === true;
 
-                return matchMonth && matchSearch && matchChannel && matchStatusLog && matchIntegration && matchStatusLinx && matchDailyMode;
+                return matchMonth && matchSearch && matchChannel && matchStatusLog && matchCritical;
             });
 
             document.getElementById('activeRows').innerText = filteredData.length.toLocaleString('pt-BR');
@@ -409,25 +341,26 @@
             let mesesData = {}; let motivosContagem = {}; let listagemFinal = [];
 
             data.forEach(row => {
-                if(row['ACAO_SUGERIDA'].includes("SLA Vencido")) slaVencido++;
-                if(row['ACAO_SUGERIDA'].includes("API")) descompassoTI++;
-                if(row['ACAO_SUGERIDA'].includes("Rastreio")) semRastreio++;
+                if(row['RISCO_SLA']) slaVencido++;
+                if(row['RISCO_INTEGRACAO']) descompassoTI++;
+                if(row['RISCO_TRACKING']) semRastreio++;
 
-                if (row['STATUS_CONSOLIDADO'] === 'QUEBRA') {
-                    let m = row['MOTIVO'];
-                    motivosContagem[m] = (motivosContagem[m] || 0) + 1;
+                if (row['STATUS_CONSOLIDADO'] === 'CANCELADO') {
+                    let mot = "Falta de Estoque / Saldo Zerado";
+                    let obs = (row['OBSERVACOES'] || '').toUpperCase();
+                    if(obs.includes("DESIST") || obs.includes("CLIENTE")) mot = "Cancelamento pelo Comprador";
+                    else if(obs.includes("INTEGRA") || obs.includes("ERRO")) mot = "Erro Sistêmico de API";
+                    motivosContagem[mot] = (motivosContagem[mot] || 0) + 1;
                 }
 
-                let dataBruta = row['DATA'] || '01/01/2026';
-                let chaveMes = getMesAno(dataBruta.trim());
-                let labelMes = "Indefinido";
-                if (chaveMes !== "Indefinido") {
-                    let [m, ano] = chaveMes.split('/');
-                    labelMes = `${nomeMeses[m].substring(0,3)}/${ano}`;
+                let mKey = row['DATA'] ? extrairMesAno(row['DATA'].trim()) : "Indefinido";
+                if (mKey !== "Indefinido") {
+                    let [m, ano] = mKey.split('/');
+                    let label = `${nomeMeses[m].substring(0,3)}/${ano}`;
+                    if (!mesesData[label]) mesesData[label] = { total: 0, faturado: 0 };
+                    mesesData[label].total++;
+                    if (row['STATUS_CONSOLIDADO'] === 'FATURADO') mesesData[label].faturado++;
                 }
-                if (!mesesData[labelMes]) mesesData[labelMes] = { total: 0, faturado: 0 };
-                mesesData[labelMes].total++;
-                if (row['STATUS_CONSOLIDADO'] === 'FATURADO') mesesData[labelMes].faturado++;
 
                 listagemFinal.push(row);
             });
@@ -441,28 +374,27 @@
             tbody.innerHTML = '';
 
             if(listagemFinal.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="12" class="p-4 text-center text-gray-500">Nenhum caso sob este critério de filtro.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="12" class="p-4 text-center text-gray-500">Nenhum pedido pendente ou crítico encontrado para os filtros atuais.</td></tr>`;
             } else {
                 listagemFinal.forEach(item => {
                     let tr = document.createElement('tr');
                     tr.className = "border-b border-gray-800/60 hover:bg-[#161f33]/40 text-[11px]";
                     
-                    let badgeCriticidade = "bg-slate-900 text-gray-400";
-                    if(item.CRITICIDADE === 'CRÍTICA') badgeCriticidade = "bg-red-950 text-red-400 border border-red-800/40 font-extrabold";
-                    else if(item.CRITICIDADE === 'ALTA') badgeCriticidade = "bg-amber-950 text-amber-400 border border-amber-800/40 font-bold";
-                    else if(item.CRITICIDADE === 'MÉDIA') badgeCriticidade = "bg-blue-950 text-blue-400 border border-blue-800/30";
+                    let badgeStatus = "bg-orange-950 text-orange-400 border border-orange-900/30";
+                    if(item.STATUS_CONSOLIDADO === 'FATURADO') badgeStatus = "bg-green-950 text-green-400 border border-green-900/40";
+                    if(item.STATUS_CONSOLIDADO === 'CANCELADO') badgeStatus = "bg-red-950 text-red-400 border border-red-900/40";
 
                     tr.innerHTML = `
-                        <td class="p-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] ${badgeCriticidade}">${item.CRITICIDADE}</span></td>
-                        <td class="p-3 text-white font-medium whitespace-nowrap">${item.ACAO_SUGERIDA}</td>
+                        <td class="p-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeStatus}">${item.STATUS_CONSOLIDADO}</span></td>
+                        <td class="p-3 text-white font-semibold whitespace-nowrap">${item.ACAO_OPERACIONAL}</td>
                         <td class="p-3 text-gray-400 whitespace-nowrap">${item.DATA || '---'}</td>
                         <td class="p-3 text-gray-200 font-semibold whitespace-nowrap">${harmonizarCanal(item.CANAL)}</td>
                         <td class="p-3 font-mono text-blue-400 whitespace-nowrap">${item.PEDIDO || '---'}</td>
-                        <td class="p-3 text-gray-400 whitespace-nowrap">${harmonizarGenerico(item.STATUS_LOG)}</td>
-                        <td class="p-3 text-gray-400 whitespace-nowrap">${harmonizarGenerico(item.STATUS_LINX)}</td>
+                        <td class="p-3 text-gray-400 whitespace-nowrap">${item.STATUS_LOG || '---'}</td>
+                        <td class="p-3 text-gray-400 whitespace-nowrap">${item.STATUS_LINX || '---'}</td>
                         <td class="p-3 font-mono text-gray-300 whitespace-nowrap">${item.PV_PROTHEUS || '---'}</td>
                         <td class="p-3 font-mono text-gray-300 whitespace-nowrap">${item.NOTA || '---'}</td>
-                        <td class="p-3 text-amber-400 font-medium whitespace-nowrap">${item.PREVISAO || '---'}</td>
+                        <td class="p-3 text-amber-400 whitespace-nowrap">${item.PREVISAO || '---'}</td>
                         <td class="p-3 text-blue-300 font-mono whitespace-nowrap">${item.RASTREIO || '---'}</td>
                         <td class="p-3 text-gray-400 max-w-xs truncate" title="${item.OBSERVACOES || ''}">${item.OBSERVACOES || '---'}</td>
                     `;
@@ -471,7 +403,6 @@
             }
 
             renderCharts(mesesData, motivosContagem);
-            fetchGeminiInsights(total, slaVencido, descompassoTI, semRastreio);
         }
 
         function renderCharts(mesesData, motivosContagem) {
@@ -488,11 +419,11 @@
                 data: {
                     labels: labelsMeses,
                     datasets: [
-                        { label: 'Demanda', data: dadosEntrada, backgroundColor: '#2563eb' },
-                        { label: 'Faturados', data: dadosFaturados, backgroundColor: '#10b981' }
+                        { label: 'Pedidos Recebidos', data: dadosEntrada, backgroundColor: '#2563eb' },
+                        { label: 'Pedidos Faturados', data: dadosFaturados, backgroundColor: '#10b981' }
                     ]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#1e293b' } }, x: { grid: { display: false } } } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#9ca3af' } } }, scales: { y: { grid: { color: '#1e293b' }, ticks: { color: '#9ca3af' } }, x: { ticks: { color: '#9ca3af' } } } }
             });
 
             const labelsMotivos = Object.keys(motivosContagem);
@@ -502,47 +433,15 @@
             chartMotivos = new Chart(ctx2, {
                 type: 'doughnut',
                 data: {
-                    labels: labelsMotivos.length > 0 ? labelsMotivos : ["Sem quebras"],
+                    labels: labelsMotivos.length > 0 ? labelsMotivos : ["Sem Ocorrências de Quebra"],
                     datasets: [{ data: dadosMotivos.length > 0 ? dadosMotivos : [1], backgroundColor: ['#ef4444', '#f97316', '#3b82f6'] }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af' } } } }
             });
         }
 
-        async function fetchGeminiInsights(total, slaVencido, descompassoTI, semRastreio) {
-            const outputElement = document.getElementById('geminiOutput');
-            const statusElement = document.getElementById('aiStatus');
-
-            if (!GEMINI_API_KEY || GEMINI_API_KEY === "INSIRA_SUA_API_KEY_AQUI") {
-                outputElement.innerHTML = `Insira sua chave de API para ativar o assistente de tratativa automática diária.`;
-                return;
-            }
-
-            statusElement.innerText = "Analisando Rotina...";
-            
-            const promptText = `Atue como Coordenador de Operações e Processos de E-commerce.
-            Diga em formato de texto corrido curto (máximo 4 linhas) qual o foco principal do dia sabendo que temos:
-            - ${slaVencido} pedidos com SLA de atendimento expirados.
-            - ${descompassoTI} gargalos de sincronia de Nota Fiscal entre o ERP Linx e Logística.
-            Seja direto e use tom de comando operacional diário.`;
-
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
-                });
-                const json = await response.json();
-                if (json.candidates) {
-                    outputElement.innerHTML = json.candidates[0].content.parts[0].text;
-                    statusElement.innerText = "Plano Pronto";
-                }
-            } catch (e) { statusElement.innerText = "Erro"; }
-        }
-
         document.getElementById('btnResetAll').addEventListener('click', () => {
-            monthSelect.value = 'ALL'; searchInput.value = ''; channelSelect.value = 'ALL'; statusLogFilter.value = 'ALL'; integrationSelect.value = 'ALL'; statusLinxSelect.value = 'ALL';
-            if(isDailyAttentionMode) btnDailyAttention.click();
+            monthSelect.value = 'ALL'; searchInput.value = ''; channelSelect.value = 'ALL'; statusLogFilter.value = 'ALL'; criticalSelect.value = 'ALL';
             applyFiltersAndRender();
         });
     </script>
