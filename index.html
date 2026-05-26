@@ -164,8 +164,8 @@
         const criticalSelect = document.getElementById('criticalFilter');
 
         const nomeMeses = {"01":"Janeiro","02":"Fevereiro","03":"Março","04":"Abril","05":"Maio","06":"Junho","07":"Julho","08":"Agosto","09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"};
+        const mapaTextoMeses = {"JAN":"01","FEB":"02","FEV":"02","MAR":"03","APR":"04","ABR":"04","MAY":"05","MAI":"05","JUN":"06","JUL":"07","AUG":"08","AGO":"08","SEP":"09","SET":"09","OCT":"10","OUT":"10","NOV":"11","DEC":"12","DEZ":"12"};
 
-        // Normalização precisa para evitar que quebras de encoding misturem as colunas
         function normalizeKey(key) { 
             return key.toUpperCase()
                       .replace(/[º°ª]/g, '')
@@ -182,18 +182,38 @@
             return c;
         }
 
+        // Extração robusta para tratar variações de strings textuais vindas do Excel/Sharepoint
         function extrairMesAno(dataStr) {
             if (!dataStr) return "Indefinido";
-            let limpo = dataStr.trim();
-            let partes = [];
+            let limpo = dataStr.toUpperCase().trim();
             
-            if (limpo.includes('-')) {
-                partes = limpo.split('-');
-                if (partes[1]) return `${partes[1].padStart(2, '0')}/${partes[0]}`;
-            } else if (limpo.includes('/')) {
-                partes = limpo.split('/');
-                if (partes[1]) return `${partes[1].padStart(2, '0')}/${partes[2] ? partes[2].substring(0,4) : '2026'}`;
+            // Caso 1: Formato DD/MM/AAAA ou DD-MM-AAAA
+            let partes = limpo.includes('/') ? limpo.split('/') : (limpo.includes('-') ? limpo.split('-') : []);
+            if (partes.length >= 2) {
+                let mesToken = partes[1].trim();
+                let anoToken = partes[2] ? partes[2].substring(0, 4) : "2026";
+                
+                // Se o mês for numérico direto (ex: 03 ou 3)
+                if (!isNaN(mesToken)) {
+                    return `${mesToken.padStart(2, '0')}/${anoToken}`;
+                }
+                // Se o mês for string textual (ex: "MAR", "MARÇO")
+                let trecho = mesToken.substring(0, 3);
+                if (mapaTextoMeses[trecho]) {
+                    return `${mapaTextoMeses[trecho]}/${anoToken}`;
+                }
             }
+            
+            // Caso 2: Texto corrido direto tipo "MAR/2026" ou "MAR-2026"
+            let tokensBrutos = limpo.split(/[\/\-]/);
+            if (tokensBrutos.length === 2) {
+                let trecho = tokensBrutos[0].substring(0, 3);
+                let anoToken = tokensBrutos[1].substring(0, 4);
+                if (mapaTextoMeses[trecho]) {
+                    return `${mapaTextoMeses[trecho]}/${anoToken}`;
+                }
+            }
+            
             return "Indefinido";
         }
 
@@ -212,7 +232,6 @@
                         Object.keys(row).forEach(key => {
                             let nk = normalizeKey(key);
                             
-                            // Ignora títulos complexos que contêm "STATUS" ou "LOG" para não pegar a coluna errada
                             if ((nk.includes("PEDIDO") || nk.includes("NUMERODOPEDIDO") || nk === "NPEDIDO" || nk === "NODOPEDIDO") && !nk.includes("STATUS") && !nk.includes("LOG")) {
                                 n['PEDIDO'] = row[key];
                             } else if (nk.includes("DATA")) {
@@ -236,7 +255,6 @@
                             }
                         });
 
-                        // Fallback rígido olhando os cabeçalhos literais mais comuns em português corrompido
                         if (!n['PEDIDO']) {
                             n['PEDIDO'] = row['Nº DO PEDIDO'] || row['Nº do Pedido'] || row['Nª DO PEDIDO'] || row['Nº_DO_PEDIDO'] || '';
                         }
