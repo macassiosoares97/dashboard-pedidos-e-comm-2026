@@ -165,7 +165,7 @@
 
         const nomeMeses = {"01":"Janeiro","02":"Fevereiro","03":"Março","04":"Abril","05":"Maio","06":"Junho","07":"Julho","08":"Agosto","09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"};
 
-        // Limpa totalmente acentos e símbolos estranhos causados por encoding quebrado (ex: N, N)
+        // Normalização precisa para evitar que quebras de encoding misturem as colunas
         function normalizeKey(key) { 
             return key.toUpperCase()
                       .replace(/[º°ª]/g, '')
@@ -212,8 +212,8 @@
                         Object.keys(row).forEach(key => {
                             let nk = normalizeKey(key);
                             
-                            // Se a palavra limpa contiver "PEDIDO", assume como campo de ID do pedido
-                            if (nk.includes("PEDIDO")) {
+                            // Ignora títulos complexos que contêm "STATUS" ou "LOG" para não pegar a coluna errada
+                            if ((nk.includes("PEDIDO") || nk.includes("NUMERODOPEDIDO") || nk === "NPEDIDO" || nk === "NODOPEDIDO") && !nk.includes("STATUS") && !nk.includes("LOG")) {
                                 n['PEDIDO'] = row[key];
                             } else if (nk.includes("DATA")) {
                                 n['DATA'] = row[key];
@@ -236,15 +236,9 @@
                             }
                         });
 
-                        // Varredura extra de segurança cega por índice caso o cabeçalho venha completamente destruído
+                        // Fallback rígido olhando os cabeçalhos literais mais comuns em português corrompido
                         if (!n['PEDIDO']) {
-                            let chaves = Object.keys(row);
-                            for(let i=0; i<chaves.length; i++) {
-                                if(chaves[i].toUpperCase().includes("PEDIDO") || chaves[i].toUpperCase().includes("N")) {
-                                    n['PEDIDO'] = row[chaves[i]];
-                                    break;
-                                }
-                            }
+                            n['PEDIDO'] = row['Nº DO PEDIDO'] || row['Nº do Pedido'] || row['Nª DO PEDIDO'] || row['Nº_DO_PEDIDO'] || '';
                         }
 
                         let stLog = (n['STATUS_LOG'] || '').toUpperCase().trim();
@@ -252,7 +246,7 @@
                         let obs = (n['OBSERVACOES'] || '').toUpperCase().trim();
 
                         let faturado = stLog.includes('FATURAD') || stLog.includes('EMITID') || stLinx.includes('FATURAD') || n['NOTA'];
-                        let cancelado = stLog.includes('CANC') || stLog.includes('DEV') || stLinx.includes('CANC') || obs.includes('CANC');
+                        let cancelado = stLog.includes('CANC') || stLog.includes('DEV') || stLinx.includes('CANC') || obs.includes('CANC') || stLog.includes('CANCELADO');
 
                         if (faturado) n['STATUS_CONSOLIDADO'] = 'FATURADO';
                         else if (cancelado) n['STATUS_CONSOLIDADO'] = 'CANCELADO';
