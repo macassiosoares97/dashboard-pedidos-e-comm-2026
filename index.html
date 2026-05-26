@@ -155,7 +155,7 @@
         let rawDatabase = [];
         let chartMensal = null;
         let chartMotivos = null;
-        let currentKpiFilter = 'ALL'; // Controla qual card superior está ativo
+        let currentKpiFilter = 'ALL';
 
         const monthSelect = document.getElementById('monthFilter');
         const searchInput = document.getElementById('searchFilter');
@@ -202,19 +202,39 @@
                 complete: function(results) {
                     rawDatabase = results.data.map(row => {
                         let n = {};
+                        
+                        // Captura explícita e mapeamento das chaves exatas da planilha
                         Object.keys(row).forEach(key => {
                             let nk = normalizeKey(key);
-                            if (nk.includes("DATA")) n['DATA'] = row[key];
-                            else if (nk.includes("CANAL")) n['CANAL'] = row[key];
-                            else if (nk.includes("NPEDIDO") || nk.includes("NUMERODOPEDIDO")) n['PEDIDO'] = row[key];
-                            else if (nk.includes("STATUS") && nk.includes("LOG")) n['STATUS_LOG'] = row[key];
-                            else if (nk.includes("RASTREIO")) n['RASTREIO'] = row[key];
-                            else if (nk.includes("PREVISAO")) n['PREVISAO'] = row[key];
-                            else if (nk.includes("PVPROTHEUS")) n['PV_PROTHEUS'] = row[key];
-                            else if (nk.includes("NOTA")) n['NOTA'] = row[key];
-                            else if (nk.includes("STATUS") && nk.includes("LINX")) n['STATUS_LINX'] = row[key];
-                            else if (nk.includes("OBSERVA")) n['OBSERVACOES'] = row[key];
+                            
+                            // Mapeamento direto e preciso para "Nº DO PEDIDO" ou variações
+                            if (nk.includes("NPEDIDO") || nk.includes("NUMERODOPEDIDO") || nk.includes("NODOPEDIDO")) {
+                                n['PEDIDO'] = row[key];
+                            } else if (nk.includes("DATA")) {
+                                n['DATA'] = row[key];
+                            } else if (nk.includes("CANAL")) {
+                                n['CANAL'] = row[key];
+                            } else if (nk.includes("STATUS") && nk.includes("LOG")) {
+                                n['STATUS_LOG'] = row[key];
+                            } else if (nk.includes("RASTREIO")) {
+                                n['RASTREIO'] = row[key];
+                            } else if (nk.includes("PREVISAO")) {
+                                n['PREVISAO'] = row[key];
+                            } else if (nk.includes("PVPROTHEUS")) {
+                                n['PV_PROTHEUS'] = row[key];
+                            } else if (nk.includes("NOTA")) {
+                                n['NOTA'] = row[key];
+                            } else if (nk.includes("STATUS") && nk.includes("LINX")) {
+                                n['STATUS_LINX'] = row[key];
+                            } else if (nk.includes("OBSERVA")) {
+                                n['OBSERVACOES'] = row[key];
+                            }
                         });
+
+                        // Fallback de segurança se o mapeamento dinâmico falhar em alguma linha
+                        if (!n['PEDIDO']) {
+                            n['PEDIDO'] = row['Nº DO PEDIDO'] || row['Nº do Pedido'] || row['Nª DO PEDIDO'] || '';
+                        }
 
                         let stLog = (n['STATUS_LOG'] || '').toUpperCase().trim();
                         let stLinx = (n['STATUS_LINX'] || '').toUpperCase().trim();
@@ -292,15 +312,12 @@
             Array.from(set).sort().forEach(val => { if(val) element.innerHTML += `<option value="${val}">${val}</option>`; });
         }
 
-        // Configuração dos gatilhos de clique nos Cards KPI
         function setupKpiClick(cardId, typeValue) {
             document.getElementById(cardId).addEventListener('click', () => {
-                // Remove destaque de todos
                 document.querySelectorAll('.clickable-card').forEach(c => c.classList.remove('active-card'));
-                // Adiciona destaque no selecionado
                 document.getElementById(cardId).classList.add('active-card');
                 currentKpiFilter = typeValue;
-                applyFiltersAndRender(true); // Evita recalcular volume total do cabeçalho ao mudar apenas de aba
+                applyFiltersAndRender(true);
             });
         }
 
@@ -311,7 +328,6 @@
 
         [monthSelect, channelSelect, statusLogFilter, criticalSelect].forEach(el => {
             el.addEventListener('change', () => {
-                // Ao mexer em filtro fixo da lateral, reseta o clique para o total geral
                 document.querySelectorAll('.clickable-card').forEach(c => c.classList.remove('active-card'));
                 document.getElementById('cardTotal').classList.add('active-card');
                 currentKpiFilter = 'ALL';
@@ -327,7 +343,6 @@
             const statusLogVal = statusLogFilter.value;
             const criticalVal = criticalSelect.value;
 
-            // Filtro das réguas de cima e lateral combinadas
             let baseFiltered = rawDatabase.filter(row => {
                 let matchMonth = (monthVal === 'ALL' || (row['DATA'] && extrairMesAno(row['DATA'].trim()) === monthVal));
                 let matchSearch = !searchVal || Object.values(row).join(' ').toUpperCase().includes(searchVal);
@@ -342,7 +357,6 @@
                 return matchMonth && matchSearch && matchChannel && matchStatusLog && matchCritical;
             });
 
-            // Se for clique nos cards superiores, aplica o sub-filtro na tabela analítica
             let tableFiltered = baseFiltered.filter(row => {
                 return currentKpiFilter === 'ALL' || row['STATUS_CONSOLIDADO'] === currentKpiFilter;
             });
@@ -354,7 +368,6 @@
         function processAndRender(baseData, tableData, isKpiSwitchOnly) {
             let mesesData = {}; let motivosContagem = {}; 
 
-            // Se o usuário mexeu nos filtros estruturais da esquerda, precisamos recalcular os totais dos cards
             if (!isKpiSwitchOnly) {
                 let total = baseData.length;
                 let atendidos = 0; let devolucoes = 0; let aguardaAtendimento = 0;
@@ -371,7 +384,6 @@
                 document.getElementById('kpiAguardaAtendimento').innerText = aguardaAtendimento.toLocaleString('pt-BR');
             }
 
-            // Monta gráficos baseados na seleção estrutural
             baseData.forEach(row => {
                 if (row['STATUS_CONSOLIDADO'] === 'CANCELADO') {
                     let mot = "Falta de Estoque / Saldo Zerado";
@@ -391,7 +403,6 @@
                 }
             });
 
-            // Alimenta a tabela apenas com as linhas refinadas pelo card clicado
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
 
@@ -411,7 +422,7 @@
                         <td class="p-3 text-white font-semibold whitespace-nowrap">${item.ACAO_OPERACIONAL}</td>
                         <td class="p-3 text-gray-400 whitespace-nowrap">${item.DATA || '---'}</td>
                         <td class="p-3 text-gray-200 font-semibold whitespace-nowrap">${harmonizarCanal(item.CANAL)}</td>
-                        <td class="p-3 font-mono text-blue-400 whitespace-nowrap">${item.PEDIDO || '---'}</td>
+                        <td class="p-3 font-mono text-blue-400 font-bold whitespace-nowrap">${item.PEDIDO || '---'}</td>
                         <td class="p-3 text-gray-400 whitespace-nowrap">${item.STATUS_LOG || '---'}</td>
                         <td class="p-3 text-gray-400 whitespace-nowrap">${item.STATUS_LINX || '---'}</td>
                         <td class="p-3 font-mono text-gray-300 whitespace-nowrap">${item.PV_PROTHEUS || '---'}</td>
