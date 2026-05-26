@@ -165,7 +165,13 @@
 
         const nomeMeses = {"01":"Janeiro","02":"Fevereiro","03":"Março","04":"Abril","05":"Maio","06":"Junho","07":"Julho","08":"Agosto","09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"};
 
-        function normalizeKey(key) { return key.toUpperCase().replace(/[\s\-_]/g, '').trim(); }
+        // Limpa totalmente acentos e símbolos estranhos causados por encoding quebrado (ex: N, N)
+        function normalizeKey(key) { 
+            return key.toUpperCase()
+                      .replace(/[º°ª]/g, '')
+                      .replace(/[^A-Z0-9]/g, '')
+                      .trim(); 
+        }
 
         function harmonizarCanal(txt) {
             if (!txt) return "NÃO INFORMADO";
@@ -203,12 +209,11 @@
                     rawDatabase = results.data.map(row => {
                         let n = {};
                         
-                        // Captura explícita e mapeamento das chaves exatas da planilha
                         Object.keys(row).forEach(key => {
                             let nk = normalizeKey(key);
                             
-                            // Mapeamento direto e preciso para "Nº DO PEDIDO" ou variações
-                            if (nk.includes("NPEDIDO") || nk.includes("NUMERODOPEDIDO") || nk.includes("NODOPEDIDO")) {
+                            // Se a palavra limpa contiver "PEDIDO", assume como campo de ID do pedido
+                            if (nk.includes("PEDIDO")) {
                                 n['PEDIDO'] = row[key];
                             } else if (nk.includes("DATA")) {
                                 n['DATA'] = row[key];
@@ -231,9 +236,15 @@
                             }
                         });
 
-                        // Fallback de segurança se o mapeamento dinâmico falhar em alguma linha
+                        // Varredura extra de segurança cega por índice caso o cabeçalho venha completamente destruído
                         if (!n['PEDIDO']) {
-                            n['PEDIDO'] = row['Nº DO PEDIDO'] || row['Nº do Pedido'] || row['Nª DO PEDIDO'] || '';
+                            let chaves = Object.keys(row);
+                            for(let i=0; i<chaves.length; i++) {
+                                if(chaves[i].toUpperCase().includes("PEDIDO") || chaves[i].toUpperCase().includes("N")) {
+                                    n['PEDIDO'] = row[chaves[i]];
+                                    break;
+                                }
+                            }
                         }
 
                         let stLog = (n['STATUS_LOG'] || '').toUpperCase().trim();
@@ -340,14 +351,14 @@
             const monthVal = monthSelect.value;
             const searchVal = searchInput.value.toUpperCase();
             const channelVal = channelSelect.value;
-            const statusLogVal = statusLogFilter.value;
+            const statusVal = statusLogFilter.value;
             const criticalVal = criticalSelect.value;
 
             let baseFiltered = rawDatabase.filter(row => {
                 let matchMonth = (monthVal === 'ALL' || (row['DATA'] && extrairMesAno(row['DATA'].trim()) === monthVal));
                 let matchSearch = !searchVal || Object.values(row).join(' ').toUpperCase().includes(searchVal);
                 let matchChannel = (channelVal === 'ALL' || harmonizarCanal(row['CANAL']) === channelVal);
-                let matchStatusLog = (statusLogVal === 'ALL' || row['STATUS_LOG'] === statusLogVal);
+                let matchStatusLog = (statusVal === 'ALL' || row['STATUS_LOG'] === statusVal);
                 
                 let matchCritical = true;
                 if (criticalVal === 'PENDENTES_VIVOS') matchCritical = row['STATUS_CONSOLIDADO'] === 'PENDENTE';
@@ -422,7 +433,7 @@
                         <td class="p-3 text-white font-semibold whitespace-nowrap">${item.ACAO_OPERACIONAL}</td>
                         <td class="p-3 text-gray-400 whitespace-nowrap">${item.DATA || '---'}</td>
                         <td class="p-3 text-gray-200 font-semibold whitespace-nowrap">${harmonizarCanal(item.CANAL)}</td>
-                        <td class="p-3 font-mono text-blue-400 font-bold whitespace-nowrap">${item.PEDIDO || '---'}</td>
+                        <td class="p-3 font-mono text-blue-400 font-bold text-xs whitespace-nowrap">${item.PEDIDO || '---'}</td>
                         <td class="p-3 text-gray-400 whitespace-nowrap">${item.STATUS_LOG || '---'}</td>
                         <td class="p-3 text-gray-400 whitespace-nowrap">${item.STATUS_LINX || '---'}</td>
                         <td class="p-3 font-mono text-gray-300 whitespace-nowrap">${item.PV_PROTHEUS || '---'}</td>
