@@ -11,10 +11,6 @@
         body { background-color: #0b0f19; color: #f0f6fc; font-family: system-ui, -apple-system, sans-serif; }
         .sidebar { background-color: #0f1422; border-right: 1px solid #1e2638; }
         .custom-card { background-color: #121826; border: 1px solid #1f293d; border-radius: 12px; transition: all 0.2s ease; }
-        .clickable-card { cursor: pointer; }
-        .clickable-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(56, 139, 253, 0.15); }
-        .active-card { border-color: #388bff !important; background-color: #16223f !important; }
-        .ia-box { background: linear-gradient(145deg, #131c33 0%, #0c101f 100%); border: 1px solid #233666; }
         .filter-select { background-color: #161f30; border: 1px solid #2d3954; color: #f0f6fc; border-radius: 6px; padding: 6px; width: 100%; font-size: 12px; outline: none; }
         .filter-select:focus { border-color: #388bff; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -41,12 +37,11 @@
                 <label class="block text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-2">⚡ Triagem Operacional</label>
                 <select id="criticalFilter" class="filter-select border-amber-500/30 bg-amber-950/20 text-amber-300 font-semibold" disabled>
                     <option value="ALL">Exibir Toda a Base</option>
-                    <option value="PENDENTES_VIVOS">⚠️ Apenas Atendimentos Pendentes</option>
-                    <option value="SLA_CRITICO">🚨 Critério 1: SLA de Compra Estourado</option>
-                    <option value="TRAVA_INTEGRACAO">🔌 Critério 2: Travado na API (Sem NF)</option>
-                    <option value="SEM_TRACKING">📦 Critério 3: Despachado s/ Rastreio</option>
+                    <option value="PENDENTES_VIVOS">⚠️ Apenas Em Aberto (Fila Viva)</option>
+                    <option value="SLA_CRITICO">🚨 SLA de Compra Estourado</option>
+                    <option value="TRAVA_INTEGRACAO">🔌 Travado na API (Sem NF)</option>
                 </select>
-                <p class="text-[10px] text-gray-400 mt-1.5 leading-relaxed">Filtre diretamente os casos que dependem de ação diária para destravar o faturamento.</p>
+                <p class="text-[10px] text-gray-400 mt-1.5 leading-relaxed">Filtre os atendimentos pendentes e casos que necessitam de atenção na rotina diária.</p>
             </div>
 
             <div class="space-y-3 opacity-50" id="filterSection">
@@ -86,24 +81,24 @@
         
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="custom-card p-4 bg-slate-900 border-slate-800">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pedidos Recebidos</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total de pedidos</p>
                 <h2 id="kpiTotal" class="text-2xl font-extrabold text-white mt-1">0</h2>
-                <p class="text-[11px] text-gray-500 mt-0.5">Volume total na visão</p>
+                <p class="text-[11px] text-gray-500 mt-0.5">Base consolidada sob filtros</p>
+            </div>
+            <div class="custom-card p-4 border-green-900/50 bg-green-950/20">
+                <p class="text-[10px] font-bold text-green-400 uppercase tracking-wider">Atendidos</p>
+                <h2 id="kpiAtendidos" class="text-2xl font-extrabold text-green-400 mt-1">0</h2>
+                <p class="text-[11px] text-green-500/70 mt-0.5">Pedidos faturados e entregues</p>
             </div>
             <div class="custom-card p-4 border-red-900/50 bg-red-950/20">
-                <p class="text-[10px] font-bold text-red-400 uppercase tracking-wider">🚨 SLA Estourado</p>
-                <h2 id="kpiSlaVencido" class="text-2xl font-extrabold text-red-500 mt-1">0</h2>
-                <p class="text-[11px] text-red-300 mt-0.5">Prazo de envio estourado</p>
+                <p class="text-[10px] font-bold text-red-400 uppercase tracking-wider">Devoluções</p>
+                <h2 id="kpiDevolucoes" class="text-2xl font-extrabold text-red-400 mt-1">0</h2>
+                <p class="text-[11px] text-red-500/70 mt-0.5">Cancelamentos e estornos</p>
             </div>
             <div class="custom-card p-4 border-amber-900/50 bg-amber-950/20">
-                <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">🔌 Travados na Integração</p>
-                <h2 id="kpiDescompassoTI" class="text-2xl font-extrabold text-amber-500 mt-1">0</h2>
-                <p class="text-[11px] text-amber-300 mt-0.5">Faturado no ERP sem NF</p>
-            </div>
-            <div class="custom-card p-4 border-blue-900/50 bg-blue-950/20">
-                <p class="text-[10px] font-bold text-blue-400 uppercase tracking-wider">📦 Despacho sem Rastreio</p>
-                <h2 id="kpiSemRastreio" class="text-2xl font-extrabold text-blue-500 mt-1">0</h2>
-                <p class="text-[11px] text-blue-300 mt-0.5">Falta código do transportador</p>
+                <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Aguarda atendimento</p>
+                <h2 id="kpiAguardaAtendimento" class="text-2xl font-extrabold text-amber-400 mt-1">0</h2>
+                <p class="text-[11px] text-amber-500/70 mt-0.5">Fila pendente e casos do dia</p>
             </div>
         </div>
 
@@ -122,7 +117,7 @@
             <div class="flex justify-between items-center mb-4">
                 <div>
                     <h3 class="text-sm font-bold text-white uppercase tracking-wider">Mapeamento Analítico da Fila</h3>
-                    <p class="text-[11px] text-gray-400 mt-0.5">Dados estruturados e higienizados em tempo real.</p>
+                    <p class="text-[11px] text-gray-400 mt-0.5">Dados estruturados em tempo real.</p>
                 </div>
             </div>
             <div class="overflow-x-auto border border-gray-800/80 rounded-lg max-h-[450px]">
@@ -177,16 +172,15 @@
             return c;
         }
 
-        // Blinda a leitura de datas tratando hifens, barras e problemas de parsing (Conserta o mês de Março)
         function extrairMesAno(dataStr) {
             if (!dataStr) return "Indefinido";
             let limpo = dataStr.trim();
             let partes = [];
             
-            if (limpo.includes('-')) { // Formato YYYY-MM-DD
+            if (limpo.includes('-')) {
                 partes = limpo.split('-');
                 if (partes[1]) return `${partes[1].padStart(2, '0')}/${partes[0]}`;
-            } else if (limpo.includes('/')) { // Formato DD/MM/YYYY
+            } else if (limpo.includes('/')) {
                 partes = limpo.split('/');
                 if (partes[1]) return `${partes[1].padStart(2, '0')}/${partes[2] ? partes[2].substring(0,4) : '2026'}`;
             }
@@ -222,7 +216,6 @@
                         let stLinx = (n['STATUS_LINX'] || '').toUpperCase().trim();
                         let obs = (n['OBSERVACOES'] || '').toUpperCase().trim();
 
-                        // Regra de Ouro: Identificação correta de faturados, cancelados e o verdadeiro Backlog Pendente
                         let faturado = stLog.includes('FATURAD') || stLog.includes('EMITID') || stLinx.includes('FATURAD') || n['NOTA'];
                         let cancelado = stLog.includes('CANC') || stLog.includes('DEV') || stLinx.includes('CANC') || obs.includes('CANC');
 
@@ -230,14 +223,12 @@
                         else if (cancelado) n['STATUS_CONSOLIDADO'] = 'CANCELADO';
                         else n['STATUS_CONSOLIDADO'] = 'PENDENTE';
 
-                        // Análise de Riscos Diários para o Backlog Vivo
-                        let acao = "Fluxo Encerrado";
+                        let acao = "Fluxo Concluído";
                         let riscoSla = false;
                         let riscoIntegracao = false;
-                        let riscoTracking = false;
 
                         if (n['STATUS_CONSOLIDADO'] === 'PENDENTE') {
-                            const hoje = new Date(2026, 4, 26); // Data base: 26 de Maio de 2026
+                            const hoje = new Date(2026, 4, 26);
 
                             if (n['PREVISAO']) {
                                 let p = n['PREVISAO'].split('/');
@@ -246,21 +237,16 @@
                                     if (dt < hoje) riscoSla = true;
                                 }
                             }
-
-                            // Faturado em uma ponta, mas sem documento fiscal emitido
                             if (stLinx.includes("FATUR") && !n['NOTA']) riscoIntegracao = true;
-                            if (!n['RASTREIO'] && stLog.includes("DESPACH")) riscoTracking = true;
 
                             if (riscoSla) acao = "🚨 Acionar Expedição (SLA Vencido)";
                             else if (riscoIntegracao) acao = "🔌 Forçar Sincronismo de NF / API";
-                            else if (riscoTracking) acao = "📦 Vincular Código de Rastreio";
-                            else acao = "⏳ Monitorar Fila Corrente";
+                            else acao = "⏳ Acompanhar Rotina Diária";
                         }
 
                         n['ACAO_OPERACIONAL'] = acao;
                         n['RISCO_SLA'] = riscoSla;
                         n['RISCO_INTEGRACAO'] = riscoIntegracao;
-                        n['RISCO_TRACKING'] = riscoTracking;
 
                         return n;
                     }).filter(r => r['DATA'] || r['PEDIDO']);
@@ -281,7 +267,6 @@
                 if(row['STATUS_LOG']) statusLogs.add(row['STATUS_LOG'].trim());
             });
 
-            // Geração limpa e estruturada do seletor mensal consolidado
             monthSelect.innerHTML = '<option value="ALL">Histórico Consolidado</option>';
             Array.from(months).sort((a,b) => {
                 let [mA, aA] = a.split('/'), [mB, aB] = b.split('/');
@@ -321,12 +306,10 @@
                 let matchChannel = (channelVal === 'ALL' || harmonizarCanal(row['CANAL']) === channelVal);
                 let matchStatusLog = (statusLogVal === 'ALL' || row['STATUS_LOG'] === statusLogVal);
                 
-                // Aplicação da Fila de Críticos Requerida
                 let matchCritical = true;
                 if (criticalVal === 'PENDENTES_VIVOS') matchCritical = row['STATUS_CONSOLIDADO'] === 'PENDENTE';
                 else if (criticalVal === 'SLA_CRITICO') matchCritical = row['RISCO_SLA'] === true;
                 else if (criticalVal === 'TRAVA_INTEGRACAO') matchCritical = row['RISCO_INTEGRACAO'] === true;
-                else if (criticalVal === 'SEM_TRACKING') matchCritical = row['RISCO_TRACKING'] === true;
 
                 return matchMonth && matchSearch && matchChannel && matchStatusLog && matchCritical;
             });
@@ -337,13 +320,13 @@
 
         function processAndRender(data) {
             let total = data.length;
-            let slaVencido = 0; let descompassoTI = 0; let semRastreio = 0;
+            let atendidos = 0; let devolucoes = 0; let aguardaAtendimento = 0;
             let mesesData = {}; let motivosContagem = {}; let listagemFinal = [];
 
             data.forEach(row => {
-                if(row['RISCO_SLA']) slaVencido++;
-                if(row['RISCO_INTEGRACAO']) descompassoTI++;
-                if(row['RISCO_TRACKING']) semRastreio++;
+                if(row['STATUS_CONSOLIDADO'] === 'FATURADO') atendidos++;
+                else if(row['STATUS_CONSOLIDADO'] === 'CANCELADO') devolucoes++;
+                else if(row['STATUS_CONSOLIDADO'] === 'PENDENTE') aguardaAtendimento++;
 
                 if (row['STATUS_CONSOLIDADO'] === 'CANCELADO') {
                     let mot = "Falta de Estoque / Saldo Zerado";
@@ -366,15 +349,15 @@
             });
 
             document.getElementById('kpiTotal').innerText = total.toLocaleString('pt-BR');
-            document.getElementById('kpiSlaVencido').innerText = slaVencido.toLocaleString('pt-BR');
-            document.getElementById('kpiDescompassoTI').innerText = descompassoTI.toLocaleString('pt-BR');
-            document.getElementById('kpiSemRastreio').innerText = semRastreio.toLocaleString('pt-BR');
+            document.getElementById('kpiAtendidos').innerText = atendidos.toLocaleString('pt-BR');
+            document.getElementById('kpiDevolucoes').innerText = devolucoes.toLocaleString('pt-BR');
+            document.getElementById('kpiAguardaAtendimento').innerText = aguardaAtendimento.toLocaleString('pt-BR');
 
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
 
             if(listagemFinal.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="12" class="p-4 text-center text-gray-500">Nenhum pedido pendente ou crítico encontrado para os filtros atuais.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="12" class="p-4 text-center text-gray-500">Nenhum registro encontrado para os critérios selecionados.</td></tr>`;
             } else {
                 listagemFinal.forEach(item => {
                     let tr = document.createElement('tr');
@@ -433,7 +416,7 @@
             chartMotivos = new Chart(ctx2, {
                 type: 'doughnut',
                 data: {
-                    labels: labelsMotivos.length > 0 ? labelsMotivos : ["Sem Ocorrências de Quebra"],
+                    labels: labelsMotivos.length > 0 ? labelsMotivos : ["Sem Devoluções"],
                     datasets: [{ data: dadosMotivos.length > 0 ? dadosMotivos : [1], backgroundColor: ['#ef4444', '#f97316', '#3b82f6'] }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af' } } } }
