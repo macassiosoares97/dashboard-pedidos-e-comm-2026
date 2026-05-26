@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MA Hospitalar - Corporate Operations Dashboard</title>
+    <title>MA Hospitalar - AI & Operations Taskforce Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
@@ -18,9 +18,10 @@
         .kpi-gradient-green { background: linear-gradient(135deg, #142e24 0%, #0d1914 100%); border: 1px solid #1b4d3e; }
         .kpi-gradient-red { background: linear-gradient(135deg, #36191d 0%, #1a0d0f 100%); border: 1px solid #5a2429; }
         .kpi-gradient-orange { background: linear-gradient(135deg, #2e2014 0%, #19120d 100%); border: 1px solid #4d331b; }
-        .ia-box { background: linear-gradient(145deg, #131c33 0%, #0c101f 100%); border: 1px solid #233666; box-shadow: 0 0 20px rgba(56, 139, 253, 0.1); }
+        .ia-box { background: linear-gradient(145deg, #131c33 0%, #0c101f 100%); border: 1px solid #233666; box-shadow: 0 0 20px rgba(56, 139, 253, 0.15); }
         .filter-select { background-color: #161f30; border: 1px solid #2d3954; color: #f0f6fc; border-radius: 6px; padding: 6px; width: 100%; font-size: 12px; outline: none; }
         .filter-select:focus { border-color: #388bff; }
+        .action-alert { background: linear-gradient(135deg, #2a1a08 0%, #140d05 100%); border: 1px solid #ff990040; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0b0f19; }
         ::-webkit-scrollbar-thumb { background: #1f293d; border-radius: 4px; }
@@ -39,6 +40,16 @@
             <div class="custom-card p-4 bg-[#161f33]/30 border-blue-900/30">
                 <label class="block text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-2">1. Upload do Repositório CSV</label>
                 <input type="file" id="csvFileInput" accept=".csv" class="block w-full text-xs text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"/>
+            </div>
+
+            <div class="custom-card p-4 border-amber-500/30 bg-amber-950/10" id="actionToggleContainer">
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="checkbox" id="actionRequiredToggle" class="form-checkbox h-4 w-4 text-amber-500 rounded border-gray-700 bg-gray-900 focus:ring-0" disabled>
+                    <div>
+                        <span class="text-xs font-bold text-amber-400 block uppercase tracking-wider">🎯 Foco em Tratativa</span>
+                        <span class="text-[10px] text-gray-400 block mt-0.5">Isolar apenas registros com ação requerida</span>
+                    </div>
+                </label>
             </div>
 
             <div class="space-y-3 opacity-50" id="filterSection">
@@ -109,7 +120,39 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div id="actionScreenContainer" class="hidden space-y-4">
+            <div class="border border-amber-500/40 rounded-xl bg-[#1e140a] p-5">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center border-b border-amber-500/20 pb-3 mb-4">
+                    <div>
+                        <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                            ⚠️ Fila de Tratativa Prioritária (Ação Requerida)
+                        </h3>
+                        <p class="text-xs text-gray-400 mt-0.5">Pedidos ativos com risco iminente de SLA ou falha severa de sincronismo sistêmico.</p>
+                    </div>
+                    <span id="actionTotalCount" class="mt-2 sm:mt-0 text-xs px-2.5 py-1 bg-amber-950 border border-amber-500 text-amber-400 font-bold rounded-md">0 Casos Críticos</span>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                    <div class="p-3 rounded-lg bg-[#121826] border border-gray-800">
+                        <span class="text-red-400 font-bold block">🚨 1. ESTOURO DE SLA / COMPRA</span>
+                        <p class="text-gray-400 mt-1">Previsão expirada frente à data corrente operacional.</p>
+                        <span id="countSla" class="text-white font-mono font-bold block mt-2 text-base">0</span>
+                    </div>
+                    <div class="p-3 rounded-lg bg-[#121826] border border-gray-800">
+                        <span class="text-amber-400 font-bold block">🔌 2. DESCOMPASSO DE API (TI)</span>
+                        <p class="text-gray-400 mt-1">Faturados na Linx/Origem sem NF emitida ou sem espelho no LOG.</p>
+                        <span id="countTi" class="text-white font-mono font-bold block mt-2 text-base">0</span>
+                    </div>
+                    <div class="p-3 rounded-lg bg-[#121826] border border-gray-800">
+                        <span class="text-blue-400 font-bold block">📦 3. RETENÇÃO LOGÍSTICA / RASTREIO</span>
+                        <p class="text-gray-400 mt-1">Pedidos com fluxo estagnado e ausência de tracking code.</p>
+                        <span id="countLog" class="text-white font-mono font-bold block mt-2 text-base">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="chartsContainer" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="custom-card p-5 lg:col-span-2">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-sm font-bold text-white uppercase tracking-wider">Desempenho Temporal: Entrada vs. Atendimento</h3>
@@ -128,21 +171,28 @@
 
         <div class="grid grid-cols-1 gap-6">
             <div class="ia-box p-6 rounded-xl">
-                <div class="flex items-center space-x-2 text-blue-400 mb-4">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <h4 class="text-xs font-bold uppercase tracking-widest text-slate-200">📊 PARECER DE GOVERNANÇA OPERACIONAL & BENCHMARKING DE MERCADO</h4>
+                <div class="flex items-center justify-between border-b border-blue-900/50 pb-3 mb-4">
+                    <div class="flex items-center space-x-2 text-blue-400">
+                        <svg class="w-5 h-5 text-purple-400 animate-spin" style="animation-duration: 3s;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                        <h4 class="text-xs font-bold uppercase tracking-widest text-slate-200">🤖 PARECER EXECUTIVO REAL-TIME — GOOGLE GEMINI API</h4>
+                    </div>
+                    <span id="aiStatus" class="text-[10px] text-gray-400 uppercase tracking-widest bg-gray-900 px-2.5 py-1 rounded border border-gray-800">Aguardando Planilha</span>
                 </div>
-                <div id="iaContent" class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                    <p class="text-gray-400 col-span-3">Aguardando a consolidação das matrizes para geração do sumário executivo...</p>
+                <div id="geminiOutput" class="text-sm text-gray-300 leading-relaxed space-y-4 font-normal whitespace-pre-wrap">
+                    Insira o relatório unificado de vendas para disparar a chamada à API do Gemini e gerar as matrizes de benchmarking setorial.
                 </div>
             </div>
 
             <div class="custom-card p-5">
-                <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Mapeamento Analítico da Fila de Atendimento</h3>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 id="tableTitle" class="text-sm font-bold text-white uppercase tracking-wider">Mapeamento Analítico da Fila de Atendimento</h3>
+                    <span id="tableScopeBadge" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded uppercase font-semibold tracking-wider">Visão Geral</span>
+                </div>
                 <div class="overflow-x-auto border border-gray-800/80 rounded-lg max-h-[500px]">
                     <table class="min-w-full text-xs text-left text-gray-400">
                         <thead class="bg-[#161e30] text-gray-300 uppercase font-semibold text-[10px] tracking-wider sticky top-0 z-10">
                             <tr>
+                                <th class="p-3 whitespace-nowrap">Ação Indicada</th>
                                 <th class="p-3 whitespace-nowrap">Data</th>
                                 <th class="p-3 whitespace-nowrap">Canal</th>
                                 <th class="p-3 whitespace-nowrap">Nº Pedido</th>
@@ -159,7 +209,7 @@
                         </thead>
                         <tbody id="tableBody">
                             <tr>
-                                <td colspan="12" class="p-4 text-center text-gray-500">Nenhum registro processado.</td>
+                                <td colspan="13" class="p-4 text-center text-gray-500">Nenhum registro processado.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -169,6 +219,8 @@
     </div>
 
     <script>
+        const GEMINI_API_KEY = "INSIRA_SUA_API_KEY_AQUI"; 
+        
         let rawDatabase = [];
         let activeKpiFilter = 'ALL';
         let chartMensal = null;
@@ -180,6 +232,7 @@
         const statusLogFilter = document.getElementById('statusLogFilter');
         const integrationSelect = document.getElementById('integrationFilter');
         const statusLinxSelect = document.getElementById('statusLinxFilter');
+        const actionToggle = document.getElementById('actionRequiredToggle');
 
         const nomeMeses = {
             "01": "Janeiro", "02": "Fevereiro", "03": "Março", "04": "Abril",
@@ -275,6 +328,43 @@
                         }
                         normalizedRow['MOTIVO_HARMONIZADO'] = motivo;
 
+                        // 💡 CLASSIFICAÇÃO LÓGICA DE TRATATIVA DE ERRO
+                        let acao = "Nenhuma (Concluído/Cancelado)";
+                        let precisaAcao = false;
+
+                        if (normalizedRow['METRICA_CONCATENADA'] === 'PENDENTE') {
+                            const hojeOperacional = new Date(2026, 4, 26); // Base: 26/Maio/2026
+                            
+                            // 1. Checa Estouro de SLA
+                            if (normalizedRow['PREVISAO']) {
+                                let partes = normalizedRow['PREVISAO'].split('/');
+                                if(partes.length === 3) {
+                                    let dataPrev = new Date(partes[2], partes[1] - 1, partes[0]);
+                                    if(dataPrev < hojeOperacional) {
+                                        acao = "🚨 Acionar Expedição (SLA Vencido)";
+                                        precisaAcao = true;
+                                    }
+                                }
+                            }
+                            // 2. Checa Descompasso de API (Linx Faturado vs Sem Nota/Protheus)
+                            if (acao === "Nenhuma (Concluído/Cancelado)" && statusLinx.includes("FATUR") && (!statusLog.includes("FATUR") && !normalizedRow['NOTA'])) {
+                                acao = "🔌 Integrar Payload API / Emitir NF";
+                                precisaAcao = true;
+                            }
+                            // 3. Checa Retenção Logística (Sem tracking)
+                            if (acao === "Nenhuma (Concluído/Cancelado)" && !normalizedRow['RASTREIO']) {
+                                acao = "📦 Vincular Código de Rastreio";
+                                precisaAcao = true;
+                            }
+                            // Se continuou pendente sem os gatilhos acima
+                            if (acao === "Nenhuma (Concluído/Cancelado)") {
+                                acao = "⏳ Monitorar Fila Corrente";
+                                precisaAcao = false; 
+                            }
+                        }
+                        normalizedRow['ACAO_OPERACIONAL'] = acao;
+                        normalizedRow['PRECISA_ACAO_IMEDIATA'] = precisaAcao;
+
                         return normalizedRow;
                     }).filter(r => r['DATA'] || r['PEDIDO']);
 
@@ -285,12 +375,6 @@
         });
 
         function buildCrossFilters() {
-            const currentMonth = monthSelect.value;
-            const currentChannel = channelSelect.value;
-            const currentStatusLog = statusLogFilter.value;
-            const currentIntegration = integrationSelect.value;
-            const currentStatusLinx = statusLinxSelect.value;
-
             let months = new Set();
             let channels = new Set();
             let statusLogs = new Set();
@@ -317,14 +401,8 @@
             populateDropdown(integrationSelect, integrations, "Filtrar por Integração");
             populateDropdown(statusLinxSelect, statusLinxs, "Filtrar por Status Linx");
 
-            if(Array.from(months).includes(currentMonth)) monthSelect.value = currentMonth;
-            if(channels.has(currentChannel)) channelSelect.value = currentChannel;
-            if(statusLogs.has(currentStatusLog)) statusLogFilter.value = currentStatusLog;
-            if(integrations.has(currentIntegration)) integrationSelect.value = currentIntegration;
-            if(statusLinxs.has(currentStatusLinx)) statusLinxSelect.value = currentStatusLinx;
-
             document.getElementById('filterSection').classList.remove('opacity-50');
-            [monthSelect, searchInput, channelSelect, statusLogFilter, integrationSelect, statusLinxSelect].forEach(el => el.disabled = false);
+            [monthSelect, searchInput, channelSelect, statusLogFilter, integrationSelect, statusLinxSelect, actionToggle].forEach(el => el.disabled = false);
         }
 
         function populateDropdown(element, set, labelDefault) {
@@ -338,6 +416,23 @@
 
         [monthSelect, channelSelect, statusLogFilter, integrationSelect, statusLinxSelect].forEach(el => {
             el.addEventListener('change', () => applyFiltersAndRender());
+        });
+        actionToggle.addEventListener('change', () => {
+            // Se o toggle de focar ações estiver ativo, muda o contexto visual da tabela
+            if(actionToggle.checked) {
+                document.getElementById('tableTitle').innerText = "Fila Estrita de Tratativa de Incidentes";
+                document.getElementById('tableScopeBadge').className = "text-[10px] bg-amber-950 text-amber-400 px-2 py-0.5 rounded uppercase font-bold tracking-wider border border-amber-800/60";
+                document.getElementById('tableScopeBadge').innerText = "Ação Requerida";
+                document.getElementById('actionScreenContainer').classList.remove('hidden');
+                document.getElementById('chartsContainer').classList.add('opacity-40');
+            } else {
+                document.getElementById('tableTitle').innerText = "Mapeamento Analítico da Fila de Atendimento";
+                document.getElementById('tableScopeBadge').className = "text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded uppercase font-semibold tracking-wider";
+                document.getElementById('tableScopeBadge').innerText = "Visão Geral";
+                document.getElementById('actionScreenContainer').classList.add('hidden');
+                document.getElementById('chartsContainer').classList.remove('opacity-40');
+            }
+            applyFiltersAndRender();
         });
         searchInput.addEventListener('input', () => applyFiltersAndRender());
 
@@ -357,6 +452,7 @@
             const statusLogVal = statusLogFilter.value;
             const integrationVal = integrationSelect.value;
             const statusLinxVal = statusLinxSelect.value;
+            const onlyActionRequired = actionToggle.checked;
 
             let filteredData = rawDatabase.filter(row => {
                 let matchMonth = (monthVal === 'ALL' || (row['DATA'] && getMesAno(row['DATA'].trim()) === monthVal));
@@ -370,8 +466,9 @@
                 let matchIntegration = (integrationVal === 'ALL' || harmonizarGenerico(row['INTEGRACAO']) === integrationVal);
                 let matchStatusLinx = (statusLinxVal === 'ALL' || harmonizarGenerico(row['STATUS_LINX']) === statusLinxVal);
                 let matchKpi = (activeKpiFilter === 'ALL' || row['METRICA_CONCATENADA'] === activeKpiFilter);
+                let matchActionToggle = (!onlyActionRequired || row['PRECISA_ACAO_IMEDIATA'] === true);
 
-                return matchMonth && matchSearch && matchChannel && matchStatusLog && matchIntegration && matchKpi;
+                return matchMonth && matchSearch && matchChannel && matchStatusLog && matchIntegration && matchKpi && matchActionToggle;
             });
 
             document.getElementById('activeRows').innerText = filteredData.length.toLocaleString('pt-BR');
@@ -382,36 +479,34 @@
             let total = data.length;
             let faturados = 0; let quebras = 0; let abertos = 0;
             let mesesData = {}; let motivosContagem = {}; let criticosTabela = [];
+            let performancePorCanal = {};
 
-            let descompassoTI = 0;
-            let estouroSLA = 0;
-
-            const hojeOperacional = new Date(2026, 4, 26); // Escopo Base: 26/Maio/2026
+            let countSla = 0; let countTi = 0; let countLog = 0;
 
             data.forEach(row => {
                 let status = row['METRICA_CONCATENADA'];
-                let stLog = (row['STATUS_LOG'] || '').toUpperCase().trim();
-                let stLinx = (row['STATUS_LINX'] || '').toUpperCase().trim();
+                let canalHarmonizado = harmonizarCanal(row['CANAL']);
+                let acaoOp = row['ACAO_OPERACIONAL'];
 
                 if (status === 'FATURADO') faturados++;
                 else if (status === 'QUEBRA') quebras++;
                 else abertos++;
 
+                // Contadores específicos da central tática de tratamento
+                if(acaoOp.includes("SLA Vencido")) countSla++;
+                if(acaoOp.includes("API")) countTi++;
+                if(acaoOp.includes("Rastreio")) countLog++;
+
+                if (!performancePorCanal[canalHarmonizado]) {
+                    performancePorCanal[canalHarmonizado] = { total: 0, faturado: 0, quebra: 0 };
+                }
+                performancePorCanal[canalHarmonizado].total++;
+                if (status === 'FATURADO') performancePorCanal[canalHarmonizado].faturado++;
+                if (status === 'QUEBRA') performancePorCanal[canalHarmonizado].quebra++;
+
                 if (status === 'QUEBRA') {
                     let mot = row['MOTIVO_HARMONIZADO'];
                     motivosContagem[mot] = (motivosContagem[mot] || 0) + 1;
-                }
-
-                if(stLinx.includes("FATUR") && (!stLog.includes("FATUR") && !row['NOTA'])) {
-                    descompassoTI++;
-                }
-
-                if(status === 'PENDENTE' && row['PREVISAO']) {
-                    let partes = row['PREVISAO'].split('/');
-                    if(partes.length === 3) {
-                        let dataPrev = new Date(partes[2], partes[1] - 1, partes[0]);
-                        if(dataPrev < hojeOperacional) estouroSLA++;
-                    }
                 }
 
                 let dataBruta = row['DATA'] || '01/01/2026';
@@ -429,6 +524,12 @@
                 criticosTabela.push(row);
             });
 
+            // Atualiza os contadores da tela de ação
+            document.getElementById('actionTotalCount').innerText = `${countSla + countTi + countLog} Casos Críticos`;
+            document.getElementById('countSla').innerText = countSla;
+            document.getElementById('countTi').innerText = countTi;
+            document.getElementById('countLog').innerText = countLog;
+
             document.getElementById('kpiTotal').innerText = total.toLocaleString('pt-BR');
             document.getElementById('kpiFaturados').innerText = faturados.toLocaleString('pt-BR');
             document.getElementById('kpiQuebra').innerText = quebras.toLocaleString('pt-BR');
@@ -445,7 +546,7 @@
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
             if(criticosTabela.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="12" class="p-4 text-center text-gray-500">Nenhum registro correspondente aos filtros aplicados.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="13" class="p-4 text-center text-gray-500">Nenhum registro correspondente aos filtros aplicados.</td></tr>`;
             } else {
                 criticosTabela.forEach(item => {
                     let tr = document.createElement('tr');
@@ -455,7 +556,16 @@
                         ? 'bg-red-950 text-red-400 border border-red-900/40' 
                         : (item.METRICA_CONCATENADA === 'FATURADO' ? 'bg-green-950 text-green-400 border border-green-900/40' : 'bg-orange-950 text-orange-400 border border-orange-900/30');
 
+                    // Formatação do Badge da Ação
+                    let badgeAcaoClass = "text-gray-500";
+                    if(item.PRECISA_ACAO_IMEDIATA) {
+                        if(item.ACAO_OPERACIONAL.includes("SLA")) badgeAcaoClass = "bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-0.5 rounded font-bold";
+                        else if(item.ACAO_OPERACIONAL.includes("API")) badgeAcaoClass = "bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded font-bold";
+                        else badgeAcaoClass = "bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded font-bold";
+                    }
+
                     tr.innerHTML = `
+                        <td class="p-3 whitespace-nowrap"><span class="${badgeAcaoClass}">${item.ACAO_OPERACIONAL}</span></td>
                         <td class="p-3 text-gray-400 whitespace-nowrap">${item.DATA || '---'}</td>
                         <td class="p-3 text-white font-semibold whitespace-nowrap">${harmonizarCanal(item.CANAL)}</td>
                         <td class="p-3 font-mono text-blue-400 whitespace-nowrap">${item.PEDIDO || '---'}</td>
@@ -474,7 +584,7 @@
             }
 
             renderCharts(mesesData, motivosContagem);
-            renderIA(txQuebra, txFaturado, motivosContagem, descompassoTI, estouroSLA);
+            fetchGeminiInsights(total, faturados, txFaturado, quebras, txQuebra, abertos, motivosContagem, countTi, countSla, performancePorCanal);
         }
 
         function renderCharts(mesesData, motivosContagem) {
@@ -502,19 +612,6 @@
                     responsive: true, 
                     maintainAspectRatio: false, 
                     plugins: { legend: { labels: { color: '#9ca3af' } } },
-                    onClick: (e, elements) => {
-                        if (elements.length > 0) {
-                            const index = elements[0].index;
-                            const labelMes = labelsMeses[index];
-                            for(let key in nomeMeses) {
-                                if(nomeMeses[key].substring(0,3) === labelMes.split('/')[0]) {
-                                    monthSelect.value = `${key}/${labelMes.split('/')[1]}`;
-                                    applyFiltersAndRender();
-                                    break;
-                                }
-                            }
-                        }
-                    },
                     scales: { y: { grid: { color: '#1e293b' }, ticks: { color: '#9ca3af' } }, x: { grid: { display: false }, ticks: { color: '#9ca3af' } } } 
                 }
             });
@@ -526,79 +623,68 @@
             chartMotivos = new Chart(ctx2, {
                 type: 'doughnut',
                 data: {
-                    labels: labelsMotivos.length > 0 ? labelsMotivos : ["Sem volumetria de quebra no escopo"],
+                    labels: labelsMotivos.length > 0 ? labelsMotivos : ["Sem volumetria de quebra"],
                     datasets: [{ data: dadosMotivos.length > 0 ? dadosMotivos : [1], backgroundColor: ['#ef4444', '#f97316', '#3b82f6', '#a855f7', '#eab308'] }]
                 },
                 options: { 
                     responsive: true, 
                     maintainAspectRatio: false, 
-                    plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af', boxWidth: 10 } } },
-                    onClick: (e, elements) => {
-                        if (elements.length > 0 && labelsMotivos.length > 0) {
-                            const index = elements[0].index;
-                            const motivoSelecionado = labelsMotivos[index];
-                            if(motivoSelecionado.includes("Estoque")) searchInput.value = "ESTOQUE";
-                            else if(motivoSelecionado.includes("API")) searchInput.value = "LINX";
-                            else if(motivoSelecionado.includes("Comprador")) searchInput.value = "CLIENTE";
-                            else searchInput.value = motivoSelecionado;
-                            applyFiltersAndRender();
-                        }
-                    }
+                    plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af', boxWidth: 10 } } }
                 }
             });
         }
 
-        // MOTOR DE GOVERNANÇA CORPORATIVA E ANÁLISE QUANTITATIVA DE MERCADO
-        function renderIA(txQuebra, txFaturado, motivos, descompassoTI, estouroSLA) {
-            let maiorMotivo = "Nenhum desvio relevante mapeado";
-            let maxVol = 0;
-            for (let m in motivos) { if (motivos[m] > maxVol) { maxVol = motivos[m]; maiorMotivo = m; } }
+        async function fetchGeminiInsights(total, faturados, txFaturado, quebras, txQuebra, abertos, motivos, descompassoTI, estouroSLA, performancePorCanal) {
+            const outputElement = document.getElementById('geminiOutput');
+            const statusElement = document.getElementById('aiStatus');
 
-            // Benchmarks Setoriais de E-commerce de Saúde, Medicamentos e Equipamentos Hospitalares (Mercado Livre, Amazon B2B, Sites Próprios)
-            const benchmarkAtendimentoMercado = 91.5; // Média de conversão OTIF do segmento
-            const benchmarkQuebraMercado = 3.8;       // Taxa tolerável de quebra/cancelamento setorial em canais complexos
+            if (!GEMINI_API_KEY || GEMINI_API_KEY === "INSIRA_SUA_API_KEY_AQUI") {
+                outputElement.innerHTML = `<span class="text-amber-500 font-semibold">⚠️ Chave de API Ausente:</span> Insira sua credencial do Google AI Studio na linha 144 para ativar os relatórios dinâmicos.`;
+                statusElement.innerText = "Chave Requerida";
+                return;
+            }
 
-            let deltaAtendimento = (txFaturado - benchmarkAtendimentoMercado).toFixed(1);
-            let deltaQuebra = (txQuebra - benchmarkQuebraMercado).toFixed(1);
+            statusElement.innerText = "Analisando Backlog...";
+            statusElement.className = "text-[10px] text-purple-400 uppercase tracking-widest bg-purple-950/40 px-2.5 py-1 rounded border border-purple-900/50 animate-pulse";
 
-            let htmlContainer = document.getElementById('iaContent');
-            htmlContainer.innerHTML = '';
+            const datasetSummary = {
+                empresa: "MA Hospitalar",
+                indicadores_gerais: { total, faturados, txFaturado: txFaturado + "%", quebras, txQuebra: txQuebra + "%", backlog_pendente: abertos },
+                gargalos_prioritarios: { retidos_api_linx: descompassoTI, estouro_sla_previsao: estouroSLA },
+                pareto_ofensores: motivos,
+                performance_por_canal: performancePorCanal
+            };
 
-            // CARD 1: Eficiência Operacional e GAP de Benchmark
-            let block1 = document.createElement('div');
-            block1.className = `p-4 rounded-lg bg-gray-900/30 border ${txFaturado >= benchmarkAtendimentoMercado ? 'border-emerald-900/60' : 'border-red-900/40'}`;
-            block1.innerHTML = `
-                <span class="text-xs font-bold text-slate-300 block mb-2">1. DIAGNÓSTICO DE CONVERSÃO & BENCHMARKING</span>
-                <p class="text-gray-300 leading-relaxed">
-                    A taxa de conversão líquida está em <b class="text-white">${txFaturado}%</b>. O indicador de mercado para o segmento de saúde/hospitalar em grandes plataformas (Amazon B2B e Mercado Livre) estabelece uma linha base de <b class="text-slate-400">${benchmarkAtendimentoMercado}%</b>. 
-                    <br><span class="font-semibold ${txFaturado >= benchmarkAtendimentoMercado ? 'text-emerald-400' : 'text-red-400'}">Variância vs. Mercado: ${deltaAtendimento > 0 ? '+' + deltaAtendimento : deltaAtendimento}%</span> em relação ao padrão setorial.
-                </p>
-            `;
-            htmlContainer.appendChild(block1);
+            const promptText = `Atue como Diretor de Operações Logísticas em E-commerce Hospitalar.
+            Analise o cenário atual e os incidentes críticos levantados no mapeamento lógico:
+            ${JSON.stringify(datasetSummary, null, 2)}
+            
+            Gere um parecer tático em HTML focado na RESOLUÇÃO DOS INCIDENTES DO BACKLOG:
+            1. **ALERTAS DE IMPACTO REPUTACIONAL**: Como os atrasos atuais (${estouroSLA} pedidos vencidos) impactam o scorecard na Amazon B2B e Mercado Livre.
+            2. **DIRETRIZ DE RESOLUÇÃO SISTÊMICA (TI)**: Como o time de suporte deve tratar os ${descompassoTI} travamentos detectados entre o ERP Linx e a plataforma logística.`;
 
-            // CARD 2: Auditoria de Sincronismo Sistêmico e Gargalos de TI
-            let block2 = document.createElement('div');
-            block2.className = `p-4 rounded-lg bg-gray-900/30 border ${descompassoTI > 0 ? 'border-amber-900/60' : 'border-gray-800'}`;
-            block2.innerHTML = `
-                <span class="text-xs font-bold text-slate-300 block mb-2">2. INTEGRIDADE DA ARQUITETURA DE SISTEMAS</span>
-                <p class="text-gray-300 leading-relaxed">
-                    A análise ortogonal de dados detectou <b class="text-white">${descompassoTI} ocorrências</b> de assincronia entre o ERP Linx e a plataforma logística. São transações faturadas na origem que apresentam barreira de descida para o Protheus ou ausência de emissão de Nota Fiscal eletrônica.
-                    <br><span class="text-blue-400 font-semibold">Diretriz Recomendada:</span> Acionamento do suporte técnico de infraestrutura de TI para realizar o reprocessamento forçado dos payloads retidos na API.
-                </p>
-            `;
-            htmlContainer.appendChild(block2);
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`;
 
-            // CARD 3: Risco à Reputação e Atrito de Inventário (Order Breakage)
-            let block3 = document.createElement('div');
-            block3.className = `p-4 rounded-lg bg-gray-900/30 border ${txQuebra > benchmarkQuebraMercado ? 'border-red-900/60' : 'border-gray-800'}`;
-            block3.innerHTML = `
-                <span class="text-xs font-bold text-slate-300 block mb-2">3. MITIGAÇÃO DE QUEBRA & REPUTAÇÃO NOS MARKETPLACES</span>
-                <p class="text-gray-300 leading-relaxed">
-                    A taxa de quebra de pedidos está fixada em <b class="text-white">${txQuebra}%</b>, operando com um desvio de <b class="text-red-400">${deltaQuebra > 0 ? '+' + deltaQuebra : deltaQuebra}%</b> acima do limite tolerável de <b class="text-slate-400">${benchmarkQuebraMercado}%</b> estipulado por regras de Seller Reputation. O maior ofensor identificado é <b class="text-red-400">${maiorMotivo}</b>.
-                    <br><span class="text-orange-400 font-semibold">Alerta de Risco:</span> Existem <b class="text-white">${estouroSLA} transações</b> com a Previsão de Compra expirada. Recomenda-se auditoria física imediata do saldo de estoque do SKU no Protheus para estancar cancelamentos forçados.
-                </p>
-            `;
-            htmlContainer.appendChild(block3);
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: promptText }] }],
+                        generationConfig: { temperature: 0.1 }
+                    })
+                });
+
+                const json = await response.json();
+                if (json.candidates && json.candidates[0].content.parts[0].text) {
+                    let textResult = json.candidates[0].content.parts[0].text;
+                    outputElement.innerHTML = textResult.replace(/```html/g, '').replace(/```/g, '');
+                    statusElement.innerText = "Fila Auditada";
+                    statusElement.className = "text-[10px] text-emerald-400 uppercase tracking-widest bg-emerald-950/40 px-2.5 py-1 rounded border border-emerald-900/50";
+                }
+            } catch (error) {
+                statusElement.innerText = "Erro API";
+            }
         }
 
         document.getElementById('btnResetAll').addEventListener('click', () => {
@@ -608,6 +694,8 @@
             statusLogFilter.value = 'ALL';
             integrationSelect.value = 'ALL';
             statusLinxSelect.value = 'ALL';
+            actionToggle.checked = false;
+            actionToggle.dispatchEvent(new Event('change'));
             clickKpiCard('ALL');
         });
     </script>
