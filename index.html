@@ -33,7 +33,7 @@
             <div>
                 <div class="text-xs font-bold tracking-widest text-blue-500 uppercase">MA Hospitalar</div>
                 <h1 class="text-xl font-bold text-white mt-1">Operations Hub</h1>
-                <p class="text-xs text-gray-400 mt-1">Métricas Harmonizadas 2026</p>
+                <p class="text-xs text-gray-400 mt-1">Filtros & Harmonização Ativa</p>
             </div>
 
             <div class="custom-card p-4 bg-[#161f33]/30 border-blue-900/30">
@@ -42,7 +42,7 @@
             </div>
 
             <div class="space-y-3 opacity-50" id="filterSection">
-                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-800 pb-1">2. Filtros Operacionais Cruzados</div>
+                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-800 pb-1">2. Filtros Dinâmicos Cruzados</div>
                 
                 <div>
                     <label class="block text-[11px] text-orange-400 font-semibold mb-1">📅 Período / Mês</label>
@@ -53,7 +53,7 @@
 
                 <div>
                     <label class="block text-[11px] text-gray-400 mb-1">Busca Global (Pedido, NF, PV, Rastreio)</label>
-                    <input type="text" id="searchFilter" placeholder="Buscar em qualquer campo..." class="filter-select bg-[#101726]" disabled>
+                    <input type="text" id="searchFilter" placeholder="Buscar termo..." class="filter-select bg-[#101726]" disabled>
                 </div>
 
                 <div>
@@ -67,19 +67,19 @@
                 </div>
 
                 <div>
-                    <label class="block text-[11px] text-gray-400 mb-1">Integração</label>
+                    <label class="block text-[11px] text-gray-400 mb-1">Integração (Harmonizada)</label>
                     <select id="integrationFilter" class="filter-select" disabled><option value="ALL">Todas as Integrações</option></select>
                 </div>
 
                 <div>
-                    <label class="block text-[11px] text-gray-400 mb-1">Status Linx</label>
+                    <label class="block text-[11px] text-gray-400 mb-1">Status Linx (Harmonizado)</label>
                     <select id="statusLinxFilter" class="filter-select" disabled><option value="ALL">Todos os Status Linx</option></select>
                 </div>
             </div>
 
             <div class="space-y-2 text-xs text-gray-400 pt-2">
-                <div class="flex justify-between border-b border-gray-800 pb-2"><span>Registros Filtrados:</span><span id="activeRows" class="text-white font-bold">0</span></div>
-                <button id="btnResetAll" class="w-full mt-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold py-1 px-2 rounded text-[11px] transition">Limpar Todos os Filtros</button>
+                <div class="flex justify-between border-b border-gray-800 pb-2"><span>Registros Ativos:</span><span id="activeRows" class="text-white font-bold">0</span></div>
+                <button id="btnResetAll" class="w-full mt-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold py-1.5 px-2 rounded text-[11px] transition">Limpar Filtros e Resetar Visão</button>
             </div>
         </div>
     </div>
@@ -112,15 +112,15 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="custom-card p-5 lg:col-span-2">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Evolução Mensal: Volume de Entrada vs. Faturados</h3>
-                    <span class="text-[10px] text-blue-400 bg-blue-950/40 px-2 py-0.5 rounded border border-blue-900/30">Clique na barra para filtrar o mês</span>
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Evolução Mensal: Entrada vs. Faturados</h3>
+                    <span class="text-[10px] text-blue-400 bg-blue-950/40 px-2 py-0.5 rounded border border-blue-900/30">Clique na barra para isolar o mês</span>
                 </div>
                 <div class="h-64"><canvas id="chartMensal"></canvas></div>
             </div>
             <div class="custom-card p-5">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Gargalos por Categoria Objeção</h3>
-                    <span class="text-[10px] text-red-400 bg-red-950/40 px-2 py-0.5 rounded border border-red-900/30">Clique para filtrar</span>
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Gargalos por Categoria de Objeção</h3>
+                    <span class="text-[10px] text-red-400 bg-red-950/40 px-2 py-0.5 rounded border border-red-900/30">Clique para filtrar motivo</span>
                 </div>
                 <div class="h-64"><canvas id="chartMotivos"></canvas></div>
             </div>
@@ -128,12 +128,12 @@
 
         <div class="grid grid-cols-1 gap-6">
             <div class="ia-box p-6 rounded-xl">
-                <div class="flex items-center space-x-2 text-blue-400 mb-3">
+                <div class="flex items-center space-x-2 text-blue-400 mb-4">
                     <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                    <h4 class="text-xs font-bold uppercase tracking-widest">Diagnóstico Automatizado da Planilha Base</h4>
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-blue-400">⚡ AÇÕES OPERACIONAIS RECOMENDADAS (DISPARADOS POR DADOS)</h4>
                 </div>
-                <div id="iaContent" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-gray-300 leading-relaxed">
-                    <p>Carregue o CSV para que o motor realize a harmonização automática e concatene as métricas...</p>
+                <div id="iaContent" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                    <p class="text-gray-400 col-span-2">Insira o relatório unificado de vendas para rodar o motor de tomada de decisão...</p>
                 </div>
             </div>
 
@@ -170,11 +170,10 @@
 
     <script>
         let rawDatabase = [];
-        let activeKpiFilter = 'ALL'; // ALL, FATURADO, QUEBRA, PENDENTE
+        let activeKpiFilter = 'ALL';
         let chartMensal = null;
         let chartMotivos = null;
 
-        // Elementos DOM
         const monthSelect = document.getElementById('monthFilter');
         const searchInput = document.getElementById('searchFilter');
         const channelSelect = document.getElementById('channelFilter');
@@ -192,19 +191,29 @@
             return key.toUpperCase().replace(/[\s\-_]/g, '').trim();
         }
 
-        // RECONHECIMENTO E TRATAMENTO TEXTUAL REAL DAS COLUNAS DA TABELA
-        function harmonizarCanal(canalRaw) {
-            if (!canalRaw) return "NÃO INFORMADO";
-            let c = canalRaw.toUpperCase().trim();
+        // HARMONIZAÇÃO INTELIGENTE DE CANAIS BASEADA NAS FONTES DO MARKETPLACE
+        function harmonizarCanal(txt) {
+            if (!txt) return "NÃO INFORMADO";
+            let c = txt.toUpperCase().trim();
             if (c.includes("MELI") || c.includes("MERCADO")) {
                 if (c.includes("SC")) return "MERCADO LIVRE SC";
                 if (c.includes("RS")) return "MERCADO LIVRE RS";
-                return "MERCADO LIVRE (OUTROS)";
+                return "MERCADO LIVRE";
             }
             if (c.includes("ECOMMERCE") || c.includes("E-COMMERCE") || c.includes("SITE")) return "SITE E-COMMERCE";
             if (c.includes("MAGALU") || c.includes("MAGAZINE")) return "MAGALU";
             if (c.includes("AMAZON")) return "AMAZON";
-            return c; // Retorna o canal original se for pontual
+            return c;
+        }
+
+        // HARMONIZAÇÃO DE STATUS E CAMPOS BRUTOS EXIBIDOS NOS FILTROS (EVITA REPETIÇÃO DE "linx" E "LINX")
+        function harmonizarGenerico(txt) {
+            if(!txt) return "Vazio / Em Aberto";
+            let t = txt.toUpperCase().trim();
+            if(t === "LINX") return "LINX";
+            if(t === "FATURADO" || t === "FATURADA") return "FATURADO";
+            if(t === "CANCELADO" || t === "CANCELADA") return "CANCELADO";
+            return txt.trim();
         }
 
         function getMesAno(dataStr) {
@@ -247,19 +256,19 @@
                             else if (nk.includes("OBSERVA")) normalizedRow['OBSERVACOES'] = row[key];
                         });
 
-                        // CAMADA DE HARMONIZAÇÃO E CONCATENAÇÃO OPERACIONAL BASEADA NAS COLUNAS
+                        // CORE ENGINE: CONCATENAÇÃO DE RESULTADOS LOGÍSTICA VS ERP
                         let statusLog = (normalizedRow['STATUS_LOG'] || '').toUpperCase().trim();
                         let statusLinx = (normalizedRow['STATUS_LINX'] || '').toUpperCase().trim();
                         let obs = (normalizedRow['OBSERVACOES'] || '').toUpperCase().trim();
 
-                        let isFaturado = statusLog.includes('FATURAD') || statusLog.includes('EMITID') || statusLog.includes('CONCLU') || statusLinx.includes('FATURAD');
+                        let isFaturado = statusLog.includes('FATURAD') || statusLog.includes('EMITID') || statusLog.includes('CONCLU') || statusLinx.includes('FATURAD') || normalizedRow['NOTA'];
                         let isQuebra = statusLog.includes('CANC') || statusLog.includes('DEV') || statusLog.includes('ESTOR') || statusLog.includes('REJEIT') || obs.includes('CANC') || obs.includes('DEV') || statusLinx.includes('CANC');
 
                         if (isFaturado) normalizedRow['METRICA_CONCATENADA'] = 'FATURADO';
                         else if (isQuebra) normalizedRow['METRICA_CONCATENADA'] = 'QUEBRA';
                         else normalizedRow['METRICA_CONCATENADA'] = 'PENDENTE';
 
-                        // Concatenação inteligente do motivo de cancelamento baseado estritamente na coluna Observações
+                        // CONCATENAÇÃO DE TEXTO PARA CAUSA RAIZ DE QUEBRAS
                         let motivo = "Não Especificado / Outros";
                         if (isQuebra) {
                             if (obs.includes("ESTOQUE") || obs.includes("FALTA") || obs.includes("SALDO") || obs.includes("ZERADO")) motivo = "Falta de Estoque";
@@ -273,14 +282,13 @@
                         return normalizedRow;
                     }).filter(r => r['DATA'] || r['PEDIDO']);
 
-                    // Gera os filtros cruzados baseados na planilha limpa
                     buildCrossFilters();
                     applyFiltersAndRender();
                 }
             });
         });
 
-        // RECURSO SOLICITADO: Filtros dinâmicos que mudam de acordo com as seleções atuais (Sem deixar tabelas vazias)
+        // RECONSTRUÇÃO DOS FILTROS DINÂMICOS BASEADO APENAS NOS ELEMENTOS VISÍVEIS (EVITA FILTROS VAZIOS)
         function buildCrossFilters() {
             const currentMonth = monthSelect.value;
             const currentChannel = channelSelect.value;
@@ -294,16 +302,16 @@
             let integrations = new Set();
             let statusLinxs = new Set();
 
+            // Avalia a base para popular os filtros já limpos de duplicados
             rawDatabase.forEach(row => {
                 let m = row['DATA'] ? getMesAno(row['DATA'].trim()) : "Indefinido";
                 if(m !== "Indefinido") months.add(m);
                 if(row['CANAL']) channels.add(harmonizarCanal(row['CANAL']));
-                if(row['STATUS_LOG']) statusLogs.add(row['STATUS_LOG'].trim());
-                if(row['INTEGRACAO']) integrations.add(row['INTEGRACAO'].trim());
-                if(row['STATUS_LINX']) statusLinxs.add(row['STATUS_LINX'].trim());
+                if(row['STATUS_LOG']) statusLogs.add(harmonizarGenerico(row['STATUS_LOG']));
+                if(row['INTEGRACAO']) integrations.add(harmonizarGenerico(row['INTEGRACAO']));
+                if(row['STATUS_LINX']) statusLinxs.add(harmonizarGenerico(row['STATUS_LINX']));
             });
 
-            // Repopula os Menus Dropdown mantendo consistência estrutural
             monthSelect.innerHTML = '<option value="ALL">Todo o Período</option>';
             Array.from(months).sort().forEach(ch => {
                 let [m, ano] = ch.split('/');
@@ -315,7 +323,6 @@
             populateDropdown(integrationSelect, integrations, "Todas as Integrações");
             populateDropdown(statusLinxSelect, statusLinxs, "Todos os Status Linx");
 
-            // Devolve valores selecionados previamente se continuarem existindo
             if(Array.from(months).includes(currentMonth)) monthSelect.value = currentMonth;
             if(channels.has(currentChannel)) channelSelect.value = currentChannel;
             if(statusLogs.has(currentStatusLog)) statusLogFilter.value = currentStatusLog;
@@ -335,22 +342,18 @@
             if(set.has(currentVal)) element.value = currentVal;
         }
 
-        // Ouvintes de alteração de filtros
         [monthSelect, channelSelect, statusLogFilter, integrationSelect, statusLinxSelect].forEach(el => {
             el.addEventListener('change', () => applyFiltersAndRender());
         });
         searchInput.addEventListener('input', () => applyFiltersAndRender());
 
-        // LÓGICA DE INTERAÇÃO VIA CARD (DRILL-DOWN DE KPIS)
+        // DRILL-DOWN VIA SELEÇÃO DE CARDS DE KPI
         function clickKpiCard(type) {
             activeKpiFilter = type;
-            
-            // Gerenciamento visual de classes ativas nos cards
             document.getElementById('cardTotal').className = "custom-card clickable-card p-5 kpi-gradient-blue" + (type === 'ALL' ? " active-card shadow-lg" : "");
             document.getElementById('cardFaturados').className = "custom-card clickable-card p-5 kpi-gradient-green" + (type === 'FATURADO' ? " active-card shadow-lg" : "");
             document.getElementById('cardQuebra').className = "custom-card clickable-card p-5 kpi-gradient-red" + (type === 'QUEBRA' ? " active-card shadow-lg" : "");
             document.getElementById('cardAberto').className = "custom-card clickable-card p-5 kpi-gradient-orange" + (type === 'PENDENTE' ? " active-card shadow-lg" : "");
-
             applyFiltersAndRender();
         }
 
@@ -362,7 +365,6 @@
             const integrationVal = integrationSelect.value;
             const statusLinxVal = statusLinxSelect.value;
 
-            // Filtra os dados com base nos inputs laterais + Card de KPI selecionado
             let filteredData = rawDatabase.filter(row => {
                 let matchMonth = (monthVal === 'ALL' || (row['DATA'] && getMesAno(row['DATA'].trim()) === monthVal));
                 let matchSearch = true;
@@ -371,13 +373,12 @@
                     matchSearch = fullTextRow.includes(searchVal);
                 }
                 let matchChannel = (channelVal === 'ALL' || harmonizarCanal(row['CANAL']) === channelVal);
-                let matchStatusLog = (statusLogVal === 'ALL' || (row['STATUS_LOG'] && row['STATUS_LOG'].trim() === statusLogVal));
-                let matchIntegration = (integrationVal === 'ALL' || (row['INTEGRACAO'] && row['INTEGRACAO'].trim() === integrationVal));
-                let matchStatusLinx = (statusLinxVal === 'ALL' || (row['STATUS_LINX'] && row['STATUS_LINX'].trim() === statusLinxVal));
-                
+                let matchStatusLog = (statusLogVal === 'ALL' || harmonizarGenerico(row['STATUS_LOG']) === statusLogVal);
+                let matchIntegration = (integrationVal === 'ALL' || harmonizarGenerico(row['INTEGRACAO']) === integrationVal);
+                let matchStatusLinx = (statusLinxVal === 'ALL' || harmonizarGenerico(row['STATUS_LINX']) === statusLinxVal);
                 let matchKpi = (activeKpiFilter === 'ALL' || row['METRICA_CONCATENADA'] === activeKpiFilter);
 
-                return matchMonth && matchSearch && matchChannel && matchStatusLog && matchIntegration && matchStatusLinx && matchKpi;
+                return matchMonth && matchSearch && matchChannel && matchStatusLog && matchIntegration && matchKpi;
             });
 
             document.getElementById('activeRows').innerText = filteredData.length.toLocaleString('pt-BR');
@@ -387,21 +388,43 @@
         function processAndRender(data) {
             let total = data.length;
             let faturados = 0; let quebras = 0; let abertos = 0;
-            let mesesData = {}; let motivosContagem = {}; let criticosTabela = [];
+            let mesesData = {}; let motivesContagem = {}; let criticosTabela = [];
 
-            // Calcula métricas relativas com base estritamente no recorte de dados ativo
+            // Contadores de Desbalanceamento Operacional (Sincronia Faturamento vs Expedição)
+            let descompassoTI = 0;
+            let estouroSLA = 0;
+
+            // Pega data atual para comparar prazos estourados (Simulação de Escopo Maio/2026)
+            const hojeOperacional = new Date(2026, 4, 26); 
+
             data.forEach(row => {
                 let status = row['METRICA_CONCATENADA'];
+                let stLog = (row['STATUS_LOG'] || '').toUpperCase().trim();
+                let stLinx = (row['STATUS_LINX'] || '').toUpperCase().trim();
+
                 if (status === 'FATURADO') faturados++;
                 else if (status === 'QUEBRA') quebras++;
                 else abertos++;
 
                 if (status === 'QUEBRA') {
                     let mot = row['MOTIVO_HARMONIZADO'];
-                    motivosContagem[mot] = (motivosContagem[mot] || 0) + 1;
+                    motivesContagem[mot] = (motivesContagem[mot] || 0) + 1;
                 }
 
-                // Agrupamento temporal do gráfico
+                // GARGALO OPERACIONAL 1: Marcado como faturado na Linx mas retido/pendente no Logística ou sem Nota Fiscal emitida
+                if(stLinx.includes("FATUR") && (!stLog.includes("FATUR") && !row['NOTA'])) {
+                    descompassoTI++;
+                }
+
+                // GARGALO OPERACIONAL 2: Pedido pendente cuja Previsão de Compra já expirou
+                if(status === 'PENDENTE' && row['PREVISAO']) {
+                    let partes = row['PREVISAO'].split('/');
+                    if(partes.length === 3) {
+                        let dataPrev = new Date(partes[2], partes[1] - 1, partes[0]);
+                        if(dataPrev < hojeOperacional) estouroSLA++;
+                    }
+                }
+
                 let dataBruta = row['DATA'] || '01/01/2026';
                 let chaveMes = getMesAno(dataBruta.trim());
                 let labelMesGrafico = "Indefinido";
@@ -417,7 +440,6 @@
                 criticosTabela.push(row);
             });
 
-            // Atualiza os KPIs na Tela com as porcentagens mes/período solicitadas
             document.getElementById('kpiTotal').innerText = total.toLocaleString('pt-BR');
             document.getElementById('kpiFaturados').innerText = faturados.toLocaleString('pt-BR');
             document.getElementById('kpiQuebra').innerText = quebras.toLocaleString('pt-BR');
@@ -427,15 +449,14 @@
             let txQuebra = total > 0 ? ((quebras / total) * 100).toFixed(1) : 0;
 
             document.getElementById('subTotal').innerText = monthSelect.value === 'ALL' ? 'Total do período carregado' : 'Filtrado no mês ativo';
-            document.getElementById('subFaturados').innerText = `${txFaturado}% dos pedidos do período`;
+            document.getElementById('subFaturados').innerText = `${txFaturado}% de conversão líquida`;
             document.getElementById('subQuebra').innerText = `${txQuebra}% taxa de cancelamento`;
-            document.getElementById('subAberto').innerText = `${abertos} pendências operacionais`;
+            document.getElementById('subAberto').innerText = `${abertos} na fila de tratamento`;
 
-            // Monta a Tabela Completa com as 12 colunas solicitadas
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
             if(criticosTabela.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="12" class="p-4 text-center text-gray-500">Nenhum registro encontrado para a combinação atual.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="12" class="p-4 text-center text-gray-500">Nenhum registro encontrado.</td></tr>`;
             } else {
                 criticosTabela.forEach(item => {
                     let tr = document.createElement('tr');
@@ -449,9 +470,9 @@
                         <td class="p-3 text-gray-400 whitespace-nowrap">${item.DATA || '---'}</td>
                         <td class="p-3 text-white font-semibold whitespace-nowrap">${harmonizarCanal(item.CANAL)}</td>
                         <td class="p-3 font-mono text-blue-400 whitespace-nowrap">${item.PEDIDO || '---'}</td>
-                        <td class="p-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] ${badgeLog}">${item.STATUS_LOG || 'PENDENTE'}</span></td>
-                        <td class="p-3 text-gray-300 whitespace-nowrap">${item.STATUS_LINX || '---'}</td>
-                        <td class="p-3 text-gray-400 whitespace-nowrap">${item.INTEGRACAO || '---'}</td>
+                        <td class="p-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] ${badgeLog}">${harmonizarGenerico(item.STATUS_LOG)}</span></td>
+                        <td class="p-3 text-gray-300 whitespace-nowrap">${harmonizarGenerico(item.STATUS_LINX)}</td>
+                        <td class="p-3 text-gray-400 whitespace-nowrap">${harmonizarGenerico(item.INTEGRACAO)}</td>
                         <td class="p-3 font-mono text-gray-300 whitespace-nowrap">${item.PV_PROTHEUS || '---'}</td>
                         <td class="p-3 font-mono text-gray-300 whitespace-nowrap">${item.NOTA || '---'}</td>
                         <td class="p-3 text-blue-300 font-mono whitespace-nowrap">${item.RASTREIO || '---'}</td>
@@ -463,11 +484,11 @@
                 });
             }
 
-            renderCharts(mesesData, motivosContagem);
-            renderIA(txQuebra, txFaturado, motivosContagem, abertos);
+            renderCharts(mesesData, motivesContagem);
+            renderIA(txQuebra, txFaturado, motivesContagem, descompassoTI, estouroSLA);
         }
 
-        function renderCharts(mesesData, motivosContagem) {
+        function renderCharts(mesesData, motivesContagem) {
             if (chartMensal) chartMensal.destroy();
             if (chartMotivos) chartMotivos.destroy();
 
@@ -485,7 +506,7 @@
                     labels: labelsMeses,
                     datasets: [
                         { label: 'Entradas Totais', data: dadosEntrada, backgroundColor: '#2563eb' },
-                        { label: 'Faturados Atendidos', data: dadosFaturados, backgroundColor: '#10b981' }
+                        { label: 'Faturados Concluídos', data: dadosFaturados, backgroundColor: '#10b981' }
                     ]
                 },
                 options: { 
@@ -493,12 +514,9 @@
                     maintainAspectRatio: false, 
                     plugins: { legend: { labels: { color: '#9ca3af' } } },
                     onClick: (e, elements) => {
-                        // DRILL DOWN INTERATIVO POR CLIQUE NO GRÁFICO MENSAL
                         if (elements.length > 0) {
                             const index = elements[0].index;
-                            const labelMes = labelsMeses[index]; // Ex: "Jan/2026"
-                            
-                            // Traduz a label curta de volta para o valor do dropdown (Ex: "01/2026")
+                            const labelMes = labelsMeses[index];
                             for(let key in nomeMeses) {
                                 if(nomeMeses[key].substring(0,3) === labelMes.split('/')[0]) {
                                     monthSelect.value = `${key}/${labelMes.split('/')[1]}`;
@@ -512,14 +530,14 @@
                 }
             });
 
-            const labelsMotivos = Object.keys(motivosContagem);
-            const dadosMotivos = Object.values(motivosContagem);
+            const labelsMotivos = Object.keys(motivesContagem);
+            const dadosMotivos = Object.values(motivesContagem);
 
             const ctx2 = document.getElementById('chartMotivos').getContext('2d');
             chartMotivos = new Chart(ctx2, {
                 type: 'doughnut',
                 data: {
-                    labels: labelsMotivos.length > 0 ? labelsMotivos : ["Nenhuma quebra ativa"],
+                    labels: labelsMotivos.length > 0 ? labelsMotivos : ["Nenhuma objeção ativa"],
                     datasets: [{ data: dadosMotivos.length > 0 ? dadosMotivos : [1], backgroundColor: ['#ef4444', '#f97316', '#3b82f6', '#a855f7', '#eab308'] }]
                 },
                 options: { 
@@ -527,17 +545,13 @@
                     maintainAspectRatio: false, 
                     plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af', boxWidth: 10 } } },
                     onClick: (e, elements) => {
-                        // DRILL DOWN POR CLIQUE NA FATIA DE OBJEÇÃO (Escreve no filtro global de busca)
                         if (elements.length > 0 && labelsMotivos.length > 0) {
                             const index = elements[0].index;
                             const motivoSelecionado = labelsMotivos[index];
-                            
-                            // Gatilho rápido para mapeamento semântico inverso na busca
                             if(motivoSelecionado === "Falta de Estoque") searchInput.value = "ESTOQUE";
                             else if(motivoSelecionado === "Erro de Integração/API") searchInput.value = "LINX";
                             else if(motivoSelecionado === "Desistência do Cliente") searchInput.value = "CLIENTE";
                             else searchInput.value = motivoSelecionado;
-                            
                             applyFiltersAndRender();
                         }
                     }
@@ -545,24 +559,43 @@
             });
         }
 
-        function renderIA(txQuebra, txFaturado, motivos, abertos) {
-            let maiorMotivo = "Nenhum mapeado no filtro atual";
+        // MOTOR DE GERAÇÃO DE INSIGHTS VERDADEIRAMENTE ACIONÁVEIS
+        function renderIA(txQuebra, txFaturado, motivos, descompassoTI, estouroSLA) {
+            let maiorMotivo = "Nenhum mapeado";
             let maxVol = 0;
             for (let m in motivos) { if (motivos[m] > maxVol) { maxVol = motivos[m]; maiorMotivo = m; } }
 
-            document.getElementById('iaContent').innerHTML = `
-                <div class="p-3 bg-blue-950/20 border border-blue-900/30 rounded-lg">
-                    <span class="text-xs font-bold text-emerald-400 block mb-1">🎯 EFETIVIDADE DA TRATATIVA</span>
-                    <p>A taxa de atendimento bem-sucedido (Faturamento Cruzado Logística + Linx) está consolidada em <b class="text-white">${txFaturado}%</b> sob o escopo selecionado.</p>
-                </div>
-                <div class="p-3 bg-blue-950/20 border border-blue-900/30 rounded-lg">
-                    <span class="text-xs font-bold text-red-400 block mb-1">⚠️ QUEBRAS E OBJEÇÕES (CONCATENADO)</span>
-                    <p>Identificada uma perda operacional de <b class="text-white">${txQuebra}%</b>. Avaliando a coluna de Observações, a maior causa-raiz isolada neste cenário é: <b class="text-red-300">${maiorMotivo}</b>.</p>
-                </div>
+            let htmlContainer = document.getElementById('iaContent');
+            htmlContainer.innerHTML = '';
+
+            // 1. Bloco de Ação Corretiva: Falha de Integração Sistêmica
+            let blockTI = document.createElement('div');
+            blockTI.className = `p-4 rounded-lg border ${descompassoTI > 0 ? 'bg-red-950/20 border-red-900/60' : 'bg-gray-900/30 border-gray-800'}`;
+            blockTI.innerHTML = `
+                <span class="text-xs font-bold ${descompassoTI > 0 ? 'text-red-400' : 'text-gray-400'} block mb-1">🛠️ GARGALO DE TI: RETENÇÃO ERP / LINX</span>
+                <p class="text-gray-300 leading-relaxed">Identificados <b class="text-white">${descompassoTI} pedidos</b> travados na sincronia. Constam como pagos/faturados no Linx, mas não emitiram Nota Fiscal ou Logística pendente. <br><span class="text-blue-400 font-semibold">Ação imediata:</span> Abrir ticket técnico de infraestrutura na API para forçar a descida desses pedidos para o Protheus.</p>
             `;
+            htmlContainer.appendChild(blockTI);
+
+            // 2. Bloco de Ação Corretiva: Estouro Crítico de SLA
+            let blockSLA = document.createElement('div');
+            blockSLA.className = `p-4 rounded-lg border ${estouroSLA > 0 ? 'bg-orange-950/20 border-orange-900/60' : 'bg-gray-900/30 border-gray-800'}`;
+            blockSLA.innerHTML = `
+                <span class="text-xs font-bold ${estouroSLA > 0 ? 'text-orange-400' : 'text-gray-400'} block mb-1">🚨 RISCO AUTOMÁTICO: PRAZO EXPINADO</span>
+                <p class="text-gray-300 leading-relaxed">Existem <b class="text-white">${estouroSLA} pedidos em aberto</b> cuja data na coluna 'Previsão de Compra' já venceu. <br><span class="text-orange-400 font-semibold">Ação imediata:</span> Acionar a expedição fisicamente no armazém. O Mercado Livre pune severamente a reputação da conta MA Hospitalar caso esses itens não sejam postados nas próximas horas.</p>
+            `;
+            htmlContainer.appendChild(blockSLA);
+
+            // 3. Bloco de Causa Raiz de Perdas
+            let blockPerda = document.createElement('div');
+            blockPerda.className = "p-4 rounded-lg bg-gray-900/30 border border-gray-800 md:col-span-2";
+            blockPerda.innerHTML = `
+                <span class="text-xs font-bold text-blue-400 block mb-1">📉 RAIO-X REVOLTANTE DE CANCELAMENTOS (QUEBRAS: ${txQuebra}%)</span>
+                <p class="text-gray-300 leading-relaxed">O principal motivo identificado por trás das observações da planilha é: <b class="text-red-400">${maiorMotivo}</b>. <br><span class="text-emerald-400 font-semibold">Ação estratégica:</span> Se o culpado for 'Falta de Estoque', realize o inventário cíclico das posições físicas dos itens de alta rotatividade. Ajustar o saldo virtual previne vendas fantasmas de equipamentos cirúrgicos/hospitalares.</p>
+            `;
+            htmlContainer.appendChild(blockPerda);
         }
 
-        // Reseta todos os estados para a visão padrão limpa
         document.getElementById('btnResetAll').addEventListener('click', () => {
             monthSelect.value = 'ALL';
             searchInput.value = '';
