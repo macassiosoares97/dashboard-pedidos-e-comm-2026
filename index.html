@@ -3,100 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MA Hospitalar - Dashboard de Pedidos 2026</title>
+    <title>MA Hospitalar - Advanced Operations Analytics</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        body { background-color: #0b0f17; color: #f0f6fc; }
-        .custom-card { background-color: #121824; border: 1px solid #1f293d; border-radius: 12px; }
-        .custom-ia-card { background-color: #121a2e; border: 1px solid #233a66; border-radius: 12px; box-shadow: 0 0 15px rgba(56, 139, 253, 0.15); }
+        body { background-color: #0b0f19; color: #f0f6fc; font-family: system-ui, -apple-system, sans-serif; }
+        .sidebar { background-color: #0f1422; border-right: 1px solid #1e2638; }
+        .custom-card { background-color: #121826; border: 1px solid #1f293d; border-radius: 12px; }
+        .kpi-gradient-1 { background: linear-gradient(135deg, #1e2942 0%, #111724 100%); border: 1px solid #28385c; }
+        .kpi-gradient-2 { background: linear-gradient(135deg, #2c1a24 0%, #111724 100%); border: 1px solid #4a2435; }
+        .ia-box { background: linear-gradient(145deg, #131c33 0%, #0c101f 100%); border: 1px solid #233666; box-shadow: 0 0 20px rgba(56, 139, 253, 0.1); }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #1f293d; border-radius: 4px; }
     </style>
 </head>
-<body class="p-6 md:p-10">
+<body class="flex flex-col md:flex-row min-h-screen">
 
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-gray-800 pb-5">
+    <div class="w-full md:w-80 sidebar p-6 flex flex-col justify-between">
         <div>
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-white">📦 PEDIDOS MARKETPLACES - OPERATIONS DASHBOARD 2026</h1>
-            <p class="text-sm text-gray-400 mt-1">MA Hospitalar | Atualização via upload manual de CSV</p>
+            <div class="mb-8">
+                <div class="text-xs font-bold tracking-widest text-blue-500 uppercase">MA Hospitalar</div>
+                <h1 class="text-xl font-bold text-white mt-1">Operations Hub</h1>
+                <p class="text-xs text-gray-400 mt-1">Análise de Performance 2026</p>
+            </div>
+
+            <div class="custom-card p-4 mb-6 bg-[#161f33]/50 border-blue-900/50">
+                <label class="block text-xs font-semibold text-blue-400 uppercase tracking-wider mb-2">Base de Dados (CSV)</label>
+                <input type="file" id="csvFileInput" accept=".csv" class="block w-full text-xs text-gray-400 file:mr-3 file:py-2 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"/>
+            </div>
+
+            <div class="space-y-2 text-xs text-gray-400">
+                <div class="flex justify-between border-b border-gray-800 pb-2"><span>Status do Link:</span><span class="text-green-400 font-bold">● Live</span></div>
+                <div class="flex justify-between border-b border-gray-800 pb-2"><span>Processamento:</span><span id="procStatus" class="text-gray-400">Aguardando</span></div>
+                <div class="flex justify-between pb-2"><span>Engine:</span><span>Chart.js Client Side</span></div>
+            </div>
         </div>
-        <div class="mt-4 md:mt-0">
-            <input type="file" id="csvFileInput" accept=".csv" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"/>
+        
+        <div class="text-[10px] text-gray-500 mt-6 md:mt-0 border-t border-gray-800 pt-4">
+            Desenvolvido para otimização de SLA de Marketplaces.
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="custom-card p-6">
-            <p class="text-xs font-semibold text-gray-400 tracking-wider uppercase">Total de Pedidos</p>
-            <h2 id="kpiTotal" class="text-4xl font-bold text-blue-400 my-2">0</h2>
-            <span class="text-xs text-green-400">↑ Base 2026 Carregada</span>
+    <div class="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="custom-card p-5 kpi-gradient-1">
+                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Volume Total Pedidos</p>
+                <h2 id="kpiTotal" class="text-3xl font-extrabold text-white my-1">0</h2>
+                <p class="text-xs text-blue-400">Entradas detectadas na base</p>
+            </div>
+            <div class="custom-card p-5 kpi-gradient-1">
+                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Faturados Líquidos</p>
+                <h2 id="kpiFaturados" class="text-3xl font-extrabold text-green-400 my-1">0</h2>
+                <p id="subFaturados" class="text-xs text-gray-400">0% do total</p>
+            </div>
+            <div class="custom-card p-5 kpi-gradient-2">
+                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Devolução / Estorno / Canc.</p>
+                <h2 id="kpiQuebra" class="text-3xl font-extrabold text-red-400 my-1">0</h2>
+                <p id="subQuebra" class="text-xs text-red-400 font-semibold">0% Taxa de Quebra</p>
+            </div>
+            <div class="custom-card p-5 kpi-gradient-1">
+                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Em Aberto (Gargalo Logístico)</p>
+                <h2 id="kpiAberto" class="text-3xl font-extrabold text-orange-400 my-1">0</h2>
+                <p id="subAberto" class="text-xs text-gray-400">Pendente liberação/SLA</p>
+            </div>
         </div>
-        <div class="custom-card p-6">
-            <p class="text-xs font-semibold text-gray-400 tracking-wider uppercase">Pedidos Faturados</p>
-            <h2 id="kpiFaturados" class="text-4xl font-bold text-green-400 my-2">0</h2>
-            <span class="text-xs text-green-400">✓ NF emitida no Protheus</span>
-        </div>
-        <div class="custom-card p-6">
-            <p class="text-xs font-semibold text-gray-400 tracking-wider uppercase">Pedidos em Aberto / Gargalo</p>
-            <h2 id="kpiAberto" class="text-4xl font-bold text-orange-400 my-2">0</h2>
-            <span class="text-xs text-orange-300">⚠️ Requer tratamento logístico</span>
-        </div>
-    </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <div class="custom-card p-6">
-            <h3 class="text-lg font-semibold text-white mb-4">Marketplace Performance: Faturados vs. Aberto</h3>
-            <div class="h-64 flex items-center justify-center">
-                <canvas id="chartMarketplace"></canvas>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="custom-card p-5 lg:col-span-2">
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Evolução Mensal: Volume de Entrada vs. Faturados</h3>
+                <div class="h-64"><canvas id="chartMensal"></canvas></div>
+            </div>
+            <div class="custom-card p-5">
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Principais Motivos de Cancelamento</h3>
+                <div class="h-64"><canvas id="chartMotivos"></canvas></div>
             </div>
         </div>
-        <div class="custom-card p-6">
-            <h3 class="text-lg font-semibold text-white mb-4">Volumetria por Status Logístico</h3>
-            <div class="h-64 flex items-center justify-center">
-                <canvas id="chartStatus"></canvas>
-            </div>
-        </div>
-    </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="custom-ia-card p-6">
-            <h4 class="text-md font-bold text-red-400 mb-3 flex items-center">🤖 Hub de IA: Principais Gaps</h4>
-            <p class="text-sm text-gray-300 leading-relaxed mb-4">Análise preditiva baseada nos cruzamentos das colunas Linx e Protheus:</p>
-            <ul class="text-xs text-gray-400 space-y-3 list-disc pl-4">
-                <li><b class="text-orange-400">Gargalo de Integração:</b> Pedidos com "PV Gerado atendimento" travados sem geração de nota fiscal há mais de 48h.</li>
-                <li><b class="text-red-400">SLA de Devolução:</b> Necessário checar o campo 'Observações' para processar solicitações de estorno urgentes.</li>
-            </ul>
-        </div>
-        <div class="custom-card p-6 lg:col-span-2">
-            <h4 class="text-md font-bold text-white mb-4">Fila de Pedidos Operacionais (Ação Imediata)</h4>
-            <div class="overflow-x-auto max-h-60 border border-gray-800 rounded-md">
-                <table class="min-w-full text-xs text-left text-gray-400">
-                    <thead class="bg-gray-900 text-gray-300 uppercase sticky top-0">
-                        <tr>
-                            <th class="p-3">Data</th>
-                            <th class="p-3">Canal</th>
-                            <th class="p-3">Nº Pedido</th>
-                            <th class="p-3">Status Log</th>
-                            <th class="p-3">Nota</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        <tr>
-                            <td colspan="5" class="p-4 text-center text-gray-500">Aguardando upload do arquivo CSV...</td>
-                        </tr>
-                    </tbody>
-                </table>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="ia-box p-6 rounded-xl flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center space-x-2 text-blue-400 mb-3">
+                        <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        <h4 class="text-xs font-bold uppercase tracking-widest">Insights Avançados da IA</h4>
+                    </div>
+                    <div id="iaContent" class="text-xs text-gray-300 space-y-4 leading-relaxed">
+                        <p>Aguardando upload do CSV de pedidos para cruzar as colunas de integradores e mapear perdas ocultas...</p>
+                    </div>
+                </div>
+                <div class="mt-4 pt-3 border-t border-blue-900/30 flex justify-between text-[10px] text-blue-400/70">
+                    <span>Análise Dinâmica Ativa</span>
+                    <span>v2.1</span>
+                </div>
+            </div>
+
+            <div class="custom-card p-5 lg:col-span-2">
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Fila de Alerta Operacional (Objeções & Cancelados Recentes)</h3>
+                <div class="overflow-x-auto max-h-64 border border-gray-800/80 rounded-lg">
+                    <table class="min-w-full text-xs text-left text-gray-400">
+                        <thead class="bg-[#161e30] text-gray-300 uppercase font-semibold text-[10px] tracking-wider sticky top-0">
+                            <tr>
+                                <th class="p-3">Data</th>
+                                <th class="p-3">Canal</th>
+                                <th class="p-3">Nº Pedido</th>
+                                <th class="p-3">Status Logístico</th>
+                                <th class="p-3">Objeção / Motivo Encontrado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr>
+                                <td colspan="5" class="p-4 text-center text-gray-500">Nenhum dado importado até o momento.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+
     </div>
 
     <script>
-        let chart1 = null;
-        let chart2 = null;
+        let chartMensal = null;
+        let chartMotivos = null;
 
         document.getElementById('csvFileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
+
+            document.getElementById('procStatus').innerText = "Processando...";
+            document.getElementById('procStatus').className = "text-yellow-400 font-bold";
 
             Papa.parse(file, {
                 header: true,
@@ -111,86 +148,188 @@
         function processData(data) {
             let total = data.length;
             let faturados = 0;
-            let canais = {};
-            let statusLog = {};
+            let quebras = 0; // Cancelados, Devoluções, Estornos
+            let abertos = 0;
 
-            // Limpa a tabela anterior
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = '';
+            let mesesData = {};
+            let motivosContagem = {};
+            let criticosTabela = [];
 
-            data.forEach((row, index) => {
-                let status = (row['STATUS DO PEDIDO - LOG'] || 'NÃO INFORMADO').toUpperCase().trim();
-                let canal = (row['CANAL'] || 'OUTROS').trim();
+            data.forEach(row => {
+                // Tratamento de Status Logístico
+                let status = (row['STATUS DO PEDIDO - LOG'] || row['STATUS'] || 'NÃO INFORMADO').toUpperCase().trim();
                 
-                // Regra de Faturamento
-                let isFaturado = status.includes('FATURAD');
+                // Mapeamento de Gaps / Motivos / Objeções nas colunas de texto
+                let obsText = (row['OBSERVAÇÕES'] || row['MOTIVO'] || row['OBS'] || row['STATUS DO PEDIDO - LOG'] || '').toUpperCase();
+                
+                let isFaturado = status.includes('FATURAD') || status.includes('EMITID') || status.includes('CONCLU');
+                let isQuebra = status.includes('CANC') || status.includes('DEV') || status.includes('ESTOR') || status.includes('REJEIT') || obsText.includes('CANC') || obsText.includes('DEV');
+
                 if (isFaturado) faturados++;
+                else if (isQuebra) quebras++;
+                else abertos++;
 
-                // Agrupando Canais
-                if (!canais[canal]) canais[canal] = { faturado: 0, open: 0 };
-                if (isFaturado) canais[canal].faturado++;
-                else canais[canal].open++;
+                // Captura do Motivo Focado de Cancelamento/Objeção
+                if (isQuebra) {
+                    let motivoIdentificado = "Não Especificado/Outros";
+                    if (obsText.includes("ESTOQUE") || obsText.includes("FALTA")) motivoIdentificado = "Falta de Estoque";
+                    else if (obsText.includes("INTEGRA") || obsText.includes("ERRO")) motivoIdentificado = "Erro de Integração/API";
+                    else if (obsText.includes("CLIENTE") || obsText.includes("DESIST")) motivoIdentificado = "Desistência do Cliente";
+                    else if (obsText.includes("PREÇO") || obsText.includes("VALOR")) motivoIdentificado = "Divergência de Preço";
+                    else if (obsText.includes("LOGISTICA") || obsText.includes("ATRA")) motivoIdentificado = "Atraso/Problema Logístico";
+                    
+                    motivosContagem[motivoIdentificado] = (motivosContagem[motivoIdentificado] || 0) + 1;
+                }
 
-                // Agrupando Status
-                statusLog[status] = (statusLog[status] || 0) + 1;
+                // Agrupamento por Mês Base baseado na coluna DATA
+                let dataBruta = row['DATA'] || row['DATA EMISSÃO'] || '01/01/2026';
+                let mes = "Jan/2026"; 
+                if (dataBruta.includes('/02/') || dataBruta.includes('-02-')) mes = "Fev/2026";
+                else if (dataBruta.includes('/03/') || dataBruta.includes('-03-')) mes = "Mar/2026";
+                else if (dataBruta.includes('/04/') || dataBruta.includes('-04-')) mes = "Abr/2026";
+                else if (dataBruta.includes('/05/') || dataBruta.includes('-05-')) mes = "Mai/2026";
+                else if (dataBruta.includes('/06/') || dataBruta.includes('-06-')) mes = "Jun/2026";
+                else if (dataBruta.includes('/07/') || dataBruta.includes('-07-')) mes = "Jul/2026";
+                else if (dataBruta.includes('/08/') || dataBruta.includes('-08-')) mes = "Ago/2026";
+                else if (dataBruta.includes('/09/') || dataBruta.includes('-09-')) mes = "Set/2026";
+                else if (dataBruta.includes('/10/') || dataBruta.includes('-10-')) mes = "Out/2026";
+                else if (dataBruta.includes('/11/') || dataBruta.includes('-11-')) mes = "Nov/2026";
+                else if (dataBruta.includes('/12/') || dataBruta.includes('-12-')) mes = "Dez/2026";
 
-                // Popula as primeiras 50 linhas na tabela para performance
-                if (index < 50) {
-                    let tr = document.createElement('tr');
-                    tr.className = "border-b border-gray-800 hover:bg-gray-900";
-                    tr.innerHTML = `
-                        <td class="p-3">${row['DATA'] || ''}</td>
-                        <td class="p-3 font-semibold text-white">${canal}</td>
-                        <td class="p-3">${row['Nº DO PEDIDO'] || ''}</td>
-                        <td class="p-3"><span class="px-2 py-1 rounded text-[10px] ${isFaturado ? 'bg-green-900 text-green-300' : 'bg-orange-900 text-orange-300'}">${status}</span></td>
-                        <td class="p-3 text-blue-400">${row['NOTA'] || '---'}</td>
-                    `;
-                    tbody.appendChild(tr);
+                if (!mesesData[mes]) mesesData[mes] = { total: 0, faturado: 0 };
+                mesesData[mes].total++;
+                if (isFaturado) mesesData[mes].faturado++;
+
+                // Alimenta lista de objeções/problemas críticos para a tabela
+                if (isQuebra || abertos > 0) {
+                    let objEncontrada = row['OBSERVAÇÕES'] || row['STATUS DO PEDIDO - LOG'] || 'Sem observação gravada';
+                    criticosTabela.push({
+                        data: dataBruta,
+                        canal: row['CANAL'] || row['MARKETPLACE'] || 'Marketplace',
+                        id: row['Nº DO PEDIDO'] || row['PEDIDO'] || '---',
+                        status: status,
+                        obs: objEncontrada
+                    });
                 }
             });
 
-            // Atualiza KPIs
-            let abertos = total - faturados;
+            // Atualização dos Painéis de KPI
             document.getElementById('kpiTotal').innerText = total.toLocaleString('pt-BR');
             document.getElementById('kpiFaturados').innerText = faturados.toLocaleString('pt-BR');
+            document.getElementById('kpiQuebra').innerText = quebras.toLocaleString('pt-BR');
             document.getElementById('kpiAberto').innerText = abertos.toLocaleString('pt-BR');
 
-            // Renderiza Gráficos
-            renderCharts(canais, statusLog);
+            let txFaturado = total > 0 ? ((faturados / total) * 100).toFixed(1) : 0;
+            let txQuebra = total > 0 ? ((quebras / total) * 100).toFixed(1) : 0;
+
+            document.getElementById('subFaturados').innerText = `${txFaturado}% de conversão`;
+            document.getElementById('subQuebra').innerText = `${txQuebra}% Taxa de Quebra`;
+
+            // Renderizar a Tabela Crítica (limite de 40 linhas para performance)
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            criticosTabela.slice(0, 40).forEach(item => {
+                let tr = document.createElement('tr');
+                tr.className = "border-b border-gray-800/60 hover:bg-[#161f33]/40";
+                tr.innerHTML = `
+                    <td class="p-3 text-gray-400">${item.data}</td>
+                    <td class="p-3 text-white font-semibold">${item.canal}</td>
+                    <td class="p-3 font-mono text-blue-400">${item.id}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] ${item.status.includes('CANC') ? 'bg-red-950 text-red-400 border border-red-900/40' : 'bg-orange-950 text-orange-400 border border-orange-900/30'}">${item.status}</span></td>
+                    <td class="p-3 text-gray-300 max-w-xs truncate" title="${item.obs}">${item.obs}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // GERAÇÃO DE GRAPHICS
+            buildCharts(mesesData, motivosContagem);
+
+            // GERAÇÃO DE INSIGHTS DA IA
+            buildIAInsights(txQuebra, motivosContagem, abertos);
+
+            document.getElementById('procStatus').innerText = "Sucesso";
+            document.getElementById('procStatus').className = "text-green-400 font-bold";
         }
 
-        function renderCharts(canais, statusLog) {
-            if (chart1) chart1.destroy();
-            if (chart2) chart2.destroy();
+        function buildCharts(mesesData, motivosContagem) {
+            if (chartMensal) chartMensal.destroy();
+            if (chartMotivos) chartMotivos.destroy();
 
-            // Gráfico 1: Performance Marketplaces
-            const labelsCanal = Object.keys(canais);
-            const dadosFaturados = labelsCanal.map(c => canais[c].faturado);
-            const dadosAbertos = labelsCanal.map(c => canais[c].open);
+            // Ordenação dos meses
+            const ordemMeses = ["Jan/2026", "Fev/2026", "Mar/2026", "Abr/2026", "Mai/2026", "Jun/2026", "Jul/2026", "Ago/2026", "Set/2026", "Out/2026", "Nov/2026", "Dez/2026"];
+            let labelsMeses = ordemMeses.filter(m => mesesData[m] !== undefined);
+            
+            // Caso venha fora do padrão, pega o que houver
+            if(labelsMeses.length === 0) labelsMeses = Object.keys(mesesData);
 
-            const ctx1 = document.getElementById('chartMarketplace').getContext('2d');
-            chart1 = new Chart(ctx1, {
+            const dadosEntrada = labelsMeses.map(m => mesesData[m].total);
+            const dadosFaturados = labelsMeses.map(m => mesesData[m].faturado);
+
+            const ctx1 = document.getElementById('chartMensal').getContext('2d');
+            chartMensal = new Chart(ctx1, {
                 type: 'bar',
                 data: {
-                    labels: labelsCanal,
+                    labels: labelsMeses,
                     datasets: [
-                        { label: 'Faturado', data: dadosFaturados, backgroundColor: '#388bff' },
-                        { label: 'Open', data: dadosAbertos, backgroundColor: '#ffa657' }
+                        { label: 'Volume Total Entrada', data: dadosEntrada, backgroundColor: '#2563eb' },
+                        { label: 'Faturados Real', data: dadosFaturados, backgroundColor: '#10b981' }
                     ]
                 },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { color: '#1f293d' } }, x: { grid: { display: false } } } }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#9ca3af' } } },
+                    scales: { y: { grid: { color: '#1e293b' }, ticks: { color: '#9ca3af' } }, x: { grid: { display: false }, ticks: { color: '#9ca3af' } } }
+                }
             });
 
-            // Gráfico 2: Status Logístico
-            const ctx2 = document.getElementById('chartStatus').getContext('2d');
-            chart2 = new Chart(ctx2, {
-                type: 'bar',
+            // Gráfico de Pizza de Motivos
+            const labelsMotivos = Object.keys(motivosContagem);
+            const dadosMotivos = Object.values(motivosContagem);
+
+            const ctx2 = document.getElementById('chartMotivos').getContext('2d');
+            chartMotivos = new Chart(ctx2, {
+                type: 'doughnut',
                 data: {
-                    labels: Object.keys(statusLog),
-                    datasets: [{ label: 'Pedidos', data: Object.values(statusLog), backgroundColor: '#58a6ff' }]
+                    labels: labelsMotivos.length > 0 ? labelsMotivos : ["Sem quebras computadas"],
+                    datasets: [{
+                        data: dadosMotivos.length > 0 ? dadosMotivos : [1],
+                        backgroundColor: ['#ef4444', '#f97316', '#3b82f6', '#a855f7', '#eab308', '#64748b']
+                    }]
                 },
-                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { grid: { color: '#1f293d' } }, y: { grid: { display: false } } } }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af', boxWidth: 12 } } }
+                }
             });
+        }
+
+        function buildIAInsights(txQuebra, motivos, abertos) {
+            const container = document.getElementById('iaContent');
+            
+            // Encontra o principal gargalo
+            let maiorMotivo = "Não identificado";
+            let maxVol = 0;
+            for (let m in motivos) {
+                if (motivos[m] > maxVol) { maxVol = motivos[m]; maiorMotivo = m; }
+            }
+
+            let insightHtml = `
+                <div>
+                    <span class="text-xs font-bold text-red-400 block mb-1">🚨 DIAGNÓSTICO DA QUEBRA DE RECEITA</span>
+                    <p>A taxa de cancelamento/estorno consolidada está em <b class="text-white">${txQuebra}%</b>. O maior causador de atrito operacional mapeado nas colunas de objeção foi: <b class="text-red-400">${maiorMotivo}</b> (${maxVol} ocorrências).</p>
+                </div>
+                <div>
+                    <span class="text-xs font-bold text-orange-400 block mb-1">⏳ ANÁLISE DE SLA E RETENÇÃO</span>
+                    <p>Existem <b class="text-white">${abertos} pedidos</b> com status em aberto/gargalo. Recomenda-se realizar uma varredura nas chaves do Protheus vs. Linx, pois pedidos travados em status pré-faturamento geram abertura de reclamações automáticas nos marketplaces.</p>
+                </div>
+                <div>
+                    <span class="text-xs font-bold text-green-400 block mb-1">🎯 PLANO DE AÇÃO RECOMENDADO</span>
+                    <p>Para mitigar o gargalo de <b class="text-white">${maiorMotivo}</b>, aplique travas automáticas de sincronismo de estoque no integrador e confira se há pedidos de estorno pendentes (como o caso Jaqueline/Order 13412) para evitar chargebacks.</p>
+                </div>
+            `;
+            container.innerHTML = insightHtml;
         }
     </script>
 </body>
