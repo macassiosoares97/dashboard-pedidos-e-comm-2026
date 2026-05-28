@@ -85,34 +85,66 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div id="cardTotal" class="custom-card p-4 bg-slate-900 border-slate-800 clickable-card active-card">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total de pedidos</p>
-                <h2 id="kpiTotal" class="text-2xl font-extrabold text-white mt-1">0</h2>
+                <div class="flex items-baseline gap-2 mt-1">
+                    <h2 id="kpiTotal" class="text-2xl font-extrabold text-white">0</h2>
+                </div>
                 <p class="text-[11px] text-gray-500 mt-0.5">Base consolidada sob filtros</p>
             </div>
             <div id="cardAtendidos" class="custom-card p-4 border-green-900/50 bg-green-950/20 clickable-card">
                 <p class="text-[10px] font-bold text-green-400 uppercase tracking-wider">Atendidos</p>
-                <h2 id="kpiAtendidos" class="text-2xl font-extrabold text-green-400 mt-1">0</h2>
+                <div class="flex items-baseline gap-2 mt-1">
+                    <h2 id="kpiAtendidos" class="text-2xl font-extrabold text-green-400">0</h2>
+                    <span id="pctAtendidos" class="text-xs font-semibold text-green-500/90">0%</span>
+                </div>
                 <p class="text-[11px] text-green-500/70 mt-0.5">Pedidos faturados e entregues</p>
             </div>
             <div id="cardDevolucoes" class="custom-card p-4 border-red-900/50 bg-red-950/20 clickable-card">
                 <p class="text-[10px] font-bold text-red-400 uppercase tracking-wider">Devoluções</p>
-                <h2 id="kpiDevolucoes" class="text-2xl font-extrabold text-red-400 mt-1">0</h2>
+                <div class="flex items-baseline gap-2 mt-1">
+                    <h2 id="kpiDevolucoes" class="text-2xl font-extrabold text-red-400">0</h2>
+                    <span id="pctDevolucoes" class="text-xs font-semibold text-red-500/90">0%</span>
+                </div>
                 <p class="text-[11px] text-red-500/70 mt-0.5">Cancelamentos e estornos</p>
             </div>
             <div id="cardAguarda" class="custom-card p-4 border-amber-900/50 bg-amber-950/20 clickable-card">
                 <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Aguarda atendimento</p>
-                <h2 id="kpiAguardaAtendimento" class="text-2xl font-extrabold text-amber-400 mt-1">0</h2>
+                <div class="flex items-baseline gap-2 mt-1">
+                    <h2 id="kpiAguardaAtendimento" class="text-2xl font-extrabold text-amber-400">0</h2>
+                    <span id="pctPendente" class="text-xs font-semibold text-amber-500/90">0%</span>
+                </div>
                 <p class="text-[11px] text-amber-500/70 mt-0.5">Fila pendente e casos do dia</p>
+            </div>
+        </div>
+
+        <div class="custom-card p-4 bg-gradient-to-r from-blue-950/20 via-[#121826] to-purple-950/20 border-blue-900/30">
+            <div class="flex items-center gap-2 mb-3">
+                <span class="text-xs">🧠</span>
+                <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider">Diagnóstico Inteligente da Fila</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                <div class="p-3 bg-[#0f1422]/60 rounded-lg border border-gray-800">
+                    <p class="text-gray-400 font-semibold mb-1">🎯 Eficiência do Período</p>
+                    <p id="insightConversao" class="text-gray-300 leading-relaxed">Aguardando dados para avaliar a taxa de conversão comercial.</p>
+                </div>
+                <div class="p-3 bg-[#0f1422]/60 rounded-lg border border-gray-800">
+                    <p class="text-amber-400 font-semibold mb-1">⚠️ Risco de SLA e Bloqueios</p>
+                    <p id="insightGargalo" class="text-gray-300 leading-relaxed">Nenhum gargalo sistêmico crítico detectado até o momento.</p>
+                </div>
+                <div class="p-3 bg-[#0f1422]/60 rounded-lg border border-gray-800">
+                    <p class="text-red-400 font-semibold mb-1">🛑 Principal Ofensor de Quebras</p>
+                    <p id="insightOfensor" class="text-gray-300 leading-relaxed">Sem registros de cancelamentos expressivos na visão atual.</p>
+                </div>
             </div>
         </div>
 
         <div id="chartsContainer" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="custom-card p-5 lg:col-span-2">
-                <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Fluxo Temporal de Atendimento (Recebidos vs Faturados)</h3>
-                <div class="h-48"><canvas id="chartMensal"></canvas></div>
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Volume Mensal vs. Taxa de Faturamento (%)</h3>
+                <div class="h-56"><canvas id="chartMensal"></canvas></div>
             </div>
             <div class="custom-card p-5">
                 <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Principais Ofensores de Quebra de Estoque</h3>
-                <div class="h-48"><canvas id="chartMotivos"></canvas></div>
+                <div class="h-56"><canvas id="chartMotivos"></canvas></div>
             </div>
         </div>
 
@@ -182,29 +214,23 @@
             return c;
         }
 
-        // Extração robusta para tratar variações de strings textuais vindas do Excel/Sharepoint
         function extrairMesAno(dataStr) {
             if (!dataStr) return "Indefinido";
             let limpo = dataStr.toUpperCase().trim();
             
-            // Caso 1: Formato DD/MM/AAAA ou DD-MM-AAAA
             let partes = limpo.includes('/') ? limpo.split('/') : (limpo.includes('-') ? limpo.split('-') : []);
             if (partes.length >= 2) {
                 let mesToken = partes[1].trim();
                 let anoToken = partes[2] ? partes[2].substring(0, 4) : "2026";
-                
-                // Se o mês for numérico direto (ex: 03 ou 3)
                 if (!isNaN(mesToken)) {
                     return `${mesToken.padStart(2, '0')}/${anoToken}`;
                 }
-                // Se o mês for string textual (ex: "MAR", "MARÇO")
                 let trecho = mesToken.substring(0, 3);
                 if (mapaTextoMeses[trecho]) {
                     return `${mapaTextoMeses[trecho]}/${anoToken}`;
                 }
             }
             
-            // Caso 2: Texto corrido direto tipo "MAR/2026" ou "MAR-2026"
             let tokensBrutos = limpo.split(/[\/\-]/);
             if (tokensBrutos.length === 2) {
                 let trecho = tokensBrutos[0].substring(0, 3);
@@ -213,7 +239,6 @@
                     return `${mapaTextoMeses[trecho]}/${anoToken}`;
                 }
             }
-            
             return "Indefinido";
         }
 
@@ -390,24 +415,18 @@
 
         function processAndRender(baseData, tableData, isKpiSwitchOnly) {
             let mesesData = {}; let motivosContagem = {}; 
-
-            if (!isKpiSwitchOnly) {
-                let total = baseData.length;
-                let atendidos = 0; let devolucoes = 0; let aguardaAtendimento = 0;
-
-                baseData.forEach(row => {
-                    if(row['STATUS_CONSOLIDADO'] === 'FATURADO') atendidos++;
-                    else if(row['STATUS_CONSOLIDADO'] === 'CANCELADO') devolucoes++;
-                    else if(row['STATUS_CONSOLIDADO'] === 'PENDENTE') aguardaAtendimento++;
-                });
-
-                document.getElementById('kpiTotal').innerText = total.toLocaleString('pt-BR');
-                document.getElementById('kpiAtendidos').innerText = atendidos.toLocaleString('pt-BR');
-                document.getElementById('kpiDevolucoes').innerText = devolucoes.toLocaleString('pt-BR');
-                document.getElementById('kpiAguardaAtendimento').innerText = aguardaAtendimento.toLocaleString('pt-BR');
-            }
+            let total = baseData.length;
+            let atendidos = 0; let devolucoes = 0; let aguardaAtendimento = 0;
+            let slaVencidoCount = 0; let apiTravaCount = 0;
 
             baseData.forEach(row => {
+                if(row['STATUS_CONSOLIDADO'] === 'FATURADO') atendidos++;
+                else if(row['STATUS_CONSOLIDADO'] === 'CANCELADO') devolucoes++;
+                else if(row['STATUS_CONSOLIDADO'] === 'PENDENTE') aguardaAtendimento++;
+
+                if(row['RISCO_SLA']) slaVencidoCount++;
+                if(row['RISCO_INTEGRACAO']) apiTravaCount++;
+
                 if (row['STATUS_CONSOLIDADO'] === 'CANCELADO') {
                     let mot = "Falta de Estoque / Saldo Zerado";
                     let obs = (row['OBSERVACOES'] || '').toUpperCase();
@@ -425,6 +444,35 @@
                     if (row['STATUS_CONSOLIDADO'] === 'FATURADO') mesesData[label].faturado++;
                 }
             });
+
+            if (!isKpiSwitchOnly) {
+                document.getElementById('kpiTotal').innerText = total.toLocaleString('pt-BR');
+                document.getElementById('kpiAtendidos').innerText = atendidos.toLocaleString('pt-BR');
+                document.getElementById('kpiDevolucoes').innerText = devolucoes.toLocaleString('pt-BR');
+                document.getElementById('kpiAguardaAtendimento').innerText = aguardaAtendimento.toLocaleString('pt-BR');
+
+                // Renderização das taxas dinâmicas nos cartões de KPI
+                document.getElementById('pctAtendidos').innerText = total > 0 ? `${((atendidos / total) * 100).toFixed(1)}%` : '0%';
+                document.getElementById('pctDevolucoes').innerText = total > 0 ? `${((devolucoes / total) * 100).toFixed(1)}%` : '0%';
+                document.getElementById('pctPendente').innerText = total > 0 ? `${((aguardaAtendimento / total) * 100).toFixed(1)}%` : '0%';
+
+                // Atualização dos Insights Gerenciais Dinâmicos
+                const txConversao = total > 0 ? ((atendidos / total) * 100).toFixed(1) : 0;
+                document.getElementById('insightConversao').innerHTML = `A taxa de conversão final está em <b class="text-blue-400">${txConversao}%</b>. Mantendo estabilidade operacional na expedição de carteira ativa.`;
+
+                if (slaVencidoCount === 0 && apiTravaCount === 0) {
+                    document.getElementById('insightGargalo').innerHTML = `<span class="text-green-400">✔</span> Fluxo limpo. Sem travas críticas de API ou estouros de SLA de envio pendentes.`;
+                } else {
+                    let piorGargalo = slaVencidoCount >= apiTravaCount ? `${slaVencidoCount} pedidos com SLA de Envio Vencido` : `${apiTravaCount} ordens travadas na API Linx/Protheus`;
+                    document.getElementById('insightGargalo').innerHTML = `Atenção concentrada em: <b class="text-amber-400">${piorGargalo}</b>. Necessário plano de ação imediato.`;
+                }
+
+                let maiorOfensor = "Nenhum"; let maxMot = 0;
+                Object.keys(motivosContagem).forEach(m => {
+                    if(motivosContagem[m] > maxMot) { maxMot = motivosContagem[m]; maiorOfensor = m; }
+                });
+                document.getElementById('insightOfensor').innerHTML = maxMot > 0 ? `Motivo crítico: <b class="text-red-400">${maiorOfensor}</b> com ${maxMot} ocorrências registradas na visão.` : `Excelente! Nenhuma quebra por falta de estoque ou cancelamentos recorrentes.`;
+            }
 
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
@@ -470,6 +518,7 @@
             let labelsMeses = Object.keys(mesesData);
             const dadosEntrada = labelsMeses.map(m => mesesData[m].total || 0);
             const dadosFaturados = labelsMeses.map(m => mesesData[m].faturado || 0);
+            const taxasConversao = labelsMeses.map(m => mesesData[m].total > 0 ? ((mesesData[m].faturado / mesesData[m].total) * 100).toFixed(1) : 0);
 
             const ctx1 = document.getElementById('chartMensal').getContext('2d');
             chartMensal = new Chart(ctx1, {
@@ -477,11 +526,21 @@
                 data: {
                     labels: labelsMeses,
                     datasets: [
-                        { label: 'Pedidos Recebidos', data: dadosEntrada, backgroundColor: '#2563eb' },
-                        { label: 'Pedidos Faturados', data: dadosFaturados, backgroundColor: '#10b981' }
+                        { label: 'Pedidos Recebidos', data: dadosEntrada, backgroundColor: '#2563eb', order: 2 },
+                        { label: 'Pedidos Faturados', data: dadosFaturados, backgroundColor: '#10b981', order: 3 },
+                        { label: 'Taxa de Entrega (%)', data: taxasConversao, type: 'line', borderColor: '#a855f7', borderWidth: 2, pointBackgroundColor: '#c084fc', tension: 0.2, fill: false, yAxisID: 'yPerc', order: 1 }
                     ]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#9ca3af' } } }, scales: { y: { grid: { color: '#1e293b' }, ticks: { color: '#9ca3af' } }, x: { ticks: { color: '#9ca3af' } } } }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { labels: { color: '#9ca3af', font: { size: 11 } } } }, 
+                    scales: { 
+                        y: { position: 'left', grid: { color: '#1e293b' }, ticks: { color: '#9ca3af' } },
+                        yPerc: { position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#c084fc', callback: function(value) { return value + '%'; } }, min: 0, max: 100 },
+                        x: { ticks: { color: '#9ca3af' } } 
+                    } 
+                }
             });
 
             const labelsMotivos = Object.keys(motivosContagem);
@@ -492,9 +551,9 @@
                 type: 'doughnut',
                 data: {
                     labels: labelsMotivos.length > 0 ? labelsMotivos : ["Sem Devoluções"],
-                    datasets: [{ data: dadosMotivos.length > 0 ? dadosMotivos : [1], backgroundColor: ['#ef4444', '#f97316', '#3b82f6'] }]
+                    datasets: [{ data: dadosMotivos.length > 0 ? dadosMotivos : [1], backgroundColor: ['#ef4444', '#f97316', '#3b82f6'], borderPenWidth: 0, borderColor: '#121826' }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af' } } } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af', font: { size: 10 } } } } }
             });
         }
 
