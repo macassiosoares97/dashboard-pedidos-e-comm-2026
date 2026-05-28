@@ -3,536 +3,567 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hub de Performance & SLA - MA Hospitalar</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>MA Hospitalar - Painel de Controle Operacional</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #1f2937; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 3px; }
+        body { background-color: #0b0f19; color: #f0f6fc; font-family: system-ui, -apple-system, sans-serif; }
+        .sidebar { background-color: #0f1422; border-right: 1px solid #1e2638; }
+        .custom-card { background-color: #121826; border: 1px solid #1f293d; border-radius: 12px; transition: all 0.2s ease; }
+        .clickable-card { cursor: pointer; }
+        .clickable-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(56, 139, 253, 0.15); }
+        .active-card { border-color: #388bff !important; background-color: #16223f !important; }
+        .filter-select { background-color: #161f30; border: 1px solid #2d3954; color: #f0f6fc; border-radius: 6px; padding: 6px; width: 100%; font-size: 12px; outline: none; }
+        .filter-select:focus { border-color: #388bff; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #1f293d; border-radius: 4px; }
     </style>
 </head>
-<body class="bg-gray-950 text-gray-100 font-sans antialiased min-h-screen">
+<body class="flex flex-col md:flex-row min-h-screen">
 
-    <header class="border-b border-gray-800 bg-gray-900/50 backdrop-blur px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-        <div>
-            <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r region-intel from-blue-400 to-emerald-400 bg-clip-text text-transparent">
-                MA Hospitalar — Performance & SLA Hub
-            </h1>
-            <p class="text-xs text-gray-400 mt-0.5">Visão Estratégica de Canais, Retenção Financeira e Conversão</p>
-        </div>
-        
-        <div class="flex items-center gap-3">
-            <label class="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 active:bg-gray-700/80 text-sm font-medium rounded-lg cursor-pointer border border-gray-700 transition-all shadow-sm">
-                <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"/></svg>
-                <span>Carregar Fila de Pedidos (.CSV)</span>
-                <input type="file" id="csvFileInput" accept=".csv" class="hidden">
-            </label>
-        </div>
-    </header>
-
-    <main class="p-6 max-w-[1600px] mx-auto space-y-6">
-
-        <div>
-            <div class="flex items-center gap-2 mb-3">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <h2 class="text-xs font-semibold tracking-wider text-gray-400 uppercase">Estratégia & Auditoria de Performance (Clique para Auditar)</h2>
+    <div class="w-full md:w-80 sidebar p-6 flex flex-col justify-between">
+        <div class="space-y-5">
+            <div>
+                <div class="text-xs font-bold tracking-widest text-blue-500 uppercase">MA Hospitalar</div>
+                <h1 class="text-xl font-bold text-white mt-1">Hub de Operações</h1>
+                <p class="text-xs text-gray-400 mt-1">Gestão de Carteira e SLAs</p>
             </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+            <div class="custom-card p-4 bg-[#161f33]/30 border-blue-900/30">
+                <label class="block text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-2">1. Upload da Base de Pedidos</label>
+                <input type="file" id="csvFileInput" accept=".csv" class="block w-full text-xs text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"/>
+            </div>
+
+            <div class="custom-card p-4 border-amber-500/40 bg-amber-950/10">
+                <label class="block text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-2">⚡ Triagem Operacional</label>
+                <select id="criticalFilter" class="filter-select border-amber-500/30 bg-amber-950/20 text-amber-300 font-semibold" disabled>
+                    <option value="ALL">Exibir Toda a Base</option>
+                    <option value="PENDENTES_VIVOS">⚠️ Apenas Em Aberto (Fila Viva)</option>
+                    <option value="SLA_CRITICO">🚨 SLA de Compra Estourado</option>
+                    <option value="TRAVA_INTEGRACAO">🔌 Travado na API (Sem NF)</option>
+                </select>
+                <p class="text-[10px] text-gray-400 mt-1.5 leading-relaxed">Filtre os atendimentos pendentes e casos que necessitam de atenção na rotina diária.</p>
+            </div>
+
+            <div class="space-y-3 opacity-50" id="filterSection">
+                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-800 pb-1">2. Filtros de Apoio</div>
                 
-                <div onclick="openInsightModal('gmv')" class="bg-gray-900 border border-gray-800 hover:border-red-500/50 p-5 rounded-xl cursor-pointer transition-all hover:-translate-y-0.5 shadow-md flex flex-col justify-between group">
-                    <div>
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="text-xs font-medium px-2 py-0.5 rounded bg-red-950 text-red-400 border border-red-900/50">Financeiro</span>
-                            <span class="text-xs text-gray-500 group-hover:text-red-400 transition-colors">Ver Detalhes →</span>
-                        </div>
-                        <h3 class="text-sm font-medium text-gray-300">GMV Retido em Gargalos</h3>
-                        <p class="text-2xl font-bold mt-1 text-gray-100" id="insightGmvVal">R$ 0,00</p>
-                    </div>
-                    <p class="text-xs text-gray-400 mt-4 pt-3 border-t border-gray-800" id="insightGmvDesc">
-                        Carregue a base para analisar o risco frente ao benchmark de mercado (<span class="text-red-400 font-semibold">Max 1.8% Order Churn</span>).
-                    </p>
+                <div>
+                    <label class="block text-[11px] text-gray-400 mb-1">Mês do Pedido</label>
+                    <select id="monthFilter" class="filter-select" disabled>
+                        <option value="ALL">Histórico Consolidado</option>
+                    </select>
                 </div>
 
-                <div onclick="openInsightModal('leadtime')" class="bg-gray-900 border border-gray-800 hover:border-amber-500/50 p-5 rounded-xl cursor-pointer transition-all hover:-translate-y-0.5 shadow-md flex flex-col justify-between group">
-                    <div>
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="text-xs font-medium px-2 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-900/50">Operações</span>
-                            <span class="text-xs text-gray-500 group-hover:text-amber-400 transition-colors">Ver Detalhes →</span>
-                        </div>
-                        <h3 class="text-sm font-medium text-gray-300">Eficiência do Lead Time (Expedição)</h3>
-                        <p class="text-2xl font-bold mt-1 text-gray-100" id="insightLtVal">0.0 dias</p>
-                    </div>
-                    <p class="text-xs text-gray-400 mt-4 pt-3 border-t border-gray-800" id="insightLtDesc">
-                        Aguardando dados para cruzar com a urgência hospitalar ideal (<span class="text-amber-400 font-semibold">Alvo: 24h a 48h</span>).
-                    </p>
+                <div>
+                    <label class="block text-[11px] text-gray-400 mb-1">Busca Rápida (Pedido, PV, NF)</label>
+                    <input type="text" id="searchFilter" placeholder="Digite para buscar..." class="filter-select bg-[#101726]" disabled>
                 </div>
 
-                <div onclick="openInsightModal('channels')" class="bg-gray-900 border border-gray-800 hover:border-blue-500/50 p-5 rounded-xl cursor-pointer transition-all hover:-translate-y-0.5 shadow-md flex flex-col justify-between group">
-                    <div>
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="text-xs font-medium px-2 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-900/50">Canais & Comercial</span>
-                            <span class="text-xs text-gray-500 group-hover:text-blue-400 transition-colors">Ver Detalhes →</span>
-                        </div>
-                        <h3 class="text-sm font-medium text-gray-300">Share de Quebra / Atrito por Canal</h3>
-                        <p class="text-lg font-bold mt-1 text-gray-200" id="insightChannelVal">Nenhum canal crítico</p>
-                    </div>
-                    <p class="text-xs text-gray-400 mt-4 pt-3 border-t border-gray-800" id="insightChannelDesc">
-                        Monitorando a taxa ideal de faturamento e integração sistêmica (<span class="text-blue-400 font-semibold">Meta de Mercado: >92%</span>).
-                    </p>
+                <div>
+                    <label class="block text-[11px] text-gray-400 mb-1">Marketplace / Canal</label>
+                    <select id="channelFilter" class="filter-select" disabled><option value="ALL">Todos os Canais</option></select>
                 </div>
 
+                <div>
+                    <label class="block text-[11px] text-gray-400 mb-1">Status Logística</label>
+                    <select id="statusLogFilter" class="filter-select" disabled><option value="ALL">Todos</option></select>
+                </div>
+            </div>
+
+            <div class="space-y-2 text-xs text-gray-400 pt-2">
+                <div class="flex justify-between border-b border-gray-800 pb-2"><span>Linhas sob esta Visão:</span><span id="activeRows" class="text-white font-bold">0</span></div>
+                <button id="btnResetAll" class="w-full mt-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold py-1.5 px-2 rounded text-[11px] transition">Resetar Filtros</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div id="cardTotal" class="custom-card p-4 bg-slate-900 border-slate-800 clickable-card active-card">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total de pedidos</p>
+                <div class="flex items-baseline gap-2 mt-1">
+                    <h2 id="kpiTotal" class="text-2xl font-extrabold text-white">0</h2>
+                </div>
+                <p class="text-[11px] text-gray-500 mt-0.5">Base consolidada sob filtros</p>
+            </div>
+            <div id="cardAtendidos" class="custom-card p-4 border-green-900/50 bg-green-950/20 clickable-card">
+                <p class="text-[10px] font-bold text-green-400 uppercase tracking-wider">Atendidos</p>
+                <div class="flex items-baseline gap-2 mt-1">
+                    <h2 id="kpiAtendidos" class="text-2xl font-extrabold text-green-400">0</h2>
+                    <span id="pctAtendidos" class="text-xs font-semibold text-green-500/90">0%</span>
+                </div>
+                <p class="text-[11px] text-green-500/70 mt-0.5">Pedidos faturados e entregues</p>
+            </div>
+            <div id="cardDevolucoes" class="custom-card p-4 border-red-900/50 bg-red-950/20 clickable-card">
+                <p class="text-[10px] font-bold text-red-400 uppercase tracking-wider">Devoluções</p>
+                <div class="flex items-baseline gap-2 mt-1">
+                    <h2 id="kpiDevolucoes" class="text-2xl font-extrabold text-red-400">0</h2>
+                    <span id="pctDevolucoes" class="text-xs font-semibold text-red-500/90">0%</span>
+                </div>
+                <p class="text-[11px] text-red-500/70 mt-0.5">Cancelamentos e estornos</p>
+            </div>
+            <div id="cardAguarda" class="custom-card p-4 border-amber-900/50 bg-amber-950/20 clickable-card">
+                <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Aguarda atendimento</p>
+                <div class="flex items-baseline gap-2 mt-1">
+                    <h2 id="kpiAguardaAtendimento" class="text-2xl font-extrabold text-amber-400">0</h2>
+                    <span id="pctPendente" class="text-xs font-semibold text-amber-500/90">0%</span>
+                </div>
+                <p class="text-[11px] text-amber-500/70 mt-0.5">Fila pendente e casos do dia</p>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <div class="lg:col-span-2 bg-gray-900 border border-gray-800 p-5 rounded-xl shadow-md">
-                <div class="mb-4">
-                    <h3 class="text-sm font-bold tracking-tight text-gray-200">Funil Comercial Mensal & Taxa de Conversão Real</h3>
-                    <p class="text-xs text-gray-400">Comparativo volumétrico de captação vs. faturamento efetivo</p>
-                </div>
-                <div class="h-72 w-full relative">
-                    <canvas id="performanceChart"></canvas>
-                </div>
+        <div class="custom-card p-4 bg-gradient-to-r from-blue-950/20 via-[#121826] to-purple-950/20 border-blue-900/30">
+            <div class="flex items-center gap-2 mb-3">
+                <span class="text-xs">🧠</span>
+                <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider">Diagnóstico Inteligente da Fila</h3>
             </div>
-
-            <div class="bg-gray-900 border border-gray-800 p-5 rounded-xl shadow-md flex flex-col justify-between">
-                <div>
-                    <h3 class="text-sm font-bold tracking-tight text-gray-200 mb-4">Estrutura de Status da Fila</h3>
-                    <div class="space-y-3.5">
-                        <div class="flex items-center justify-between p-3 bg-gray-950 rounded-lg border border-gray-800/60">
-                            <div class="flex items-center gap-2.5">
-                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                                <span class="text-xs text-gray-300 font-medium">Pedidos Faturados</span>
-                            </div>
-                            <span class="text-xs font-bold text-gray-100" id="cntFaturados">0</span>
-                        </div>
-                        <div class="flex items-center justify-between p-3 bg-gray-950 rounded-lg border border-gray-800/60">
-                            <div class="flex items-center gap-2.5">
-                                <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-                                <span class="text-xs text-gray-300 font-medium">Fila Viva (Em Aberto)</span>
-                            </div>
-                            <span class="text-xs font-bold text-gray-100" id="cntFilaViva">0</span>
-                        </div>
-                        <div class="flex items-center justify-between p-3 bg-gray-950 rounded-lg border border-gray-800/60">
-                            <div class="flex items-center gap-2.5">
-                                <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
-                                <span class="text-xs text-gray-300 font-medium">SLA de Envio Vencido</span>
-                            </div>
-                            <span class="text-xs font-bold text-gray-100" id="cntSlaVencido">0</span>
-                        </div>
-                        <div class="flex items-center justify-between p-3 bg-gray-950 rounded-lg border border-gray-800/60">
-                            <div class="flex items-center gap-2.5">
-                                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                                <span class="text-xs text-gray-300 font-medium">Travados na API / Sem NF</span>
-                            </div>
-                            <span class="text-xs font-bold text-gray-100" id="cntErroApi">0</span>
-                        </div>
-                    </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                <div class="p-3 bg-[#0f1422]/60 rounded-lg border border-gray-800">
+                    <p class="text-gray-400 font-semibold mb-1">🎯 Eficiência do Período</p>
+                    <p id="insightConversao" class="text-gray-300 leading-relaxed">Aguardando dados para avaliar a taxa de conversão comercial.</p>
                 </div>
-
-                <div class="pt-4 border-t border-gray-800 mt-4 flex items-center justify-between text-[11px] text-gray-500">
-                    <span>Amostragem Total: <strong id="lblTotalPedidos" class="text-gray-300">0</strong> pedidos</span>
-                    <span id="lblDataProcessamento">Aguardando CSV...</span>
+                <div class="p-3 bg-[#0f1422]/60 rounded-lg border border-gray-800">
+                    <p class="text-amber-400 font-semibold mb-1">⚠️ Risco de SLA e Bloqueios</p>
+                    <p id="insightGargalo" class="text-gray-300 leading-relaxed">Nenhum gargalo sistêmico crítico detectado até o momento.</p>
+                </div>
+                <div class="p-3 bg-[#0f1422]/60 rounded-lg border border-gray-800">
+                    <p class="text-red-400 font-semibold mb-1">🛑 Principal Ofensor de Quebras</p>
+                    <p id="insightOfensor" class="text-gray-300 leading-relaxed">Sem registros de cancelamentos expressivos na visão atual.</p>
                 </div>
             </div>
         </div>
 
-    </main>
+        <div id="chartsContainer" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="custom-card p-5 lg:col-span-2">
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Volume Mensal vs. Taxa de Faturamento (%)</h3>
+                <div class="h-56"><canvas id="chartMensal"></canvas></div>
+            </div>
+            <div class="custom-card p-5">
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Principais Ofensores de Quebra de Estoque</h3>
+                <div class="h-56"><canvas id="chartMotivos"></canvas></div>
+            </div>
+        </div>
 
-    <div id="insightModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-4xl shadow-2xl flex flex-col max-h-[85vh] animate-in fade-in zoom-in-95 duration-200">
-            
-            <div class="px-6 py-4 border-b border-gray-800 flex justify-between items-center bg-gray-900/50">
+        <div class="custom-card p-5">
+            <div class="flex justify-between items-center mb-4">
                 <div>
-                    <h3 id="modalTitle" class="text-base font-bold text-gray-100">Auditoria Detalhada</h3>
-                    <p id="modalSubtitle" class="text-xs text-gray-400 mt-0.5">Cruzamento de inteligência em tempo real</p>
-                </div>
-                <button onclick="closeInsightModal()" class="text-gray-400 hover:text-gray-100 p-1.5 hover:bg-gray-800 rounded-lg transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-
-            <div id="modalStatsBanner" class="grid grid-cols-2 sm:grid-cols-4 gap-4 px-6 py-3 bg-gray-950 border-b border-gray-800/80 text-xs">
-                </div>
-
-            <div class="p-6 overflow-y-auto custom-scrollbar flex-1 bg-gray-900/30">
-                <div class="overflow-x-auto border border-gray-800 rounded-lg">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead>
-                            <tr class="bg-gray-950 text-gray-400 border-b border-gray-800 font-semibold uppercase tracking-wider">
-                                <th class="p-3">ID Pedido</th>
-                                <th class="p-3">Canal</th>
-                                <th class="p-3">Valor (R$)</th>
-                                <th class="p-3">Status Fila</th>
-                                <th class="p-3">Motivo/Atraso</th>
-                            </tr>
-                        </thead>
-                        <tbody id="modalTableBody" class="divide-y divide-gray-800 text-gray-300">
-                            </tbody>
-                    </table>
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Mapeamento Analítico da Fila</h3>
+                    <p class="text-[11px] text-gray-400 mt-0.5">Dados estruturados em tempo real.</p>
                 </div>
             </div>
-
-            <div class="px-6 py-3 border-t border-gray-800 bg-gray-950 flex justify-end">
-                <button onclick="closeInsightModal()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-xs font-semibold rounded-lg transition-colors">
-                    Fechar Análise
-                </button>
+            <div class="overflow-x-auto border border-gray-800/80 rounded-lg max-h-[450px]">
+                <table class="min-w-full text-xs text-left text-gray-400">
+                    <thead class="bg-[#161e30] text-gray-300 uppercase font-semibold text-[10px] tracking-wider sticky top-0 z-10">
+                        <tr>
+                            <th class="p-3 whitespace-nowrap">Status Operacional</th>
+                            <th class="p-3 whitespace-nowrap">Ação Corretiva</th>
+                            <th class="p-3 whitespace-nowrap">Data Entrada</th>
+                            <th class="p-3 whitespace-nowrap">Canal/Mktplace</th>
+                            <th class="p-3 whitespace-nowrap">Nº Pedido</th>
+                            <th class="p-3 whitespace-nowrap">Status Logística</th>
+                            <th class="p-3 whitespace-nowrap">Status Linx</th>
+                            <th class="p-3 whitespace-nowrap">PV Protheus</th>
+                            <th class="p-3 whitespace-nowrap">Nota Fiscal</th>
+                            <th class="p-3 whitespace-nowrap">Previsão Envio</th>
+                            <th class="p-3 whitespace-nowrap">Código Rastreio</th>
+                            <th class="p-3 whitespace-nowrap">Observações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td colspan="12" class="p-4 text-center text-gray-500">Aguardando importação do arquivo CSV...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
-        // Memória de estado local global da aplicação
-        let globalOrdersData = [];
-        let performanceChartInstance = null;
+        let rawDatabase = [];
+        let chartMensal = null;
+        let chartMotivos = null;
+        let currentKpiFilter = 'ALL';
 
-        // Elementos DOM frequentemente alterados
-        const fileInput = document.getElementById('csvFileInput');
-        const cntFaturados = document.getElementById('cntFaturados');
-        const cntFilaViva = document.getElementById('cntFilaViva');
-        const cntSlaVencido = document.getElementById('cntSlaVencido');
-        const cntErroApi = document.getElementById('cntErroApi');
-        const lblTotalPedidos = document.getElementById('lblTotalPedidos');
-        const lblDataProcessamento = document.getElementById('lblDataProcessamento');
+        const monthSelect = document.getElementById('monthFilter');
+        const searchInput = document.getElementById('searchFilter');
+        const channelSelect = document.getElementById('channelFilter');
+        const statusLogFilter = document.getElementById('statusLogFilter');
+        const criticalSelect = document.getElementById('criticalFilter');
 
-        // Escuta o carregamento do arquivo local
-        fileInput.addEventListener('change', function(e) {
+        const nomeMeses = {"01":"Janeiro","02":"Fevereiro","03":"Março","04":"Abril","05":"Maio","06":"Junho","07":"Julho","08":"Agosto","09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"};
+        const mapaTextoMeses = {"JAN":"01","FEB":"02","FEV":"02","MAR":"03","APR":"04","ABR":"04","MAY":"05","MAI":"05","JUN":"06","JUL":"07","AUG":"08","AGO":"08","SEP":"09","SET":"09","OCT":"10","OUT":"10","NOV":"11","DEC":"12","DEZ":"12"};
+
+        function normalizeKey(key) { 
+            return key.toUpperCase()
+                      .replace(/[º°ª]/g, '')
+                      .replace(/[^A-Z0-9]/g, '')
+                      .trim(); 
+        }
+
+        function harmonizarCanal(txt) {
+            if (!txt) return "NÃO INFORMADO";
+            let c = txt.toUpperCase().trim();
+            if (c.includes("MELI") || c.includes("MERCADO")) return c.includes("SC") ? "MERCADO LIVRE SC" : "MERCADO LIVRE";
+            if (c.includes("ECOMMERCE") || c.includes("SITE")) return "SITE E-COMMERCE";
+            if (c.includes("AMAZON")) return "AMAZON B2B";
+            return c;
+        }
+
+        function extrairMesAno(dataStr) {
+            if (!dataStr) return "Indefinido";
+            let limpo = dataStr.toUpperCase().trim();
+            
+            let partes = limpo.includes('/') ? limpo.split('/') : (limpo.includes('-') ? limpo.split('-') : []);
+            if (partes.length >= 2) {
+                let mesToken = partes[1].trim();
+                let anoToken = partes[2] ? partes[2].substring(0, 4) : "2026";
+                if (!isNaN(mesToken)) {
+                    return `${mesToken.padStart(2, '0')}/${anoToken}`;
+                }
+                let trecho = mesToken.substring(0, 3);
+                if (mapaTextoMeses[trecho]) {
+                    return `${mapaTextoMeses[trecho]}/${anoToken}`;
+                }
+            }
+            
+            let tokensBrutos = limpo.split(/[\/\-]/);
+            if (tokensBrutos.length === 2) {
+                let trecho = tokensBrutos[0].substring(0, 3);
+                let anoToken = tokensBrutos[1].substring(0, 4);
+                if (mapaTextoMeses[trecho]) {
+                    return `${mapaTextoMeses[trecho]}/${anoToken}`;
+                }
+            }
+            return "Indefinido";
+        }
+
+        document.getElementById('csvFileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
             Papa.parse(file, {
                 header: true,
+                delimiter: ";",
                 skipEmptyLines: true,
                 complete: function(results) {
-                    processOrdersData(results.data);
-                    lblDataProcessamento.innerText = `Processado às ${new Date().toLocaleTimeString('pt-BR')}`;
-                },
-                error: function(err) {
-                    alert('Erro ao processar o arquivo CSV. Certifique-se de que ele está formatado corretamente.');
-                    console.error(err);
+                    rawDatabase = results.data.map(row => {
+                        let n = {};
+                        
+                        Object.keys(row).forEach(key => {
+                            let nk = normalizeKey(key);
+                            
+                            if ((nk.includes("PEDIDO") || nk.includes("NUMERODOPEDIDO") || nk === "NPEDIDO" || nk === "NODOPEDIDO") && !nk.includes("STATUS") && !nk.includes("LOG")) {
+                                n['PEDIDO'] = row[key];
+                            } else if (nk.includes("DATA")) {
+                                n['DATA'] = row[key];
+                            } else if (nk.includes("CANAL")) {
+                                n['CANAL'] = row[key];
+                            } else if (nk.includes("STATUS") && nk.includes("LOG")) {
+                                n['STATUS_LOG'] = row[key];
+                            } else if (nk.includes("RASTREIO")) {
+                                n['RASTREIO'] = row[key];
+                            } else if (nk.includes("PREVISAO")) {
+                                n['PREVISAO'] = row[key];
+                            } else if (nk.includes("PVPROTHEUS")) {
+                                n['PV_PROTHEUS'] = row[key];
+                            } else if (nk.includes("NOTA")) {
+                                n['NOTA'] = row[key];
+                            } else if (nk.includes("STATUS") && nk.includes("LINX")) {
+                                n['STATUS_LINX'] = row[key];
+                            } else if (nk.includes("OBSERVA")) {
+                                n['OBSERVACOES'] = row[key];
+                            }
+                        });
+
+                        if (!n['PEDIDO']) {
+                            n['PEDIDO'] = row['Nº DO PEDIDO'] || row['Nº do Pedido'] || row['Nª DO PEDIDO'] || row['Nº_DO_PEDIDO'] || '';
+                        }
+
+                        let stLog = (n['STATUS_LOG'] || '').toUpperCase().trim();
+                        let stLinx = (n['STATUS_LINX'] || '').toUpperCase().trim();
+                        let obs = (n['OBSERVACOES'] || '').toUpperCase().trim();
+
+                        let faturado = stLog.includes('FATURAD') || stLog.includes('EMITID') || stLinx.includes('FATURAD') || n['NOTA'];
+                        let cancelado = stLog.includes('CANC') || stLog.includes('DEV') || stLinx.includes('CANC') || obs.includes('CANC') || stLog.includes('CANCELADO');
+
+                        if (faturado) n['STATUS_CONSOLIDADO'] = 'FATURADO';
+                        else if (cancelado) n['STATUS_CONSOLIDADO'] = 'CANCELADO';
+                        else n['STATUS_CONSOLIDADO'] = 'PENDENTE';
+
+                        let acao = "Fluxo Concluído";
+                        let riscoSla = false;
+                        let riscoIntegracao = false;
+
+                        if (n['STATUS_CONSOLIDADO'] === 'PENDENTE') {
+                            const hoje = new Date(2026, 4, 26);
+
+                            if (n['PREVISAO']) {
+                                let p = n['PREVISAO'].split('/');
+                                if (p.length === 3) {
+                                    let dt = new Date(p[2], p[1]-1, p[0]);
+                                    if (dt < hoje) riscoSla = true;
+                                }
+                            }
+                            if (stLinx.includes("FATUR") && !n['NOTA']) riscoIntegracao = true;
+
+                            if (riscoSla) acao = "🚨 Acionar Expedição (SLA Vencido)";
+                            else if (riscoIntegracao) acao = "🔌 Forçar Sincronismo de NF / API";
+                            else acao = "⏳ Acompanhar Rotina Diária";
+                        }
+
+                        n['ACAO_OPERACIONAL'] = acao;
+                        n['RISCO_SLA'] = riscoSla;
+                        n['RISCO_INTEGRACAO'] = riscoIntegracao;
+
+                        return n;
+                    }).filter(r => r['DATA'] || r['PEDIDO']);
+
+                    criticalSelect.disabled = false;
+                    buildCrossFilters();
+                    applyFiltersAndRender();
                 }
             });
         });
 
-        // Tratamento, tipagem e higienização dos dados do CSV
-        function processOrdersData(rawData) {
-            globalOrdersData = rawData.map((row, idx) => {
-                // Tenta mapear os cabeçalhos comuns independente de variações de caixa ou acentuação
-                const id = row.id || row.ID || row['ID Pedido'] || `PED-${idx+1000}`;
-                const canal = row.canal || row.Canal || row['Canal de Venda'] || 'Site Próprio';
-                const status = (row.status || row.Status || row['Status Fila'] || '').toLowerCase().trim();
-                const valor = parseFloat(String(row.valor || row.Valor || row['Valor Total'] || '0').replace(/[R$\s.]/g, '').replace(',', '.')) || 0;
-                const leadTime = parseFloat(row.lead_time || row.LeadTime || row['Dias de Expedição'] || '0') || 0;
-                const motivo = row.motivo || row.Motivo || row['Motivo de Retenção'] || 'Sem observações';
-                const mes = row.mes || row.Mes || row['Mês'] || 'Geral';
-
-                return { id, canal, status, valor, leadTime, motivo, mes };
+        function buildCrossFilters() {
+            let months = new Set(); let channels = new Set(); let statusLogs = new Set();
+            rawDatabase.forEach(row => {
+                let m = row['DATA'] ? extrairMesAno(row['DATA'].trim()) : "Indefinido";
+                if(m !== "Indefinido") months.add(m);
+                if(row['CANAL']) channels.add(harmonizarCanal(row['CANAL']));
+                if(row['STATUS_LOG']) statusLogs.add(row['STATUS_LOG'].trim());
             });
 
-            // Atualiza contadores visuais estáticos da carteira
-            updateDashboardCounters();
-            
-            // Renderiza ou reconstrói os gráficos analíticos principais
-            renderPerformanceChart();
+            monthSelect.innerHTML = '<option value="ALL">Histórico Consolidado</option>';
+            Array.from(months).sort((a,b) => {
+                let [mA, aA] = a.split('/'), [mB, aB] = b.split('/');
+                return aA === aB ? mA - mB : aA - aB;
+            }).forEach(ch => {
+                let [m, ano] = ch.split('/');
+                monthSelect.innerHTML += `<option value="${ch}">${nomeMeses[m] || 'Mês ' + m} de ${ano}</option>`;
+            });
 
-            // Dispara o cálculo e alteração dinâmica dos Cards de Insight do Estrategista
-            calculateStrategicInsights();
+            populateDropdown(channelSelect, channels, "Todos os Canais");
+            populateDropdown(statusLogFilter, statusLogs, "Todos os Status");
+
+            document.getElementById('filterSection').classList.remove('opacity-50');
+            [monthSelect, searchInput, channelSelect, statusLogFilter].forEach(el => el.disabled = false);
         }
 
-        function updateDashboardCounters() {
-            const total = globalOrdersData.length;
-            lblTotalPedidos.innerText = total;
-
-            const faturados = globalOrdersData.filter(o => o.status === 'faturado' || o.status === 'pago').length;
-            const filaViva = globalOrdersData.filter(o => o.status === 'fila viva' || o.status === 'em aberto' || o.status === 'pendente').length;
-            const slaVencido = globalOrdersData.filter(o => o.status === 'sla vencido' || o.status === 'atrasado').length;
-            const erroApi = globalOrdersData.filter(o => o.status === 'erro de api' || o.status === 'sem nf' || o.status === 'erro api').length;
-
-            cntFaturados.innerText = faturados;
-            cntFilaViva.innerText = filaViva;
-            cntSlaVencido.innerText = slaVencido;
-            cntErroApi.innerText = erroApi;
+        function populateDropdown(element, set, labelDefault) {
+            element.innerHTML = `<option value="ALL">${labelDefault}</option>`;
+            Array.from(set).sort().forEach(val => { if(val) element.innerHTML += `<option value="${val}">${val}</option>`; });
         }
 
-        // BI: Cálculos complexos de performance comparados com Benchmarks reais de mercado
-        function calculateStrategicInsights() {
-            if (globalOrdersData.length === 0) return;
-
-            const totalGMV = globalOrdersData.reduce((acc, curr) => acc + curr.valor, 0);
-            
-            // 1. Cálculo de GMV Retido (SLA Vencido + Erros de Integração)
-            const stuckOrders = globalOrdersData.filter(o => ['sla vencido', 'atrasado', 'erro de api', 'sem nf', 'erro api'].includes(o.status));
-            const stuckGMV = stuckOrders.reduce((acc, curr) => acc + curr.valor, 0);
-            const pctStuck = totalGMV > 0 ? ((stuckGMV / totalGMV) * 100).toFixed(1) : 0;
-
-            document.getElementById('insightGmvVal').innerText = stuckGMV.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            
-            let gmvDesc = `Isso representa <strong>${pctStuck}%</strong> do faturamento bruto da carteira analisada. `;
-            if (pctStuck > 1.8) {
-                gmvDesc += `<span class="text-red-400 font-medium">⚠️ Alerta Crítico: Acima do benchmark máximo de 1.8% de risco de perda no segmento de saúde.</span>`;
-            } else {
-                gmvDesc += `<span class="text-emerald-400 font-medium">✓ Dentro da margem de segurança operacional ideal do setor B2B.</span>`;
-            }
-            document.getElementById('insightGmvDesc').innerHTML = gmvDesc;
-
-            // 2. Cálculo do Lead Time de Expedição Real
-            const validLtOrders = globalOrdersData.filter(o => o.leadTime > 0);
-            const avgLeadTime = validLtOrders.length > 0 ? (validLtOrders.reduce((acc, curr) => acc + curr.leadTime, 0) / validLtOrders.length).toFixed(1) : "0.0";
-            
-            document.getElementById('insightLtVal').innerText = `${avgLeadTime} ${avgLeadTime == 1 ? 'Dia' : 'Dias'}`;
-            
-            let ltDesc = `Média atual de despacho dos pedidos. `;
-            if (parseFloat(avgLeadTime) > 2.0) {
-                ltDesc += `<span class="text-amber-400 font-medium">⚠️ Gargalo Detectado: Excede as 48h limite para materiais cirúrgicos/hospitalares urgentes.</span>`;
-            } else {
-                ltDesc += `<span class="text-emerald-400 font-medium">✓ Excelente ritmo operacional. Alinhado com os líderes do mercado logístico de saúde.</span>`;
-            }
-            document.getElementById('insightLtDesc').innerHTML = ltDesc;
-
-            // 3. Share de Quebras por Canal Comercial
-            const channelFaults = {};
-            stuckOrders.forEach(o => {
-                channelFaults[o.canal] = (channelFaults[o.canal] || 0) + 1;
-            });
-
-            let topFaultChannel = "";
-            let maxFaults = 0;
-            for (const ch in channelFaults) {
-                if (channelFaults[ch] > maxFaults) {
-                    maxFaults = channelFaults[ch];
-                    topFaultChannel = ch;
-                }
-            }
-
-            if (topFaultChannel) {
-                const pctChannelFault = ((maxFaults / stuckOrders.length) * 100).toFixed(0);
-                document.getElementById('insightChannelVal').innerText = topFaultChannel;
-                document.getElementById('insightChannelDesc').innerHTML = `Concentra <strong>${pctChannelFault}%</strong> dos atritos sistêmicos da fila. Exige auditoria de integração de API imediata para evitar penalizações de algoritmo.`;
-            } else {
-                document.getElementById('insightChannelVal').innerText = "Canais Saudáveis";
-                document.getElementById('insightChannelDesc').innerHTML = `Nenhum canal apresentou anomalias ou descolamento drástico das metas de faturamento padrão.`;
-            }
-        }
-
-        // Gráfico Combinado Avançado: Barras (Volumetria) + Linha (Conversão %)
-        function renderPerformanceChart() {
-            const ctx = document.getElementById('performanceChart').getContext('2d');
-
-            // Agrupa inteligência por mês
-            const monthsMap = {};
-            globalOrdersData.forEach(o => {
-                if (!monthsMap[o.mes]) {
-                    monthsMap[o.mes] = { recebidos: 0, faturados: 0 };
-                }
-                monthsMap[o.mes].recebidos += 1;
-                if (['faturado', 'pago'].includes(o.status)) {
-                    monthsMap[o.mes].faturados += 1;
-                }
-            });
-
-            const labels = Object.keys(monthsMap);
-            const dataRecebidos = [];
-            const dataFaturados = [];
-            const dataConversao = [];
-
-            labels.forEach(m => {
-                const r = monthsMap[m].recebidos;
-                const f = monthsMap[m].faturados;
-                const conv = r > 0 ? ((f / r) * 100).toFixed(1) : 0;
-                
-                dataRecebidos.push(r);
-                dataFaturados.push(f);
-                dataConversao.push(conv);
-            });
-
-            // Se já houver um gráfico desenhado, limpa para evitar sobreposição de memória visual
-            if (performanceChartInstance) {
-                performanceChartInstance.destroy();
-            }
-
-            // Mock caso o usuário inicialize sem dados
-            const finalLabels = labels.length > 0 ? labels : ['Jan', 'Fev', 'Mar', 'Abr'];
-            const finalRec = dataRecebidos.length > 0 ? dataRecebidos : [120, 150, 180, 210];
-            const finalFat = dataFaturados.length > 0 ? dataFaturados : [100, 142, 160, 185];
-            const finalConv = dataConversao.length > 0 ? dataConversao : [83.3, 94.6, 88.8, 88.0];
-
-            performanceChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: finalLabels,
-                    datasets: [
-                        {
-                            label: 'Pedidos Captados (Qtd)',
-                            data: finalRec,
-                            backgroundColor: 'rgba(59, 130, 246, 0.4)',
-                            borderColor: '#3b82f6',
-                            borderWidth: 1,
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: 'Pedidos Faturados (Qtd)',
-                            data: finalFat,
-                            backgroundColor: 'rgba(16, 185, 129, 0.5)',
-                            borderColor: '#10b981',
-                            borderWidth: 1,
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: 'Taxa de Conversão de Fila (%)',
-                            data: finalConv,
-                            type: 'line',
-                            borderColor: '#a855f7',
-                            backgroundColor: '#a855f7',
-                            borderWidth: 2,
-                            pointRadius: 4,
-                            yAxisID: 'y1',
-                            tension: 0.2
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af', font: { size: 10 } } },
-                        y: { 
-                            position: 'left',
-                            grid: { color: 'rgba(255,255,255,0.05)' }, 
-                            ticks: { color: '#9ca3af', font: { size: 10 } },
-                            title: { display: true, text: 'Volume de Pedidos', color: '#6b7280', font: { size: 10 } }
-                        },
-                        y1: {
-                            position: 'right',
-                            grid: { drawOnChartArea: false },
-                            ticks: { color: '#9ca3af', font: { size: 10 }, callback: value => value + '%' },
-                            suggestedMin: 50,
-                            suggestedMax: 100,
-                            title: { display: true, text: 'Conversão Eficiente', color: '#6b7280', font: { size: 10 } }
-                        }
-                    },
-                    plugins: {
-                        legend: { position: 'top', labels: { color: '#e5e7eb', font: { size: 11 }, boxWidth: 12 } }
-                    }
-                }
+        function setupKpiClick(cardId, typeValue) {
+            document.getElementById(cardId).addEventListener('click', () => {
+                document.querySelectorAll('.clickable-card').forEach(c => c.classList.remove('active-card'));
+                document.getElementById(cardId).classList.add('active-card');
+                currentKpiFilter = typeValue;
+                applyFiltersAndRender(true);
             });
         }
 
-        // Inicializa gráfico vazio estrutural na primeira abertura da página
-        window.addEventListener('DOMContentLoaded', () => {
-            renderPerformanceChart();
+        setupKpiClick('cardTotal', 'ALL');
+        setupKpiClick('cardAtendidos', 'FATURADO');
+        setupKpiClick('cardDevolucoes', 'CANCELADO');
+        setupKpiClick('cardAguarda', 'PENDENTE');
+
+        [monthSelect, channelSelect, statusLogFilter, criticalSelect].forEach(el => {
+            el.addEventListener('change', () => {
+                document.querySelectorAll('.clickable-card').forEach(c => c.classList.remove('active-card'));
+                document.getElementById('cardTotal').classList.add('active-card');
+                currentKpiFilter = 'ALL';
+                applyFiltersAndRender();
+            });
         });
+        searchInput.addEventListener('input', () => applyFiltersAndRender());
 
+        function applyFiltersAndRender(isKpiSwitchOnly = false) {
+            const monthVal = monthSelect.value;
+            const searchVal = searchInput.value.toUpperCase();
+            const channelVal = channelSelect.value;
+            const statusVal = statusLogFilter.value;
+            const criticalVal = criticalSelect.value;
 
-        // =======================================================
-        // INTERATIVIDADE E UX AVANÇADA: MODAL AUDITOR DE INSIGHTS
-        // =======================================================
-        function openInsightModal(type) {
-            if (globalOrdersData.length === 0) {
-                alert("Por favor, carregue um arquivo .CSV com os dados da fila para poder detalhar e auditar os insights estratégicos.");
-                return;
+            let baseFiltered = rawDatabase.filter(row => {
+                let matchMonth = (monthVal === 'ALL' || (row['DATA'] && extrairMesAno(row['DATA'].trim()) === monthVal));
+                let matchSearch = !searchVal || Object.values(row).join(' ').toUpperCase().includes(searchVal);
+                let matchChannel = (channelVal === 'ALL' || harmonizarCanal(row['CANAL']) === channelVal);
+                let matchStatusLog = (statusVal === 'ALL' || row['STATUS_LOG'] === statusVal);
+                
+                let matchCritical = true;
+                if (criticalVal === 'PENDENTES_VIVOS') matchCritical = row['STATUS_CONSOLIDADO'] === 'PENDENTE';
+                else if (criticalVal === 'SLA_CRITICO') matchCritical = row['RISCO_SLA'] === true;
+                else if (criticalVal === 'TRAVA_INTEGRACAO') matchCritical = row['RISCO_INTEGRACAO'] === true;
+
+                return matchMonth && matchSearch && matchChannel && matchStatusLog && matchCritical;
+            });
+
+            let tableFiltered = baseFiltered.filter(row => {
+                return currentKpiFilter === 'ALL' || row['STATUS_CONSOLIDADO'] === currentKpiFilter;
+            });
+
+            document.getElementById('activeRows').innerText = tableFiltered.length.toLocaleString('pt-BR');
+            processAndRender(baseFiltered, tableFiltered, isKpiSwitchOnly);
+        }
+
+        function processAndRender(baseData, tableData, isKpiSwitchOnly) {
+            let mesesData = {}; let motivosContagem = {}; 
+            let total = baseData.length;
+            let atendidos = 0; let devolucoes = 0; let aguardaAtendimento = 0;
+            let slaVencidoCount = 0; let apiTravaCount = 0;
+
+            baseData.forEach(row => {
+                if(row['STATUS_CONSOLIDADO'] === 'FATURADO') atendidos++;
+                else if(row['STATUS_CONSOLIDADO'] === 'CANCELADO') devolucoes++;
+                else if(row['STATUS_CONSOLIDADO'] === 'PENDENTE') aguardaAtendimento++;
+
+                if(row['RISCO_SLA']) slaVencidoCount++;
+                if(row['RISCO_INTEGRACAO']) apiTravaCount++;
+
+                if (row['STATUS_CONSOLIDADO'] === 'CANCELADO') {
+                    let mot = "Falta de Estoque / Saldo Zerado";
+                    let obs = (row['OBSERVACOES'] || '').toUpperCase();
+                    if(obs.includes("DESIST") || obs.includes("CLIENTE")) mot = "Cancelamento pelo Comprador";
+                    else if(obs.includes("INTEGRA") || obs.includes("ERRO")) mot = "Erro Sistêmico de API";
+                    motivosContagem[mot] = (motivosContagem[mot] || 0) + 1;
+                }
+
+                let mKey = row['DATA'] ? extrairMesAno(row['DATA'].trim()) : "Indefinido";
+                if (mKey !== "Indefinido") {
+                    let [m, ano] = mKey.split('/');
+                    let label = `${nomeMeses[m].substring(0,3)}/${ano}`;
+                    if (!mesesData[label]) mesesData[label] = { total: 0, faturado: 0 };
+                    mesesData[label].total++;
+                    if (row['STATUS_CONSOLIDADO'] === 'FATURADO') mesesData[label].faturado++;
+                }
+            });
+
+            if (!isKpiSwitchOnly) {
+                document.getElementById('kpiTotal').innerText = total.toLocaleString('pt-BR');
+                document.getElementById('kpiAtendidos').innerText = atendidos.toLocaleString('pt-BR');
+                document.getElementById('kpiDevolucoes').innerText = devolucoes.toLocaleString('pt-BR');
+                document.getElementById('kpiAguardaAtendimento').innerText = aguardaAtendimento.toLocaleString('pt-BR');
+
+                // Renderização das taxas dinâmicas nos cartões de KPI
+                document.getElementById('pctAtendidos').innerText = total > 0 ? `${((atendidos / total) * 100).toFixed(1)}%` : '0%';
+                document.getElementById('pctDevolucoes').innerText = total > 0 ? `${((devolucoes / total) * 100).toFixed(1)}%` : '0%';
+                document.getElementById('pctPendente').innerText = total > 0 ? `${((aguardaAtendimento / total) * 100).toFixed(1)}%` : '0%';
+
+                // Atualização dos Insights Gerenciais Dinâmicos
+                const txConversao = total > 0 ? ((atendidos / total) * 100).toFixed(1) : 0;
+                document.getElementById('insightConversao').innerHTML = `A taxa de conversão final está em <b class="text-blue-400">${txConversao}%</b>. Mantendo estabilidade operacional na expedição de carteira ativa.`;
+
+                if (slaVencidoCount === 0 && apiTravaCount === 0) {
+                    document.getElementById('insightGargalo').innerHTML = `<span class="text-green-400">✔</span> Fluxo limpo. Sem travas críticas de API ou estouros de SLA de envio pendentes.`;
+                } else {
+                    let piorGargalo = slaVencidoCount >= apiTravaCount ? `${slaVencidoCount} pedidos com SLA de Envio Vencido` : `${apiTravaCount} ordens travadas na API Linx/Protheus`;
+                    document.getElementById('insightGargalo').innerHTML = `Atenção concentrada em: <b class="text-amber-400">${piorGargalo}</b>. Necessário plano de ação imediato.`;
+                }
+
+                let maiorOfensor = "Nenhum"; let maxMot = 0;
+                Object.keys(motivosContagem).forEach(m => {
+                    if(motivosContagem[m] > maxMot) { maxMot = motivosContagem[m]; maiorOfensor = m; }
+                });
+                document.getElementById('insightOfensor').innerHTML = maxMot > 0 ? `Motivo crítico: <b class="text-red-400">${maiorOfensor}</b> com ${maxMot} ocorrências registradas na visão.` : `Excelente! Nenhuma quebra por falta de estoque ou cancelamentos recorrentes.`;
             }
 
-            const modal = document.getElementById('insightModal');
-            const title = document.getElementById('modalTitle');
-            const subtitle = document.getElementById('modalSubtitle');
-            const banner = document.getElementById('modalStatsBanner');
-            const tbody = document.getElementById('modalTableBody');
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
 
-            // Limpa views passadas
-            tbody.innerHTML = "";
-            banner.innerHTML = "";
-
-            let targetOrders = [];
-            
-            if (type === 'gmv') {
-                title.innerText = "Auditoria de Custo de Oportunidade e Capital Retido";
-                subtitle.innerText = "Pedidos atualmente travados por estouro de SLA ou barreira sistêmica de faturamento";
-                
-                targetOrders = globalOrdersData.filter(o => ['sla vencido', 'atrasado', 'erro de api', 'sem nf', 'erro api'].includes(o.status));
-                
-                const sumStuck = targetOrders.reduce((acc, curr) => acc + curr.valor, 0);
-                const avgStuckTicket = targetOrders.length > 0 ? (sumStuck / targetOrders.length) : 0;
-
-                banner.innerHTML = `
-                    <div><span class="text-gray-400 block">Total Parado:</span><strong class="text-red-400 text-sm">${sumStuck.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong></div>
-                    <div><span class="text-gray-400 block">Volumetria Bloqueada:</span><strong class="text-gray-200 text-sm">${targetOrders.length} Pedidos</strong></div>
-                    <div><span class="text-gray-400 block">Ticket Médio Retido:</span><strong class="text-gray-200 text-sm">${avgStuckTicket.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong></div>
-                    <div><span class="text-gray-400 block">Status Crítico:</span><strong class="text-red-400 text-sm">Ação Corretiva Exigida</strong></div>
-                `;
-
-            } else if (type === 'leadtime') {
-                title.innerText = "Auditoria de Eficiência Logística e Gargalo de Lead Time";
-                subtitle.innerText = "Todos os pedidos registrados em trâmite logístico e seus respectivos dias de execução";
-                
-                targetOrders = globalOrdersData.filter(o => o.leadTime > 0);
-                const maxLt = Math.max(...targetOrders.map(o => o.leadTime), 0);
-                const sumLt = targetOrders.reduce((acc, curr) => acc + curr.leadTime, 0);
-                const avgLt = targetOrders.length > 0 ? (sumLt / targetOrders.length).toFixed(1) : 0;
-
-                banner.innerHTML = `
-                    <div><span class="text-gray-400 block">Média Operacional:</span><strong class="text-amber-400 text-sm">${avgLt} Dias</strong></div>
-                    <div><span class="text-gray-400 block">Pior Caso Encontrado:</span><strong class="text-red-400 text-sm">${maxLt} Dias</strong></div>
-                    <div><span class="text-gray-400 block">Amostra Logística:</span><strong class="text-gray-200 text-sm">${targetOrders.length} SKUs/Pedidos</strong></div>
-                    <div><span class="text-gray-400 block">Benchmark Setor:</span><strong class="text-emerald-400 text-sm">24h a 48h</strong></div>
-                `;
-
-            } else if (type === 'channels') {
-                title.innerText = "Auditoria de Conversão e Atrito por Canal de Venda";
-                subtitle.innerText = "Mapeamento completo da integridade e vazamento de funil por origem do pedido";
-                
-                targetOrders = [...globalOrdersData]; // Mostra tudo para analisar o share relativo
-                
-                const total = targetOrders.length;
-                const errorsCount = globalOrdersData.filter(o => ['sla vencido', 'atrasado', 'erro de api', 'sem nf', 'erro api'].includes(o.status)).length;
-                const healthPct = (((total - errorsCount) / total) * 100).toFixed(1);
-
-                banner.innerHTML = `
-                    <div><span class="text-gray-400 block">Pedidos Consolidados:</span><strong class="text-gray-200 text-sm">${total}</strong></div>
-                    <div><span class="text-gray-400 block">Faturamento Livre (%):</span><strong class="text-emerald-400 text-sm">${healthPct}%</strong></div>
-                    <div><span class="text-gray-400 block">Meta de Eficiência B2B:</span><strong class="text-blue-400 text-sm">> 92.0%</strong></div>
-                    <div><span class="text-gray-400 block">Risco Geral:</span><strong class="${healthPct >= 92 ? 'text-emerald-400' : 'text-amber-400'} text-sm">${healthPct >= 92 ? 'Controlado' : 'Atenção Faturamento'}</strong></div>
-                `;
-            }
-
-            // Injeta as linhas detalhadas com base no filtro calculado
-            if (targetOrders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500">Nenhum registro específico atende a este critério de filtro.</td></tr>`;
+            if(tableData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="12" class="p-4 text-center text-gray-500">Nenhum registro encontrado para esta categoria de filtro.</td></tr>`;
             } else {
-                targetOrders.forEach(order => {
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-gray-800/40 transition-colors";
+                tableData.forEach(item => {
+                    let tr = document.createElement('tr');
+                    tr.className = "border-b border-gray-800/60 hover:bg-[#161f33]/40 text-[11px]";
                     
-                    let statusBadgeColor = "bg-gray-800 text-gray-400";
-                    if (['faturado', 'pago'].includes(order.status)) statusBadgeColor = "bg-emerald-950 text-emerald-400 border border-emerald-900/50";
-                    if (['sla vencido', 'atrasado'].includes(order.status)) statusBadgeColor = "bg-red-950 text-red-400 border border-red-900/50";
-                    if (['erro de api', 'sem nf', 'erro api'].includes(order.status)) statusBadgeColor = "bg-amber-950 text-amber-400 border border-amber-900/50";
+                    let badgeStatus = "bg-orange-950 text-orange-400 border border-orange-900/30";
+                    if(item.STATUS_CONSOLIDADO === 'FATURADO') badgeStatus = "bg-green-950 text-green-400 border border-green-900/40";
+                    if(item.STATUS_CONSOLIDADO === 'CANCELADO') badgeStatus = "bg-red-950 text-red-400 border border-red-900/40";
 
                     tr.innerHTML = `
-                        <td class="p-3 font-mono font-semibold text-gray-100">${order.id}</td>
-                        <td class="p-3">${order.canal}</td>
-                        <td class="p-3 font-medium">${order.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
-                        <td class="p-3">
-                            <span class="px-2 py-0.5 rounded text-[10px] font-medium uppercase ${statusBadgeColor}">
-                                ${order.status}
-                            </span>
-                        </td>
-                        <td class="p-3 text-gray-400 max-w-xs truncate" title="${order.motivo}">${order.motivo || '—'}</td>
+                        <td class="p-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeStatus}">${item.STATUS_CONSOLIDADO}</span></td>
+                        <td class="p-3 text-white font-semibold whitespace-nowrap">${item.ACAO_OPERACIONAL}</td>
+                        <td class="p-3 text-gray-400 whitespace-nowrap">${item.DATA || '---'}</td>
+                        <td class="p-3 text-gray-200 font-semibold whitespace-nowrap">${harmonizarCanal(item.CANAL)}</td>
+                        <td class="p-3 font-mono text-blue-400 font-bold text-xs whitespace-nowrap">${item.PEDIDO || '---'}</td>
+                        <td class="p-3 text-gray-400 whitespace-nowrap">${item.STATUS_LOG || '---'}</td>
+                        <td class="p-3 text-gray-400 whitespace-nowrap">${item.STATUS_LINX || '---'}</td>
+                        <td class="p-3 font-mono text-gray-300 whitespace-nowrap">${item.PV_PROTHEUS || '---'}</td>
+                        <td class="p-3 font-mono text-gray-300 whitespace-nowrap">${item.NOTA || '---'}</td>
+                        <td class="p-3 text-amber-400 whitespace-nowrap">${item.PREVISAO || '---'}</td>
+                        <td class="p-3 text-blue-300 font-mono whitespace-nowrap">${item.RASTREIO || '---'}</td>
+                        <td class="p-3 text-gray-400 max-w-xs truncate" title="${item.OBSERVACOES || ''}">${item.OBSERVACOES || '---'}</td>
                     `;
                     tbody.appendChild(tr);
                 });
             }
 
-            // Exibe o modal removendo a classe hidden do Tailwind
-            modal.classList.remove('hidden');
+            if (!isKpiSwitchOnly) {
+                renderCharts(mesesData, motivosContagem);
+            }
         }
 
-        function closeInsightModal() {
-            document.getElementById('insightModal').classList.add('hidden');
+        function renderCharts(mesesData, motivosContagem) {
+            if (chartMensal) chartMensal.destroy();
+            if (chartMotivos) chartMotivos.destroy();
+
+            let labelsMeses = Object.keys(mesesData);
+            const dadosEntrada = labelsMeses.map(m => mesesData[m].total || 0);
+            const dadosFaturados = labelsMeses.map(m => mesesData[m].faturado || 0);
+            const taxasConversao = labelsMeses.map(m => mesesData[m].total > 0 ? ((mesesData[m].faturado / mesesData[m].total) * 100).toFixed(1) : 0);
+
+            const ctx1 = document.getElementById('chartMensal').getContext('2d');
+            chartMensal = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: labelsMeses,
+                    datasets: [
+                        { label: 'Pedidos Recebidos', data: dadosEntrada, backgroundColor: '#2563eb', order: 2 },
+                        { label: 'Pedidos Faturados', data: dadosFaturados, backgroundColor: '#10b981', order: 3 },
+                        { label: 'Taxa de Entrega (%)', data: taxasConversao, type: 'line', borderColor: '#a855f7', borderWidth: 2, pointBackgroundColor: '#c084fc', tension: 0.2, fill: false, yAxisID: 'yPerc', order: 1 }
+                    ]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { labels: { color: '#9ca3af', font: { size: 11 } } } }, 
+                    scales: { 
+                        y: { position: 'left', grid: { color: '#1e293b' }, ticks: { color: '#9ca3af' } },
+                        yPerc: { position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#c084fc', callback: function(value) { return value + '%'; } }, min: 0, max: 100 },
+                        x: { ticks: { color: '#9ca3af' } } 
+                    } 
+                }
+            });
+
+            const labelsMotivos = Object.keys(motivosContagem);
+            const dadosMotivos = Object.values(motivosContagem);
+
+            const ctx2 = document.getElementById('chartMotivos').getContext('2d');
+            chartMotivos = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: labelsMotivos.length > 0 ? labelsMotivos : ["Sem Devoluções"],
+                    datasets: [{ data: dadosMotivos.length > 0 ? dadosMotivos : [1], backgroundColor: ['#ef4444', '#f97316', '#3b82f6'], borderPenWidth: 0, borderColor: '#121826' }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af', font: { size: 10 } } } } }
+            });
         }
+
+        document.getElementById('btnResetAll').addEventListener('click', () => {
+            monthSelect.value = 'ALL'; searchInput.value = ''; channelSelect.value = 'ALL'; statusLogFilter.value = 'ALL'; criticalSelect.value = 'ALL';
+            document.querySelectorAll('.clickable-card').forEach(c => c.classList.remove('active-card'));
+            document.getElementById('cardTotal').classList.add('active-card');
+            currentKpiFilter = 'ALL';
+            applyFiltersAndRender();
+        });
     </script>
 </body>
 </html>
