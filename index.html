@@ -50,16 +50,22 @@
                     <option value="SLA_CRITICO">🚨 SLA de Compra Estourado</option>
                     <option value="TRAVA_INTEGRACAO">🔌 Travado na API (Sem NF)</option>
                 </select>
-                <p class="text-[10px] text-gray-400 mt-1.5 leading-relaxed">Filtre os atendimentos pendentes e casos que necessitam de atenção na rotina diária.</p>
             </div>
 
             <div class="space-y-3 opacity-50" id="filterSection">
                 <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-800 pb-1">2. Filtros de Apoio</div>
                 
                 <div>
+                    <label class="block text-[11px] text-gray-400 mb-1">Ano do Pedido</label>
+                    <select id="yearFilter" class="filter-select" disabled>
+                        <option value="ALL">Todos os Anos</option>
+                    </select>
+                </div>
+
+                <div>
                     <label class="block text-[11px] text-gray-400 mb-1">Mês do Pedido</label>
                     <select id="monthFilter" class="filter-select" disabled>
-                        <option value="ALL">Histórico Consolidado</option>
+                        <option value="ALL">Todos os Meses</option>
                     </select>
                 </div>
 
@@ -87,117 +93,59 @@
     </div>
 
     <div class="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto">
-        
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div id="cardTotal" class="custom-card p-4 bg-slate-900 border-slate-800 clickable-card active-card">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total de pedidos</p>
-                <div class="flex items-baseline gap-2 mt-1">
-                    <h2 id="kpiTotal" class="text-2xl font-extrabold text-white">0</h2>
-                </div>
-                <p class="text-[11px] text-gray-500 mt-0.5">Base consolidada sob filtros</p>
+                <div class="flex items-baseline gap-2 mt-1"><h2 id="kpiTotal" class="text-2xl font-extrabold text-white">0</h2></div>
             </div>
             <div id="cardAtendidos" class="custom-card p-4 border-green-900/50 bg-green-950/20 clickable-card">
                 <p class="text-[10px] font-bold text-green-400 uppercase tracking-wider">Atendidos</p>
-                <div class="flex items-baseline gap-2 mt-1">
-                    <h2 id="kpiAtendidos" class="text-2xl font-extrabold text-green-400">0</h2>
-                    <span id="pctAtendidos" class="text-xs font-semibold text-green-500/90">0%</span>
-                </div>
-                <p class="text-[11px] text-green-500/70 mt-0.5">Pedidos faturados e entregues</p>
+                <div class="flex items-baseline gap-2 mt-1"><h2 id="kpiAtendidos" class="text-2xl font-extrabold text-green-400">0</h2><span id="pctAtendidos" class="text-xs font-semibold text-green-500/90">0%</span></div>
             </div>
             <div id="cardDevolucoes" class="custom-card p-4 border-red-900/50 bg-red-950/20 clickable-card">
                 <p class="text-[10px] font-bold text-red-400 uppercase tracking-wider">Devoluções</p>
-                <div class="flex items-baseline gap-2 mt-1">
-                    <h2 id="kpiDevolucoes" class="text-2xl font-extrabold text-red-400">0</h2>
-                    <span id="pctDevolucoes" class="text-xs font-semibold text-red-500/90">0%</span>
-                </div>
-                <p class="text-[11px] text-red-500/70 mt-0.5">Cancelamentos e estornos</p>
+                <div class="flex items-baseline gap-2 mt-1"><h2 id="kpiDevolucoes" class="text-2xl font-extrabold text-red-400">0</h2><span id="pctDevolucoes" class="text-xs font-semibold text-red-500/90">0%</span></div>
             </div>
             <div id="cardAguarda" class="custom-card p-4 border-amber-900/50 bg-amber-950/20 clickable-card">
                 <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Aguarda atendimento</p>
-                <div class="flex items-baseline gap-2 mt-1">
-                    <h2 id="kpiAguardaAtendimento" class="text-2xl font-extrabold text-amber-400">0</h2>
-                    <span id="pctPendente" class="text-xs font-semibold text-amber-500/90">0%</span>
-                </div>
-                <p class="text-[11px] text-amber-500/70 mt-0.5">Fila pendente e casos do dia</p>
+                <div class="flex items-baseline gap-2 mt-1"><h2 id="kpiAguardaAtendimento" class="text-2xl font-extrabold text-amber-400">0</h2><span id="pctPendente" class="text-xs font-semibold text-amber-500/90">0%</span></div>
             </div>
         </div>
 
         <div class="custom-card p-4 bg-gradient-to-r from-blue-950/20 via-[#121826] to-purple-950/20 border-blue-900/30">
-            <div class="flex items-center gap-2 mb-3">
-                <span class="text-xs">🧠</span>
-                <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider">Diagnóstico Inteligente da Fila</h3>
-            </div>
+            <div class="flex items-center gap-2 mb-3"><span class="text-xs">🧠</span><h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider">Diagnóstico Inteligente da Fila</h3></div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                <div class="p-3 bg-[#0f1422]/60 rounded-lg border border-gray-800">
-                    <p class="text-gray-400 font-semibold mb-1">🎯 Eficiência do Período</p>
-                    <p id="insightConversao" class="text-gray-300 leading-relaxed">Aguardando dados para avaliar a taxa de conversão comercial.</p>
-                </div>
-                <div class="p-3 bg-[#0f1422]/60 rounded-lg border border-gray-800">
-                    <p class="text-amber-400 font-semibold mb-1">⚠️ Risco de SLA e Bloqueios</p>
-                    <p id="insightGargalo" class="text-gray-300 leading-relaxed">Nenhum gargalo sistêmico crítico detectado até o momento.</p>
-                </div>
-                <div class="p-3 bg-[#0f1422]/60 rounded-lg border border-gray-800">
-                    <p class="text-red-400 font-semibold mb-1">🛑 Principal Ofensor de Quebras</p>
-                    <p id="insightOfensor" class="text-gray-300 leading-relaxed">Sem registros de cancelamentos expressivos na visão atual.</p>
-                </div>
+                <div class="p-3 bg-[#0f1422]/60 rounded-lg border border-gray-800"><p class="text-gray-400 font-semibold mb-1">🎯 Eficiência do Período</p><p id="insightConversao" class="text-gray-300 leading-relaxed">...</p></div>
+                <div class="p-3 bg-[#0f1422]/60 rounded-lg border border-gray-800"><p class="text-amber-400 font-semibold mb-1">⚠️ Risco de SLA e Bloqueios</p><p id="insightGargalo" class="text-gray-300 leading-relaxed">...</p></div>
+                <div class="p-3 bg-[#0f1422]/60 rounded-lg border border-gray-800"><p class="text-red-400 font-semibold mb-1">🛑 Principal Ofensor de Quebras</p><p id="insightOfensor" class="text-gray-300 leading-relaxed">...</p></div>
             </div>
         </div>
 
         <div id="chartsContainer" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="custom-card p-5 lg:col-span-2">
-                <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Volume Mensal vs. Taxa de Faturamento (%)</h3>
-                <div class="h-56"><canvas id="chartMensal"></canvas></div>
-            </div>
-            <div class="custom-card p-5">
-                <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Principais Ofensores de Quebra de Estoque</h3>
-                <div class="h-56"><canvas id="chartMotivos"></canvas></div>
-            </div>
+            <div class="custom-card p-5 lg:col-span-2"><h3 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Volume Mensal vs. Taxa de Faturamento (%)</h3><div class="h-56"><canvas id="chartMensal"></canvas></div></div>
+            <div class="custom-card p-5"><h3 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Principais Ofensores de Quebra</h3><div class="h-56"><canvas id="chartMotivos"></canvas></div></div>
         </div>
 
         <div class="custom-card p-5">
-            <div class="flex justify-between items-center mb-4">
-                <div>
-                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Mapeamento Analítico da Fila</h3>
-                    <p class="text-[11px] text-gray-400 mt-0.5">Dados estruturados em tempo real.</p>
-                </div>
-            </div>
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Mapeamento Analítico da Fila</h3>
             <div class="overflow-x-auto border border-gray-800/80 rounded-lg max-h-[450px]">
                 <table class="min-w-full text-xs text-left text-gray-400">
                     <thead class="bg-[#161e30] text-gray-300 uppercase font-semibold text-[10px] tracking-wider sticky top-0 z-10">
                         <tr>
-                            <th class="p-3 whitespace-nowrap">Status Operacional</th>
-                            <th class="p-3 whitespace-nowrap">Ação Corretiva</th>
-                            <th class="p-3 whitespace-nowrap">Data Entrada</th>
-                            <th class="p-3 whitespace-nowrap">Canal/Mktplace</th>
-                            <th class="p-3 whitespace-nowrap">Nº Pedido</th>
-                            <th class="p-3 whitespace-nowrap">Status Logística</th>
-                            <th class="p-3 whitespace-nowrap">Status Linx</th>
-                            <th class="p-3 whitespace-nowrap">PV Protheus</th>
-                            <th class="p-3 whitespace-nowrap">Nota Fiscal</th>
-                            <th class="p-3 whitespace-nowrap">Previsão Envio</th>
-                            <th class="p-3 whitespace-nowrap">Código Rastreio</th>
-                            <th class="p-3 whitespace-nowrap">Observações</th>
+                            <th class="p-3">Status</th><th class="p-3">Ação Corretiva</th><th class="p-3">Data</th><th class="p-3">Canal</th><th class="p-3">Pedido</th><th class="p-3">Status Log</th><th class="p-3">Status Linx</th><th class="p-3">PV</th><th class="p-3">NF</th><th class="p-3">Previsão</th><th class="p-3">Rastreio</th><th class="p-3">Obs</th>
                         </tr>
                     </thead>
-                    <tbody id="tableBody">
-                        <tr>
-                            <td colspan="12" class="p-4 text-center text-gray-500">Aguardando importação dos arquivos CSV...</td>
-                        </tr>
-                    </tbody>
+                    <tbody id="tableBody"><tr><td colspan="12" class="p-4 text-center text-gray-500">Aguardando arquivos...</td></tr></tbody>
                 </table>
             </div>
         </div>
     </div>
 
     <script>
-        let raw2026 = [];
-        let raw2025 = [];
-        let rawDatabase = [];
-        
-        let chartMensal = null;
-        let chartMotivos = null;
-        let currentKpiFilter = 'ALL';
+        let raw2026 = []; let raw2025 = []; let rawDatabase = [];
+        let chartMensal = null; let chartMotivos = null; let currentKpiFilter = 'ALL';
 
+        const yearSelect = document.getElementById('yearFilter');
         const monthSelect = document.getElementById('monthFilter');
         const searchInput = document.getElementById('searchFilter');
         const channelSelect = document.getElementById('channelFilter');
@@ -207,14 +155,8 @@
         const nomeMeses = {"01":"Janeiro","02":"Fevereiro","03":"Março","04":"Abril","05":"Maio","06":"Junho","07":"Julho","08":"Agosto","09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"};
         const mapaTextoMeses = {"JAN":"01","FEB":"02","FEV":"02","MAR":"03","APR":"04","ABR":"04","MAY":"05","MAI":"05","JUN":"06","JUL":"07","AUG":"08","AGO":"08","SEP":"09","SET":"09","OCT":"10","OUT":"10","NOV":"11","DEC":"12","DEZ":"12"};
 
-        // NORMALIZAÇÃO AGRESSIVA PARA ABRAÇAR COLUNAS DE 2025 E 2026 SIMULTANEAMENTE
         function normalizeKey(key) { 
-            return key.toUpperCase()
-                      .normalize("NFD") // Remove acentos como em "PREVISÃO"
-                      .replace(/[\u0300-\u036f]/g, "")
-                      .replace(/[º°ª]/g, '')
-                      .replace(/[^A-Z0-9]/g, '')
-                      .trim(); 
+            return key.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[º°ª]/g, '').replace(/[^A-Z0-9]/g, '').trim(); 
         }
 
         function harmonizarCanal(txt) {
@@ -226,26 +168,37 @@
             return c;
         }
 
-        function extrairPeriodo(dataStr, defaultAno = "2026") {
-            if (!dataStr) return { sortKey: "9999-99", label: "Indefinido" };
-            let limpo = dataStr.toUpperCase().trim();
+        // HARMONIZADOR AVANÇADO CONTRA DIGITAÇÕES INCORRETAS
+        function extrairPeriodo(dataStr, defaultAno) {
+            if (!dataStr || dataStr.trim() === "") return { sortKey: `${defaultAno}-01`, label: `01/${defaultAno}`, ano: defaultAno, mes: "01" };
             
+            let limpo = dataStr.toUpperCase().trim();
             let partes = limpo.includes('/') ? limpo.split('/') : (limpo.includes('-') ? limpo.split('-') : []);
+            
             if (partes.length >= 2) {
                 let mesToken = partes[1].trim();
-                let anoToken = partes[2] ? partes[2].substring(0, 4) : defaultAno;
+                let anoToken = partes[2] ? partes[2].replace(/[^0-9]/g, '').trim() : defaultAno;
                 
-                if (!isNaN(mesToken)) {
-                    let m = mesToken.padStart(2, '0');
-                    return { sortKey: `${anoToken}-${m}`, label: `${m}/${anoToken}` };
+                // Correção dinâmica de anos curtos ou corrompidos (Ex: "25" -> "2025", "2" -> "2025")
+                if (anoToken.length < 4) {
+                    anoToken = defaultAno; 
                 }
-                let trecho = mesToken.substring(0, 3);
-                if (mapaTextoMeses[trecho]) {
-                    let m = mapaTextoMeses[trecho];
-                    return { sortKey: `${anoToken}-${m}`, label: `${m}/${anoToken}` };
+
+                let mesNum = "01";
+                if (!isNaN(mesToken) && mesToken !== "") {
+                    mesNum = mesToken.padStart(2, '0');
+                } else {
+                    let trecho = mesToken.substring(0, 3);
+                    if (mapaTextoMeses[trecho]) mesNum = mapaTextoMeses[trecho];
                 }
+
+                // Proteção contra meses inválidos digitados
+                if(parseInt(mesNum) < 1 || parseInt(mesNum) > 12) mesNum = "01";
+
+                return { sortKey: `${anoToken}-${mesNum}`, label: `${mesNum}/${anoToken}`, ano: anoToken, mes: mesNum };
             }
-            return { sortKey: "9999-99", label: "Indefinido" };
+            
+            return { sortKey: `${defaultAno}-01`, label: `01/${defaultAno}`, ano: defaultAno, mes: "01" };
         }
 
         function processarlinhasCSV(data, defaultAno) {
@@ -253,9 +206,7 @@
                 let n = {};
                 Object.keys(row).forEach(key => {
                     let nk = normalizeKey(key);
-                    
-                    // Tratamento inteligente mapeando as variações observadas (Ex: STATUS DO PEDIDO - LOG, STATUS LINX)
-                    if ((nk.includes("PEDIDO") || nk.includes("NUMERODOPEDIDO") || nk === "NPEDIDO" || nk === "NODOPEDIDO") && !nk.includes("STATUS") && !nk.includes("LOG") && !nk.includes("LINX")) {
+                    if ((nk.includes("PEDIDO") || nk.includes("NUMERODOPEDIDO") || nk === "NPEDIDO") && !nk.includes("STATUS") && !nk.includes("LOG") && !nk.includes("LINX")) {
                         n['PEDIDO'] = row[key];
                     } else if (nk.includes("DATA")) {
                         n['DATA'] = row[key];
@@ -278,16 +229,19 @@
                     }
                 });
 
-                // Fallback de segurança para colunas com caracteres especiais
-                if (!n['PEDIDO']) {
-                    n['PEDIDO'] = row['Nº DO PEDIDO'] || row['Nº do Pedido'] || row['Nª DO PEDIDO'] || row['Nº_DO_PEDIDO'] || '';
-                }
+                if (!n['PEDIDO']) n['PEDIDO'] = row['Nº DO PEDIDO'] || '';
+
+                // Extração amigável e limpa do período temporal cronológico
+                let p = extrairPeriodo(n['DATA'], defaultAno);
+                n['ANO_TRATADO'] = p.ano;
+                n['MES_TRATADO'] = p.mes;
+                n['PERIODO_LABEL'] = p.label;
+                n['PERIODO_SORT'] = p.sortKey;
 
                 let stLog = (n['STATUS_LOG'] || '').toUpperCase().trim();
                 let stLinx = (n['STATUS_LINX'] || '').toUpperCase().trim();
                 let obs = (n['OBSERVACOES'] || '').toUpperCase().trim();
 
-                // Unificação de Critérios de Faturamento e Cancelamento
                 let faturado = stLog.includes('FATURAD') || stLog.includes('EMITID') || stLinx.includes('FATURAD') || n['NOTA'];
                 let cancelado = stLog.includes('CANC') || stLog.includes('DEV') || stLinx.includes('CANC') || obs.includes('CANC') || stLog.includes('CANCELADO');
 
@@ -295,38 +249,24 @@
                 else if (cancelado) n['STATUS_CONSOLIDADO'] = 'CANCELADO';
                 else n['STATUS_CONSOLIDADO'] = 'PENDENTE';
 
-                let acao = "Fluxo Concluído";
-                let riscoSla = false;
-                let riscoIntegracao = false;
+                let acao = "Fluxo Concluído"; let riscoSla = false; let riscoIntegracao = false;
 
                 if (n['STATUS_CONSOLIDADO'] === 'PENDENTE') {
-                    const hoje = new Date(2026, 4, 26);
-                    if (n['PREVISAO']) {
-                        let p = n['PREVISAO'].split('/');
-                        if (p.length === 3) {
-                            let dt = new Date(p[2], p[1]-1, p[0]);
-                            if (dt < hoje) riscoSla = true;
-                        }
-                    }
                     if (stLinx.includes("FATUR") && !n['NOTA']) riscoIntegracao = true;
-
-                    if (riscoSla) acao = "🚨 Acionar Expedição (SLA Vencido)";
-                    else if (riscoIntegracao) acao = "🔌 Forçar Sincronismo de NF / API";
+                    if (riscoIntegracao) acao = "🔌 Forçar Sincronismo de NF / API";
                     else acao = "⏳ Acompanhar Rotina Diária";
                 }
 
                 n['ACAO_OPERACIONAL'] = acao;
                 n['RISCO_SLA'] = riscoSla;
                 n['RISCO_INTEGRACAO'] = riscoIntegracao;
-                n['ANO_PADRAO'] = defaultAno;
 
                 return n;
-            }).filter(r => r['DATA'] || r['PEDIDO']);
+            }).filter(r => r['PEDIDO']);
         }
 
         function mergeDatabases() {
             rawDatabase = [...raw2026, ...raw2025];
-            
             if(rawDatabase.length > 0) {
                 criticalSelect.disabled = false;
                 buildCrossFilters();
@@ -334,62 +274,49 @@
             }
         }
 
-        // LEITURA ARQUIVO 2026
-        document.getElementById('csvFileInput2026').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            Papa.parse(file, {
-                header: true, delimiter: ";", skipEmptyLines: true,
-                complete: function(results) {
-                    raw2026 = processarlinhasCSV(results.data, "2026");
-                    mergeDatabases();
-                }
-            });
+        document.getElementById('csvFileInput2026').addEventListener('change', e => {
+            if (!e.target.files[0]) return;
+            Papa.parse(e.target.files[0], { header: true, delimiter: ";", skipEmptyLines: true, complete: res => { raw2026 = processarlinhasCSV(res.data, "2026"); mergeDatabases(); } });
         });
 
-        // LEITURA ARQUIVO 2025 (Harmoniza na hora do Upload)
-        document.getElementById('csvFileInput2025').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            Papa.parse(file, {
-                header: true, delimiter: ";", skipEmptyLines: true,
-                complete: function(results) {
-                    raw2025 = processarlinhasCSV(results.data, "2025");
-                    mergeDatabases();
-                }
-            });
+        document.getElementById('csvFileInput2025').addEventListener('change', e => {
+            if (!e.target.files[0]) return;
+            Papa.parse(e.target.files[0], { header: true, delimiter: ";", skipEmptyLines: true, complete: res => { raw2025 = processarlinhasCSV(res.data, "2025"); mergeDatabases(); } });
         });
 
+        // CONSTROE OS FILTROS DE ANO E MÊS DINAMICAMENTE
         function buildCrossFilters() {
-            let monthsMap = {}; let channels = new Set(); let statusLogs = new Set();
+            let anos = new Set(); let mesesValidos = {}; let channels = new Set(); let statusLogs = new Set();
             
             rawDatabase.forEach(row => {
-                let p = extrairPeriodo(row['DATA'], row['ANO_PADRAO']);
-                if(p.label !== "Indefinido") {
-                    monthsMap[p.sortKey] = p.label;
-                }
+                anos.add(row['ANO_TRATADO']);
+                mesesValidos[row['MES_TRATADO']] = nomeMeses[row['MES_TRATADO']];
                 if(row['CANAL']) channels.add(harmonizarCanal(row['CANAL']));
                 if(row['STATUS_LOG']) statusLogs.add(row['STATUS_LOG'].trim());
             });
 
-            monthSelect.innerHTML = '<option value="ALL">Histórico Consolidado</option>';
-            
-            Object.keys(monthsMap).sort().forEach(sortKey => {
-                let label = monthsMap[sortKey];
-                let [m, ano] = label.split('/');
-                monthSelect.innerHTML += `<option value="${label}">${nomeMeses[m]} de ${ano}</option>`;
-            });
+            // Popular Filtro de Ano
+            let currentYearSel = yearSelect.value;
+            yearSelect.innerHTML = '<option value="ALL">Todos os Anos</option>';
+            Array.from(anos).sort().forEach(ano => { yearSelect.innerHTML += `<option value="${ano}">${ano}</option>`; });
+            yearSelect.value = currentYearSel;
+
+            // Popular Filtro de Mês
+            monthSelect.innerHTML = '<option value="ALL">Todos os Meses</option>';
+            Object.keys(mesesValidos).sort().forEach(m => { monthSelect.innerHTML += `<option value="${m}">${mesesValidos[m]}</option>`; });
 
             populateDropdown(channelSelect, channels, "Todos os Canais");
             populateDropdown(statusLogFilter, statusLogs, "Todos os Status");
 
             document.getElementById('filterSection').classList.remove('opacity-50');
-            [monthSelect, searchInput, channelSelect, statusLogFilter].forEach(el => el.disabled = false);
+            [yearSelect, monthSelect, searchInput, channelSelect, statusLogFilter].forEach(el => el.disabled = false);
         }
 
         function populateDropdown(element, set, labelDefault) {
+            let curr = element.value;
             element.innerHTML = `<option value="ALL">${labelDefault}</option>`;
             Array.from(set).sort().forEach(val => { if(val) element.innerHTML += `<option value="${val}">${val}</option>`; });
+            element.value = curr;
         }
 
         function setupKpiClick(cardId, typeValue) {
@@ -401,22 +328,18 @@
             });
         }
 
-        setupKpiClick('cardTotal', 'ALL');
-        setupKpiClick('cardAtendidos', 'FATURADO');
-        setupKpiClick('cardDevolucoes', 'CANCELADO');
-        setupKpiClick('cardAguarda', 'PENDENTE');
+        setupKpiClick('cardTotal', 'ALL'); setupKpiClick('cardAtendidos', 'FATURADO'); setupKpiClick('cardDevolucoes', 'CANCELADO'); setupKpiClick('cardAguarda', 'PENDENTE');
 
-        [monthSelect, channelSelect, statusLogFilter, criticalSelect].forEach(el => {
+        [yearSelect, monthSelect, channelSelect, statusLogFilter, criticalSelect].forEach(el => {
             el.addEventListener('change', () => {
-                document.querySelectorAll('.clickable-card').forEach(c => c.classList.remove('active-card'));
-                document.getElementById('cardTotal').classList.add('active-card');
-                currentKpiFilter = 'ALL';
+                if(el === yearSelect) buildCrossFilters(); // Reconstrói se mudar o ano
                 applyFiltersAndRender();
             });
         });
         searchInput.addEventListener('input', () => applyFiltersAndRender());
 
         function applyFiltersAndRender(isKpiSwitchOnly = false) {
+            const yearVal = yearSelect.value;
             const monthVal = monthSelect.value;
             const searchVal = searchInput.value.toUpperCase();
             const channelVal = channelSelect.value;
@@ -424,17 +347,17 @@
             const criticalVal = criticalSelect.value;
 
             let baseFiltered = rawDatabase.filter(row => {
-                let matchMonth = (monthVal === 'ALL' || (row['DATA'] && extrairPeriodo(row['DATA'], row['ANO_PADRAO']).label === monthVal));
+                let matchYear = (yearVal === 'ALL' || row['ANO_TRATADO'] === yearVal);
+                let matchMonth = (monthVal === 'ALL' || row['MES_TRATADO'] === monthVal);
                 let matchSearch = !searchVal || Object.values(row).join(' ').toUpperCase().includes(searchVal);
                 let matchChannel = (channelVal === 'ALL' || harmonizarCanal(row['CANAL']) === channelVal);
                 let matchStatusLog = (statusVal === 'ALL' || row['STATUS_LOG'] === statusVal);
                 
                 let matchCritical = true;
                 if (criticalVal === 'PENDENTES_VIVOS') matchCritical = row['STATUS_CONSOLIDADO'] === 'PENDENTE';
-                else if (criticalVal === 'SLA_CRITICO') matchCritical = row['RISCO_SLA'] === true;
                 else if (criticalVal === 'TRAVA_INTEGRACAO') matchCritical = row['RISCO_INTEGRACAO'] === true;
 
-                return matchMonth && matchSearch && matchChannel && matchStatusLog && matchCritical;
+                return matchYear && matchMonth && matchSearch && matchChannel && matchStatusLog && matchCritical;
             });
 
             let tableFiltered = baseFiltered.filter(row => {
@@ -447,32 +370,25 @@
 
         function processAndRender(baseData, tableData, isKpiSwitchOnly) {
             let mesesData = {}; let motivosContagem = {}; 
-            let total = baseData.length;
-            let atendidos = 0; let devolucoes = 0; let aguardaAtendimento = 0;
-            let slaVencidoCount = 0; let apiTravaCount = 0;
+            let total = baseData.length; let atendidos = 0; let devolucoes = 0; let aguardaAtendimento = 0;
 
             baseData.forEach(row => {
                 if(row['STATUS_CONSOLIDADO'] === 'FATURADO') atendidos++;
                 else if(row['STATUS_CONSOLIDADO'] === 'CANCELADO') devolucoes++;
                 else if(row['STATUS_CONSOLIDADO'] === 'PENDENTE') aguardaAtendimento++;
 
-                if(row['RISCO_SLA']) slaVencidoCount++;
-                if(row['RISCO_INTEGRACAO']) apiTravaCount++;
-
                 if (row['STATUS_CONSOLIDADO'] === 'CANCELADO') {
                     let mot = "Falta de Estoque / Saldo Zerado";
                     let obs = (row['OBSERVACOES'] || '').toUpperCase();
-                    if(obs.includes("DESIST") || obs.includes("CLIENTE")) mot = "Cancelamento pelo Comprador";
-                    else if(obs.includes("INTEGRA") || obs.includes("ERRO")) mot = "Erro Sistêmico de API";
+                    if(obs.includes("DESIST") || obs.includes("CLIENTE")) mot = "Cancelamento Comprador";
+                    else if(obs.includes("INTEGRA") || obs.includes("ERRO")) mot = "Erro de API";
                     motivosContagem[mot] = (motivosContagem[mot] || 0) + 1;
                 }
 
-                let p = extrairPeriodo(row['DATA'], row['ANO_PADRAO']);
-                if (p.label !== "Indefinido") {
-                    if (!mesesData[p.sortKey]) mesesData[p.sortKey] = { label: p.label, total: 0, faturado: 0 };
-                    mesesData[p.sortKey].total++;
-                    if (row['STATUS_CONSOLIDADO'] === 'FATURADO') mesesData[p.sortKey].faturado++;
-                }
+                let sortKey = row['PERIODO_SORT'];
+                if (!mesesData[sortKey]) mesesData[sortKey] = { label: row['PERIODO_LABEL'], total: 0, faturado: 0 };
+                mesesData[sortKey].total++;
+                if (row['STATUS_CONSOLIDADO'] === 'FATURADO') mesesData[sortKey].faturado++;
             });
 
             if (!isKpiSwitchOnly) {
@@ -485,75 +401,52 @@
                 document.getElementById('pctDevolucoes').innerText = total > 0 ? `${((devolucoes / total) * 100).toFixed(1)}%` : '0%';
                 document.getElementById('pctPendente').innerText = total > 0 ? `${((aguardaAtendimento / total) * 100).toFixed(1)}%` : '0%';
 
-                const txConversao = total > 0 ? ((atendidos / total) * 100).toFixed(1) : 0;
-                document.getElementById('insightConversao').innerHTML = `A taxa de conversão final está em <b class="text-blue-400">${txConversao}%</b>. Mantendo estabilidade operacional na expedição de carteira ativa.`;
-
-                if (slaVencidoCount === 0 && apiTravaCount === 0) {
-                    document.getElementById('insightGargalo').innerHTML = `<span class="text-green-400">✔</span> Fluxo limpo. Sem travas críticas de API ou estouros de SLA de envio pendentes.`;
-                } else {
-                    let piorGargalo = slaVencidoCount >= apiTravaCount ? `${slaVencidoCount} pedidos com SLA de Envio Vencido` : `${apiTravaCount} ordens travadas na API Linx/Protheus`;
-                    document.getElementById('insightGargalo').innerHTML = `Atenção concentrada em: <b class="text-amber-400">${piorGargalo}</b>. Necessário plano de ação imediato.`;
-                }
-
-                let maiorOfensor = "Nenhum"; let maxMot = 0;
-                Object.keys(motivosContagem).forEach(m => {
-                    if(motivosContagem[m] > maxMot) { maxMot = motivosContagem[m]; maiorOfensor = m; }
-                });
-                document.getElementById('insightOfensor').innerHTML = maxMot > 0 ? `Motivo crítico: <b class="text-red-400">${maiorOfensor}</b> com ${maxMot} ocorrências registradas na visão.` : `Excelente! Nenhuma quebra por falta de estoque ou cancelamentos recorrentes.`;
+                document.getElementById('insightConversao').innerHTML = `Conversão em <b class="text-blue-400">${total > 0 ? ((atendidos / total) * 100).toFixed(1) : 0}%</b>.`;
+                document.getElementById('insightGargalo').innerHTML = `<span class="text-green-400">✔</span> Monitoramento de fila ativo e unificado por histórico.`;
+                
+                let maxMot = 0; let maiorOfensor = "Nenhum";
+                Object.keys(motivosContagem).forEach(m => { if(motivosContagem[m] > maxMot) { maxMot = motivosContagem[m]; maiorOfensor = m; } });
+                document.getElementById('insightOfensor').innerHTML = maxMot > 0 ? `Crítico: <b class="text-red-400">${maiorOfensor}</b> (${maxMot})` : `Sem quebras expressivas.`;
             }
 
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = '';
+            const tbody = document.getElementById('tableBody'); tbody.innerHTML = '';
 
             if(tableData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="12" class="p-4 text-center text-gray-500">Nenhum registro encontrado para esta categoria de filtro.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="12" class="p-4 text-center text-gray-500">Nenhum registro encontrado.</td></tr>`;
             } else {
                 tableData.forEach(item => {
-                    let tr = document.createElement('tr');
-                    tr.className = "border-b border-gray-800/60 hover:bg-[#161f33]/40 text-[11px]";
-                    
-                    let badgeStatus = "bg-orange-950 text-orange-400 border border-orange-900/30";
-                    if(item.STATUS_CONSOLIDADO === 'FATURADO') badgeStatus = "bg-green-950 text-green-400 border border-green-900/40";
-                    if(item.STATUS_CONSOLIDADO === 'CANCELADO') badgeStatus = "bg-red-950 text-red-400 border border-red-900/40";
+                    let tr = document.createElement('tr'); tr.className = "border-b border-gray-800/60 hover:bg-[#161f33]/40 text-[11px]";
+                    let badgeStatus = item.STATUS_CONSOLIDADO === 'FATURADO' ? "bg-green-950 text-green-400 border border-green-900/40" : (item.STATUS_CONSOLIDADO === 'CANCELADO' ? "bg-red-950 text-red-400 border border-red-900/40" : "bg-orange-950 text-orange-400 border border-orange-900/30");
 
                     tr.innerHTML = `
-                        <td class="p-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeStatus}">${item.STATUS_CONSOLIDADO}</span></td>
-                        <td class="p-3 text-white font-semibold whitespace-nowrap">${item.ACAO_OPERACIONAL}</td>
-                        <td class="p-3 text-gray-400 whitespace-nowrap">${item.DATA || '---'}</td>
-                        <td class="p-3 text-gray-200 font-semibold whitespace-nowrap">${harmonizarCanal(item.CANAL)}</td>
-                        <td class="p-3 font-mono text-blue-400 font-bold text-xs whitespace-nowrap">${item.PEDIDO || '---'}</td>
-                        <td class="p-3 text-gray-400 whitespace-nowrap">${item.STATUS_LOG || '---'}</td>
-                        <td class="p-3 text-gray-400 whitespace-nowrap">${item.STATUS_LINX || '---'}</td>
-                        <td class="p-3 font-mono text-gray-300 whitespace-nowrap">${item.PV_PROTHEUS || '---'}</td>
-                        <td class="p-3 font-mono text-gray-300 whitespace-nowrap">${item.NOTA || '---'}</td>
-                        <td class="p-3 text-amber-400 whitespace-nowrap">${item.PREVISAO || '---'}</td>
-                        <td class="p-3 text-blue-300 font-mono whitespace-nowrap">${item.RASTREIO || '---'}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeStatus}">${item.STATUS_CONSOLIDADO}</span></td>
+                        <td class="p-3 text-white font-semibold">${item.ACAO_OPERACIONAL}</td>
+                        <td class="p-3 text-gray-400">${item.DATA || '---'}</td>
+                        <td class="p-3 text-gray-200 font-semibold">${harmonizarCanal(item.CANAL)}</td>
+                        <td class="p-3 font-mono text-blue-400 font-bold">${item.PEDIDO || '---'}</td>
+                        <td class="p-3 text-gray-400">${item.STATUS_LOG || '---'}</td>
+                        <td class="p-3 text-gray-400">${item.STATUS_LINX || '---'}</td>
+                        <td class="p-3 font-mono text-gray-300">${item.PV_PROTHEUS || '---'}</td>
+                        <td class="p-3 font-mono text-gray-300">${item.NOTA || '---'}</td>
+                        <td class="p-3 text-amber-400">${item.PREVISAO || '---'}</td>
+                        <td class="p-3 text-blue-300 font-mono">${item.RASTREIO || '---'}</td>
                         <td class="p-3 text-gray-400 max-w-xs truncate" title="${item.OBSERVACOES || ''}">${item.OBSERVACOES || '---'}</td>
                     `;
                     tbody.appendChild(tr);
                 });
             }
 
-            if (!isKpiSwitchOnly) {
-                renderCharts(mesesData, motivosContagem);
-            }
+            if (!isKpiSwitchOnly) renderCharts(mesesData, motivosContagem);
         }
 
         function renderCharts(mesesData, motivosContagem) {
-            if (chartMensal) chartMensal.destroy();
-            if (chartMotivos) chartMotivos.destroy();
+            if (chartMensal) chartMensal.destroy(); if (chartMotivos) chartMotivos.destroy();
 
             let sortedKeys = Object.keys(mesesData).sort();
-            
             let labelsMeses = sortedKeys.map(key => {
-                let labelBruto = mesesData[key].label;
-                let [m, ano] = labelBruto.split('/');
+                let [ano, m] = key.split('-');
                 return `${nomeMeses[m].substring(0,3)}/${ano}`;
             });
-
-            const dadosEntrada = sortedKeys.map(key => mesesData[key].total || 0);
-            const dadosFaturados = sortedKeys.map(key => mesesData[key].faturado || 0);
-            const taxasConversao = sortedKeys.map(key => mesesData[key].total > 0 ? ((mesesData[key].faturado / mesesData[key].total) * 100).toFixed(1) : 0);
 
             const ctx1 = document.getElementById('chartMensal').getContext('2d');
             chartMensal = new Chart(ctx1, {
@@ -561,42 +454,29 @@
                 data: {
                     labels: labelsMeses,
                     datasets: [
-                        { label: 'Pedidos Recebidos', data: dadosEntrada, backgroundColor: '#2563eb', order: 2 },
-                        { label: 'Pedidos Faturados', data: dadosFaturados, backgroundColor: '#10b981', order: 3 },
-                        { label: 'Taxa de Entrega (%)', data: taxasConversao, type: 'line', borderColor: '#a855f7', borderWidth: 2, pointBackgroundColor: '#c084fc', tension: 0.2, fill: false, yAxisID: 'yPerc', order: 1 }
+                        { label: 'Recebidos', data: sortedKeys.map(k => mesesData[k].total), backgroundColor: '#2563eb', order: 2 },
+                        { label: 'Faturados', data: sortedKeys.map(k => mesesData[k].faturado), backgroundColor: '#10b981', order: 3 },
+                        { label: 'Entrega (%)', data: sortedKeys.map(k => mesesData[k].total > 0 ? ((mesesData[k].faturado / mesesData[k].total) * 100).toFixed(1) : 0), type: 'line', borderColor: '#a855f7', borderWidth: 2, pointBackgroundColor: '#c084fc', tension: 0.2, fill: false, yAxisID: 'yPerc', order: 1 }
                     ]
                 },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    plugins: { legend: { labels: { color: '#9ca3af', font: { size: 11 } } } }, 
-                    scales: { 
-                        y: { position: 'left', grid: { color: '#1e293b' }, ticks: { color: '#9ca3af' } },
-                        yPerc: { position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#c084fc', callback: function(value) { return value + '%'; } }, min: 0, max: 100 },
-                        x: { ticks: { color: '#9ca3af' } } 
-                    } 
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#9ca3af', font: { size: 11 } } } }, scales: { y: { position: 'left', grid: { color: '#1e293b' }, ticks: { color: '#9ca3af' } }, yPerc: { position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#c084fc', callback: v => v + '%' }, min: 0, max: 100 }, x: { ticks: { color: '#9ca3af' } } } }
             });
-
-            const labelsMotivos = Object.keys(motivosContagem);
-            const dadosMotivos = Object.values(motivosContagem);
 
             const ctx2 = document.getElementById('chartMotivos').getContext('2d');
             chartMotivos = new Chart(ctx2, {
                 type: 'doughnut',
                 data: {
-                    labels: labelsMotivos.length > 0 ? labelsMotivos : ["Sem Devoluções"],
-                    datasets: [{ data: dadosMotivos.length > 0 ? dadosMotivos : [1], backgroundColor: ['#ef4444', '#f97316', '#3b82f6'], borderPenWidth: 0, borderColor: '#121826' }]
+                    labels: Object.keys(motivosContagem).length > 0 ? Object.keys(motivosContagem) : ["Sem Devoluções"],
+                    datasets: [{ data: Object.values(motivosContagem).length > 0 ? Object.values(motivosContagem) : [1], backgroundColor: ['#ef4444', '#f97316', '#3b82f6'], borderColor: '#121826' }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af', font: { size: 10 } } } } }
             });
         }
 
         document.getElementById('btnResetAll').addEventListener('click', () => {
-            monthSelect.value = 'ALL'; searchInput.value = ''; channelSelect.value = 'ALL'; statusLogFilter.value = 'ALL'; criticalSelect.value = 'ALL';
+            yearSelect.value = 'ALL'; monthSelect.value = 'ALL'; searchInput.value = ''; channelSelect.value = 'ALL'; statusLogFilter.value = 'ALL'; criticalSelect.value = 'ALL';
             document.querySelectorAll('.clickable-card').forEach(c => c.classList.remove('active-card'));
-            document.getElementById('cardTotal').classList.add('active-card');
-            currentKpiFilter = 'ALL';
+            document.getElementById('cardTotal').classList.add('active-card'); currentKpiFilter = 'ALL';
             applyFiltersAndRender();
         });
     </script>
