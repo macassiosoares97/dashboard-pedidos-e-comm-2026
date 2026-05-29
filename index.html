@@ -31,12 +31,10 @@
                 <p class="text-xs text-gray-400 mt-1">Gestão de Carteira e SLAs B2C</p>
             </div>
 
-            <div class="custom-card p-3 border-emerald-900/40 bg-emerald-950/10">
-                <div class="flex items-center gap-2">
-                    <span class="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <label class="block text-[10px] font-bold text-emerald-400 uppercase tracking-wider">🤖 Conexão Gemini Ativa</label>
-                </div>
-                <p class="text-[9px] text-gray-500 mt-1">Chave corporativa integrada com sucesso ao projeto.</p>
+            <div class="custom-card p-3 border-blue-900/40 bg-blue-950/10">
+                <label class="block text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1">🔑 Chave de API Gemini (Google)</label>
+                <input type="password" id="inputApiKey" placeholder="Cole sua chave aqui..." class="filter-select bg-[#101726] font-mono text-xs border-blue-900/50">
+                <p class="text-[9px] text-gray-500 mt-1">Salva localmente de forma segura no seu navegador.</p>
             </div>
 
             <div class="custom-card p-4 bg-[#161f33]/30 border-blue-900/30 space-y-3">
@@ -125,20 +123,20 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div class="flex items-center gap-2">
                     <span class="text-sm">✨</span>
-                    <h3 id="diagnosticoTitulo" class="text-xs font-bold text-blue-400 uppercase tracking-wider">DIAGNOSTICO IA: VISÃO GLOBAL OPERACIONAL & INTELIGÊNCIA DE MERCADO B2C</h3>
+                    <h3 id="diagnosticoTitulo" class="text-xs font-bold text-blue-400 uppercase tracking-wider">MONITORAMENTO DE IA & AUDITORIA DE BENCHMARK B2C DIGITAL</h3>
                 </div>
                 <div class="flex gap-2">
                     <button id="btnExportInsights" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-[11px] px-3 py-1.5 rounded transition flex items-center gap-1.5 shadow-md shadow-purple-950/50" disabled>
                         <span>📄</span> Exportar Relatório Executivo (.txt)
                     </button>
-                    <button id="btnGeraInsight" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] px-3 py-1.5 rounded transition flex items-center gap-1.5 shadow-md shadow-blue-950/50">
+                    <button id="btnGM" onclick="dispararInsightsIa()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] px-3 py-1.5 rounded transition flex items-center gap-1.5 shadow-md shadow-blue-950/50">
                         <span>🤖</span> Executar Insights IA Realtime
                     </button>
                 </div>
             </div>
             
             <div class="p-4 bg-[#0f1422]/90 rounded-lg border border-gray-800 text-xs text-gray-300 leading-relaxed max-h-[400px] overflow-y-auto whitespace-pre-wrap" id="insightBoxCompleto">
-                Carregue os arquivos de dados das planilhas e clique em <b>"Executar Insights IA Realtime"</b> para cruzar os resultados atuais da carteira B2C com dados e benchmarks de mercado.
+                Carregue os arquivos de dados das planilhas, insira sua Chave de API Gemini e clique em <b>"Executar Insights IA Realtime"</b>.
             </div>
         </div>
 
@@ -168,9 +166,6 @@
     </div>
 
     <script>
-        // CHAVE DE API EMBUTIDA DIRETAMENTE NO PROJETO
-        const GEMINI_API_KEY = "AQ.Ab8RN6LtjjFUo889qKG2pr729OS2WhQa9iVQuiqHEHFLHzkW7w";
-
         let raw2026 = []; let raw2025 = []; let rawDatabase = [];
         let chartMensal = null; let chartMotivos = null; let currentKpiFilter = 'ALL';
         let globalTableData = []; let globalLastCalculatedMetrics = {};
@@ -184,6 +179,12 @@
         const criticalSelect = document.getElementById('criticalFilter');
         const btnExportar = document.getElementById('btnExportar');
         const btnExportInsights = document.getElementById('btnExportInsights');
+        const inputApiKey = document.getElementById('inputApiKey');
+
+        // Carrega a chave salva anteriormente para facilitar a usabilidade
+        if (localStorage.getItem('gemini_saved_key')) {
+            inputApiKey.value = localStorage.getItem('gemini_saved_key');
+        }
 
         const nomeMeses = {"01":"Janeiro","02":"Fevereiro","03":"Março","04":"Abril","05":"Maio","06":"Junho","07":"Julho","08":"Agosto","09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"};
         const mapaTextoMeses = {"JAN":"01","FEB":"02","FEV":"02","MAR":"03","APR":"04","ABR":"04","MAY":"05","MAI":"05","JUN":"06","JUL":"07","AUG":"08","AGO":"08","SEP":"09","SET":"09","OCT":"10","OUT":"10","NOV":"11","DEC":"12","DEZ":"12"};
@@ -333,8 +334,16 @@
         [yearSelect, monthSelect, channelSelect, statusLogFilter, criticalSelect].forEach(el => el.addEventListener('change', () => applyFiltersAndRender()));
         searchInput.addEventListener('input', () => applyFiltersAndRender());
 
-        // TRATAMENTO REFORMULADO EM CASCATA (FALLBACK) PARA EVITAR ERROS DE PARSING DA RESPOSTA
-        document.getElementById('btnGeraInsight').addEventListener('click', async () => {
+        // CONEXÃO CORRIGIDA PARA SUPORTAR CHAVES DO TIPO CORPORATIVO (AQ.Ab8RN...)
+        async function dispararInsightsIa() {
+            const userKey = inputApiKey.value.trim();
+            if (!userKey) {
+                alert("Por favor, insira a sua Chave de API Gemini obtida no Google AI Studio.");
+                return;
+            }
+
+            localStorage.setItem('gemini_saved_key', userKey);
+
             const m = globalLastCalculatedMetrics;
             if(!m.total) {
                 alert("Nenhum dado importado para analisar. Por favor, insira seus arquivos CSV primeiro.");
@@ -342,13 +351,13 @@
             }
 
             const boxInsight = document.getElementById('insightBoxCompleto');
-            const btn = document.getElementById('btnGeraInsight');
+            const btn = document.getElementById('btnGM');
             
             btn.disabled = true;
             btn.innerText = "⏳ Estruturando Matriz Cruzada...";
             boxInsight.innerHTML = "<b>Conectando à inteligência analítica...</b> Mapeando volumetria da carteira MA Hospitalar e gerando as visões operacionais estratégicas.";
 
-            const urlApi = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+            const urlApi = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`;
 
             const payload = {
                 contents: [{
@@ -380,27 +389,31 @@
             };
 
             try {
-                const response = await fetch(urlApi, {
+                // Modificação Crítica: Passando a chave via parâmetro E via Header Bearer para aceitar tokens AQ.
+                const response = await fetch(`${urlApi}?key=${userKey}`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${userKey}`
+                    },
                     body: JSON.stringify(payload)
                 });
 
                 const data = await response.json();
                 let textoFinal = "";
 
-                // MECANISMO DE CAPTURA EM CASCATA: Se uma estrutura mudar, o código tenta a outra automaticamente
                 if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
                     textoFinal = data.candidates[0].content.parts[0].text;
                 } else if (data && data.content && data.content.parts && data.content.parts[0]) {
                     textoFinal = data.content.parts[0].text;
                 } else if (data && data.text) {
                     textoFinal = data.text;
+                } else if (data && data.error) {
+                    boxInsight.innerHTML = `<span class='text-amber-400'>⚠️ Erro retornado pela API do Google:</span> ${data.error.message}.<br><br><b>Como resolver:</b> Certifique-se de que a sua chave está ativa e sem restrições no console do Google AI Studio.`;
+                    return;
                 }
 
-                // Se conseguimos extrair qualquer string de texto válida da resposta da API
                 if (textoFinal && textoFinal.trim().length > 0) {
-                    // Formata os negritos Markdown para tags HTML seguras
                     textoFinal = textoFinal.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
                     textoFinal = textoFinal.replace(/\*(.*?)\*/g, '<i>$1</i>');
                     
@@ -408,19 +421,17 @@
                     document.getElementById('diagnosticoTitulo').innerText = "DIAGNOSTICO IA: VISÃO GLOBAL OPERACIONAL & INTELIGÊNCIA DE MERCADO B2C";
                     btnExportInsights.disabled = false;
                 } else {
-                    // Se o JSON veio completo mas sem string legível (ex: erro de cota ou bloqueio de parâmetro)
-                    console.log("Resposta incompleta estruturalmente:", data);
-                    boxInsight.innerHTML = "<span class='text-amber-400'>⚠️ Anomalia na estrutura do texto:</span> O Gemini processou a requisição, mas não injetou os caracteres. Clique novamente em 'Executar Insights IA Realtime' para forçar um novo token.";
+                    boxInsight.innerHTML = "<span class='text-amber-400'>⚠️ Aviso de Estrutura:</span> A API processou os dados, mas o formato de resposta divergiu ou retornou vazio. Clique novamente no botão para re-executar.";
                 }
 
             } catch (error) {
-                console.error("Erro capturado na chamada da API:", error);
-                boxInsight.innerHTML = "<span class='text-red-400'>❌ Falha na Conexão!</span> Não foi possível estruturar os dados. Verifique a rede ou a estabilidade do servidor.";
+                console.error("Erro na chamada:", error);
+                boxInsight.innerHTML = "<span class='text-red-400'>❌ Falha Crítica na Conexão!</span> Não foi possível estabelecer contato com os servidores do Gemini. Verifique sua internet ou as permissões do projeto.";
             } finally {
                 btn.disabled = false;
                 btn.innerText = "🤖 Executar Insights IA Realtime";
             }
-        });
+        }
 
         function applyFiltersAndRender() {
             const yearVal = yearSelect.value; const monthVal = monthSelect.value; const searchVal = searchInput.value.toUpperCase();
@@ -428,12 +439,7 @@
 
             let baseFiltered = rawDatabase.filter(row => {
                 let matchYear = (yearVal === 'ALL' || row['ANO_TRATADO'] === yearVal);
-                
-                let matchMonth = true;
-                if (monthVal !== 'ALL') {
-                    matchMonth = nomeMeses[row['MES_TRATADO']] === monthVal;
-                }
-                
+                let matchMonth = (monthVal === 'ALL' || nomeMeses[row['MES_TRATADO']] === monthVal);
                 let matchSearch = !searchVal || Object.values(row).join(' ').toUpperCase().includes(searchVal);
                 let matchChannel = (channelVal === 'ALL' || harmonizarCanal(row.CANAL) === channelVal);
                 let matchStatusLog = (statusVal === 'ALL' || row.STATUS_LOG === statusVal);
@@ -549,78 +555,4 @@
                 type: 'doughnut',
                 data: {
                     labels: temMotivos ? Object.keys(motivosContagem) : ["Falta de Estoque", "Arrependimento B2C", "Erro de API"],
-                    datasets: [{ data: temMotivos ? Object.values(motivosContagem) : [70, 15, 4], backgroundColor: ['#f97316', '#3b82f6', '#ef4444'], borderColor: '#121826' }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af', font: { size: 10 } } } } }
-            });
-        }
-
-        document.getElementById('btnExportInsights').addEventListener('click', () => {
-            let textoBox = document.getElementById('insightBoxCompleto').innerText;
-            if(textoBox.includes("Carregue os arquivos")) return alert("Gere os insights antes de exportar.");
-            
-            let out = [];
-            out.push("=======================================================================");
-            out.push("    MA HOSPITALAR - AUDITORIA DE IA EM TEMPO REAL (CANAIS B2C)          ");
-            out.push("=======================================================================");
-            out.push(`Extraído em: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}`);
-            out.push("-----------------------------------------------------------------------");
-            out.push(textoBox);
-            out.push("\n=======================================================================");
-
-            let blob = new Blob([out.join("\n")], { type: 'text/plain;charset=utf-8;' });
-            let url = URL.createObjectURL(blob); let link = document.createElement("a");
-            link.setAttribute("href", url); link.setAttribute("download", `MA_Hospitalar_Realtime_Insights.txt`);
-            document.body.appendChild(link); link.click(); document.body.removeChild(link);
-        });
-
-        document.getElementById('btnExportar').addEventListener('click', () => {
-            if(globalTableData.length === 0) return;
-            let tot = globalTableData.length;
-            let fat = globalTableData.filter(r => r.STATUS_CONSOLIDADO === 'FATURADO').length;
-            let canc = globalTableData.filter(r => r.STATUS_CONSOLIDADO === 'CANCELADO').length;
-            let pend = globalTableData.filter(r => r.STATUS_CONSOLIDADO === 'PENDENTE').length;
-            let pctFat = tot > 0 ? ((fat / tot) * 100).toFixed(1) + '%' : '0%';
-
-            let csvRows = [];
-            csvRows.push(`"MA HOSPITALAR - RELATÓRIO CONSOLIDADO OPERACIONAL CANAIS B2C"`);
-            csvRows.push(`"Data da Extração:";"${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}"`);
-            csvRows.push("");
-            csvRows.push(`"SUMÁRIO GERENCIAL DOS KPIS B2C"`);
-            csvRows.push(`"Métrica";"Quantidade";"Representação (%)"`);
-            csvRows.push(`"Total de Pedidos";"${tot}";"100%"`);
-            csvRows.push(`"Atendidos (Faturados)";"${fat}";"${pctFat}"`);
-            csvRows.push(`"Devoluções (Cancelados)";"${canc}";"${tot > 0 ? ((canc/tot)*100).toFixed(1)+'%' : '0%'}"`);
-            csvRows.push(`"Aguarda Atendimento";"${pend}";"${tot > 0 ? ((pend/tot)*100).toFixed(1)+'%' : '0%'}"`);
-            csvRows.push("");
-            csvRows.push(`"CHECK (TRATADO)";"STATUS CONSOLIDADO";"AÇÃO OPERACIONAL CORRETIVA";"DATA EMISSÃO";"CANAL / MARKETPLACE B2C";"Nº DO PEDIDO";"STATUS LOGÍSTICA";"STATUS LINX";"PV PROTHEUS";"NOTA FISCAL";"PREVISÃO ENTREGA";"CÓDIGO RASTREIO";"OBSERVACOES OPERACIONAIS"`);
-
-            globalTableData.forEach(r => {
-                let checkStatus = pedidosTratadosManualmente.has(r.PEDIDO) ? "CONCLUÍDO MANUALMENTE" : "PENDENTE NO HUB";
-                let rowText = [
-                    `"${checkStatus}"`, `"${r.STATUS_CONSOLIDADO}"`, `"${r.ACAO_OPERACIONAL}"`, `"${r.DATA || ''}"`, `"${harmonizarCanal(r.CANAL)}"`,
-                    `"${r.PEDIDO || ''}"`, `"${r.STATUS_LOG || ''}"`, `"${r.STATUS_LINX || ''}"`, `"${r.PV_PROTHEUS || ''}"`,
-                    `"${r.NOTA || ''}"`, `"${r.PREVISAO || ''}"`, `"${r.RASTREIO || ''}"`, `"${(r.OBSERVACOES || '').replace(/"/g, '""')}"`
-                ];
-                csvRows.push(rowText.join(";"));
-            });
-
-            let csvString = csvRows.join("\n");
-            let blob = new Blob(["\uFEFF" + csvString], { type: 'text/csv;charset=utf-8;' });
-            let url = URL.createObjectURL(blob); let link = document.createElement("a");
-            link.setAttribute("href", url); link.setAttribute("download", `MA_Hospitalar_Relatorio_B2C_${yearSelect.value}.csv`);
-            document.body.appendChild(link); link.click(); document.body.removeChild(link);
-        });
-
-        document.getElementById('btnResetAll').addEventListener('click', () => {
-            yearSelect.value = 'ALL'; monthSelect.value = 'ALL'; searchInput.value = ''; channelSelect.value = 'ALL'; statusLogFilter.value = 'ALL'; criticalSelect.value = 'ALL';
-            pedidosTratadosManualmente.clear();
-            document.querySelectorAll('.clickable-card').forEach(c => c.classList.remove('active-card'));
-            document.getElementById('cardTotal').classList.add('active-card'); currentKpiFilter = 'ALL';
-            document.getElementById('insightBoxCompleto').innerHTML = `Carregue os arquivos de dados das planilhas e clique em <b>"Executar Insights IA Realtime"</b> para cruzar os resultados atuais da carteira B2C com dados e benchmarks de mercado.`;
-            document.getElementById('diagnosticoTitulo').innerText = "DIAGNOSTICO IA: VISÃO GLOBAL OPERACIONAL & INTELIGÊNCIA DE MERCADO B2C";
-            applyFiltersAndRender();
-        });
-    </script>
-</body>
-</html>
+                    datasets:
