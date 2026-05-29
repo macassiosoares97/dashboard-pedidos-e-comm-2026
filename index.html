@@ -333,7 +333,7 @@
         [yearSelect, monthSelect, channelSelect, statusLogFilter, criticalSelect].forEach(el => el.addEventListener('change', () => applyFiltersAndRender()));
         searchInput.addEventListener('input', () => applyFiltersAndRender());
 
-        // EXECUÇÃO E CORREÇÃO ROBUSTA DA LEITURA DE RETORNO DO GEMINI
+        // TRATAMENTO REFORMULADO EM CASCATA (FALLBACK) PARA EVITAR ERROS DE PARSING DA RESPOSTA
         document.getElementById('btnGeraInsight').addEventListener('click', async () => {
             const m = globalLastCalculatedMetrics;
             if(!m.total) {
@@ -346,7 +346,7 @@
             
             btn.disabled = true;
             btn.innerText = "⏳ Estruturando Matriz Cruzada...";
-            boxInsight.innerHTML = "<b>Iniciando conexão inteligente...</b> Mapeando métricas atuais e gerando a Matriz de Insights Operacionais da MA Hospitalar.";
+            boxInsight.innerHTML = "<b>Conectando à inteligência analítica...</b> Mapeando volumetria da carteira MA Hospitalar e gerando as visões operacionais estratégicas.";
 
             const urlApi = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
@@ -365,7 +365,7 @@
                         Ofensores Operacionais Mapeados: ${JSON.stringify(m.motivosContagem)}
                         Distribuição da Volumetria por Canal: ${JSON.stringify(m.canaisContagem)}
 
-                        FORMATE SUA RESPOSTA EXATAMENTE ASSIM (use quebras de linha limpas):
+                        FORMATE SUA RESPOSTA EXATAMENTE ASSIM (use quebras de linha limpas e parágrafos diretos):
 
                         1️⃣ EFICIÊNCIA COMERCIAL & SLA B2C
                         [Analise de forma direta os números de faturamento da MA Hospitalar, apontando se o volume atende o ritmo saudável da expedição logística].
@@ -387,23 +387,35 @@
                 });
 
                 const data = await response.json();
-                
-                // Validação e higienização correta do campo string puro enviado pelo Gemini
+                let textoFinal = "";
+
+                // MECANISMO DE CAPTURA EM CASCATA: Se uma estrutura mudar, o código tenta a outra automaticamente
                 if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
-                    let textoFinal = data.candidates[0].content.parts[0].text;
-                    
-                    // Tratamento simples para garantir negritos legíveis na div
+                    textoFinal = data.candidates[0].content.parts[0].text;
+                } else if (data && data.content && data.content.parts && data.content.parts[0]) {
+                    textoFinal = data.content.parts[0].text;
+                } else if (data && data.text) {
+                    textoFinal = data.text;
+                }
+
+                // Se conseguimos extrair qualquer string de texto válida da resposta da API
+                if (textoFinal && textoFinal.trim().length > 0) {
+                    // Formata os negritos Markdown para tags HTML seguras
                     textoFinal = textoFinal.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
                     textoFinal = textoFinal.replace(/\*(.*?)\*/g, '<i>$1</i>');
                     
                     boxInsight.innerHTML = textoFinal;
                     document.getElementById('diagnosticoTitulo').innerText = "DIAGNOSTICO IA: VISÃO GLOBAL OPERACIONAL & INTELIGÊNCIA DE MERCADO B2C";
+                    btnExportInsights.disabled = false;
                 } else {
-                    boxInsight.innerHTML = "<span class='text-amber-400'>⚠️ Aviso de Estrutura:</span> A API processou os dados, mas o formato de resposta divergiu. Clique novamente no botão para re-executar a sincronização.";
+                    // Se o JSON veio completo mas sem string legível (ex: erro de cota ou bloqueio de parâmetro)
+                    console.log("Resposta incompleta estruturalmente:", data);
+                    boxInsight.innerHTML = "<span class='text-amber-400'>⚠️ Anomalia na estrutura do texto:</span> O Gemini processou a requisição, mas não injetou os caracteres. Clique novamente em 'Executar Insights IA Realtime' para forçar um novo token.";
                 }
+
             } catch (error) {
-                console.error(error);
-                boxInsight.innerHTML = "<span class='text-red-400'>❌ Falha na Conexão!</span> Não foi possível estruturar os dados. Verifique sua conexão com a internet.";
+                console.error("Erro capturado na chamada da API:", error);
+                boxInsight.innerHTML = "<span class='text-red-400'>❌ Falha na Conexão!</span> Não foi possível estruturar os dados. Verifique a rede ou a estabilidade do servidor.";
             } finally {
                 btn.disabled = false;
                 btn.innerText = "🤖 Executar Insights IA Realtime";
