@@ -31,14 +31,14 @@
                 <p class="text-xs text-gray-400 mt-1">Gestão de Carteira e SLAs B2C</p>
             </div>
 
-            <div class="custom-card p-3 border-emerald-900/40 bg-emerald-950/10 flex items-center gap-2">
+            <div class="custom-card p-3 border-blue-900/40 bg-blue-950/10 flex items-center gap-2">
                 <span class="flex h-2 w-2 relative">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                 </span>
                 <div>
-                    <div class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">ENGINE DE INSIGHTS ATIVO</div>
-                    <div class="text-[10px] text-gray-400">Processamento Local Estático Otimizado</div>
+                    <div class="text-[11px] font-bold text-blue-400 uppercase tracking-wider">MODELO ESTÁTICO ATIVO</div>
+                    <div class="text-[10px] text-gray-400">Processamento de Insights Local</div>
                 </div>
             </div>
 
@@ -124,23 +124,48 @@
             </div>
         </div>
 
-        <div class="custom-card p-5 bg-gradient-to-r from-blue-950/20 via-[#121826] to-purple-950/20 border-blue-900/30">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <div class="space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#0f1422] p-4 rounded-t-xl border-t border-x border-gray-800">
                 <div class="flex items-center gap-2">
-                    <span class="text-sm">📊</span>
-                    <h3 id="diagnosticoTitulo" class="text-xs font-bold text-blue-400 uppercase tracking-wider">MONITORAMENTO COGNITIVO & AUDITORIA DE BENCHMARK B2C DIGITAL</h3>
+                    <span class="text-sm">📋</span>
+                    <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider">MONITORAMENTO OPERACIONAL & AUDITORIA DE BENCHMARK B2C DIGITAL</h3>
                 </div>
-                <div class="flex gap-2">
-                    <button id="btnExportInsights" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] px-3 py-1.5 rounded transition flex items-center gap-1.5 shadow-md shadow-blue-950/50" disabled>
-                        <span>📄</span> Exportar Relatório Executivo (.txt)
-                    </button>
-                    <button id="btnGM" onclick="dispararInsightsIa()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] px-3 py-1.5 rounded transition flex items-center gap-1.5 shadow-md shadow-blue-950/50">
-                        <span>⚡</span> Executar Insights IA Realtime
-                    </button>
+                <button id="btnExportInsights" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] px-4 py-1.5 rounded transition shadow-md" disabled>
+                    📄 Exportar Relatório Executivo (.txt)
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div class="custom-card p-5 space-y-2">
+                    <div class="flex items-center gap-2 border-b border-gray-800 pb-2 mb-2">
+                        <span class="text-blue-400 font-bold">1️⃣</span>
+                        <h4 class="text-[11px] font-bold text-gray-300 uppercase tracking-wider">Eficiência Comercial B2C</h4>
+                    </div>
+                    <div id="insightEficiencia" class="text-xs text-gray-400 leading-relaxed space-y-2">
+                        Aguardando carregamento de dados da planilha...
+                    </div>
+                </div>
+
+                <div class="custom-card p-5 space-y-2">
+                    <div class="flex items-center gap-2 border-b border-gray-800 pb-2 mb-2">
+                        <span class="text-amber-400 font-bold">2️⃣</span>
+                        <h4 class="text-[11px] font-bold text-gray-300 uppercase tracking-wider">Saúde de Conta & Reputação</h4>
+                    </div>
+                    <div id="insightSaude" class="text-xs text-gray-400 leading-relaxed space-y-2">
+                        Aguardando carregamento de dados da planilha...
+                    </div>
+                </div>
+
+                <div class="custom-card p-5 space-y-2">
+                    <div class="flex items-center gap-2 border-b border-gray-800 pb-2 mb-2">
+                        <span class="text-purple-400 font-bold">3️⃣</span>
+                        <h4 class="text-[11px] font-bold text-gray-300 uppercase tracking-wider">Desempenho vs Benchmark</h4>
+                    </div>
+                    <div id="insightBenchmark" class="text-xs text-gray-400 leading-relaxed space-y-2">
+                        Aguardando carregamento de dados da planilha...
+                    </div>
                 </div>
             </div>
-            
-            <div class="p-5 bg-[#0f1422]/90 rounded-lg border border-gray-800 text-xs text-gray-300 leading-relaxed max-h-[500px] overflow-y-auto whitespace-pre-wrap" id="insightBoxCompleto">Carregue os arquivos das planilhas operacionais e clique em <b>"Executar Insights IA Realtime"</b> para renderizar a matriz de benchmarks e auditoria de carteira de forma instantânea.</div>
         </div>
 
         <div id="chartsContainer" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -331,39 +356,36 @@
         [yearSelect, monthSelect, channelSelect, statusLogFilter, criticalSelect].forEach(el => el.addEventListener('change', () => applyFiltersAndRender()));
         searchInput.addEventListener('input', () => applyFiltersAndRender());
 
-        // EXECUÇÃO DOS INSIGHTS LOCAIS - RETORNO DO ENGINE ESTÁTICO DE ALTA VELOCIDADE
-        function dispararInsightsIa() {
-            const m = globalLastCalculatedMetrics;
-            if(!m.total) {
-                alert("Por favor, faça a importação dos seus arquivos de dados antes de executar o relatório.");
-                return;
-            }
+        // GERAÇÃO AUTOMÁTICA DOS TRÊS BLOCOS DE INSIGHTS LOCAIS
+        function atualizarBlocosInsightsLocais(m) {
+            let statusEficiencia = m.txConv >= 94 ? "⚡ EXCELENTE (Alinhado ao Top-Tier do Mercado)" : (m.txConv >= 88 ? "⚠️ SINAL AMARELO (Abaixo do Ideal Setorial)" : "🛑 CRÍTICO (Gargalo Ativo)");
+            let statusReputacao = m.txCanc <= 3 ? "✅ SAUDÁVEL" : "🚨 RFE EM RISCO (Risco de Penalização)";
 
-            const boxInsight = document.getElementById('insightBoxCompleto');
-            
-            // Definição dinâmica do status com base nos benchmarks reais de saúde
-            let statusEficiencia = m.txConv >= 94 ? "EXCELENTE (Alinhado ao Top-Tier do Mercado)" : (m.txConv >= 88 ? "SINAL AMARELO (Abaixo do Ideal Setorial)" : "CRÍTICO (Gargalo Ativo de Liberação)");
-            let statusReputacao = m.txCanc <= 3 ? "SAUDÁVEL" : "RFE EM RISCO (Risco de Penalização nos Marketplaces)";
+            // Bloco 1: Eficiência Comercial
+            document.getElementById('insightEficiencia').innerHTML = `
+                <p>• <b>Volume Mapeado:</b> ${m.total.toLocaleString('pt-BR')} ordens operacionais sob esta visão.</p>
+                <p>• <b>Taxa de Conversão:</b> Atualmente em <span class="text-green-400 font-bold">${m.txConv}%</span>.</p>
+                <p>• <b>Faturados:</b> ${m.atendidos.toLocaleString('pt-BR')} pedidos com NF gerada com sucesso.</p>
+                <p class="mt-2 text-[11px] text-gray-400 border-t border-gray-800/50 pt-1"><b>Status:</b> ${statusEficiencia}</p>
+            `;
 
-            let txt = "";
-            txt += `1️⃣ EFICIÊNCIA COMERCIAL & SLA B2C\n`;
-            txt += `• Volume Total Mapeado na Fila: ${m.total.toLocaleString('pt-BR')} ordens operacionais sob esta visão.\n`;
-            txt += `• Taxa de Conversão Interna: Atualmente em ${m.txConv}%, com ${m.atendidos.toLocaleString('pt-BR')} pedidos faturados com NF gerada com sucesso.\n`;
-            txt += `• Status do Fluxo Logístico: Classificado como ${statusEficiencia}. O ritmo de despacho precisa manter a tração imediata sobre as ordens na Fila Viva.\n\n`;
+            // Bloco 2: Saúde de Conta
+            document.getElementById('insightSaude').innerHTML = `
+                <p>• <b>Índice de Quebra:</b> Fixado em <span class="text-red-400 font-bold">${m.txCanc}%</span> (${m.devolucoes.toLocaleString('pt-BR')} cancelados).</p>
+                <p>• <b>Travas na API:</b> Detectadas <span class="text-amber-400 font-bold">${m.apiTravaCount}</span> ordens com sincronismo retido.</p>
+                <p>• <b>Ação Recomendada:</b> Forçar o escoamento imediato para mitigar riscos de ReclameAqui.</p>
+                <p class="mt-2 text-[11px] text-gray-400 border-t border-gray-800/50 pt-1"><b>Reputação:</b> ${statusReputacao}</p>
+            `;
 
-            txt += `2️⃣ SAÚDE DE CONTA & REPUTAÇÃO DIGITAL\n`;
-            txt += `• Índice de Quebra (Cancelamentos/Devoluções): Fixado em ${m.txCanc}% (Representando ${m.devolucoes.toLocaleString('pt-BR')} pedidos estornados ou devolvidos).\n`;
-            txt += `• Alerta de Penalização Reputacional: Classificado como nível ${statusReputacao}. Ofensores como descolamento de preço em hubs ou quebras de estoque precisam ser mitigados para proteger o buy-box nos canais (Mercado Livre, Amazon, Shopee).\n`;
-            txt += `• Gargalos de Integração (API/Linx): Foram detectadas ${m.apiTravaCount} ordens ativas com sincronismo travado (Risco de atraso crítico e reclamação direta do cliente B2C).\n\n`;
-
-            txt += `3️⃣ DESEMPENHO VS BENCHMARK SETORIAL (E-COMMERCE DE SAÚDE)\n`;
-            txt += `• Benchmark Nacional de Referência (Medical/Health): A média de faturamento saudável exigida para grandes distribuidoras e hubs de saúde é de 94.0% de conversão direta.\n`;
-            txt += `• Desempenho Relativo MA Hospitalar: A operação registra um delta de ${(m.txConv - 94.0).toFixed(1)}% em comparação direta com a média nacional do segmento.\n`;
-            txt += `• Diagnóstico Executivo de Mercado: O hub operacional encontra-se em nível de MATURIDADE OPERACIONAL COMPATÍVEL, exigindo foco estrito no escoamento dos ${m.aguardaAtendimento.toLocaleString('pt-BR')} pedidos retidos que aguardam atendimento.`;
-
-            boxInsight.innerHTML = txt;
-            document.getElementById('diagnosticoTitulo').innerText = "AUDITORIA CONCLUÍDA: MATRIZ DE BENCHMARK PROCESSADA";
-            btnExportInsights.disabled = false;
+            // Bloco 3: Benchmark Setorial
+            let delta = (m.txConv - 94.0).toFixed(1);
+            let comparativoTexto = delta >= 0 ? `+${delta}% acima da média` : `${delta}% abaixo da média`;
+            document.getElementById('insightBenchmark').innerHTML = `
+                <p>• <b>Média do Segmento:</b> O benchmark para e-commerce de saúde é de <b>94.0%</b> de conversão.</p>
+                <p>• <b>Posição MA Hospitalar:</b> A operação está <span class="text-purple-400 font-bold">${comparativoTexto}</span>.</p>
+                <p>• <b>Fila Viva Retida:</b> Há ${m.aguardaAtendimento.toLocaleString('pt-BR')} pedidos aguardando liberação logística.</p>
+                <p class="mt-2 text-[11px] text-gray-400 border-t border-gray-800/50 pt-1"><b>Nível:</b> MATURIDADE COMPATÍVEL</p>
+            `;
         }
 
         function applyFiltersAndRender() {
@@ -432,6 +454,9 @@
             document.getElementById('pctDevolucoes').innerText = `${txCanc}%`;
             document.getElementById('pctPendente').innerText = `${txPend}%`;
 
+            // Executa a atualização automática dos blocos visuais
+            atualizarBlocosInsightsLocais(globalLastCalculatedMetrics);
+
             const tbody = document.getElementById('tableBody'); tbody.innerHTML = '';
             if(tableData.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="13" class="p-4 text-center text-gray-500">Nenhum registro encontrado para este filtro.</td></tr>`;
@@ -495,8 +520,8 @@
         }
 
         document.getElementById('btnExportInsights').addEventListener('click', () => {
-            let textoBox = document.getElementById('insightBoxCompleto').innerText;
-            if(textoBox.includes("Carregue os arquivos")) return alert("Gere os insights antes de exportar.");
+            const m = globalLastCalculatedMetrics;
+            if(!m.total) return;
             
             let out = [];
             out.push("=======================================================================");
@@ -504,7 +529,9 @@
             out.push("=======================================================================");
             out.push(`Extraído em: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}`);
             out.push("-----------------------------------------------------------------------");
-            out.push(textoBox);
+            out.push(`1. EFICIÊNCIA COMERCIAL B2C:\n• Volume Total: ${m.total} pedidos\n• Taxa de Conversão: ${m.txConv}%\n• Faturados: ${m.atendidos}`);
+            out.push(`\n2. SAÚDE DE CONTA & REPUTAÇÃO:\n• Índice de Quebra: ${m.txCanc}%\n• Travas de API encontradas: ${m.apiTravaCount}`);
+            out.push(`\n3. DESEMPENHO VS BENCHMARK SETORIAL:\n• Referência de Saúde Nacional: 94.0%\n• Performance Relativa: ${(m.txConv - 94.0).toFixed(1)}%\n• Carteira de Fila Viva: ${m.aguardaAtendimento} pedidos retidos.`);
             out.push("\n=======================================================================");
 
             let blob = new Blob([out.join("\n")], { type: 'text/plain;charset=utf-8;' });
@@ -556,8 +583,9 @@
             pedidosTratadosManualmente.clear();
             document.querySelectorAll('.clickable-card').forEach(c => c.classList.remove('active-card'));
             document.getElementById('cardTotal').classList.add('active-card'); currentKpiFilter = 'ALL';
-            document.getElementById('insightBoxCompleto').innerHTML = `Carregue os arquivos de dados das planilhas e clique em <b>"Executar Insights IA Realtime"</b> para renderizar a matriz de benchmarks e auditoria de carteira de forma instantânea.`;
-            document.getElementById('diagnosticoTitulo').innerText = "MONITORAMENTO COGNITIVO & AUDITORIA DE BENCHMARK B2C DIGITAL";
+            document.getElementById('insightEficiencia').innerText = "Aguardando carregamento de dados da planilha...";
+            document.getElementById('insightSaude').innerText = "Aguardando carregamento de dados da planilha...";
+            document.getElementById('insightBenchmark').innerText = "Aguardando carregamento de dados da planilha...";
             applyFiltersAndRender();
         });
     </script>
