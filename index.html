@@ -31,14 +31,14 @@
                 <p class="text-xs text-gray-400 mt-1">Gestão de Carteira e SLAs B2C</p>
             </div>
 
-            <div class="custom-card p-3 border-emerald-900/40 bg-emerald-950/10 flex items-center gap-2">
+            <div class="custom-card p-3 border-purple-900/40 bg-purple-950/10 flex items-center gap-2">
                 <span class="flex h-2 w-2 relative">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
                 </span>
                 <div>
-                    <div class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">CONEXÃO GEMINI ATIVA</div>
-                    <div class="text-[10px] text-gray-400">Chave corporativa vinculada ao hub</div>
+                    <div class="text-[11px] font-bold text-purple-400 uppercase tracking-wider">IA INFRASTRUCTURE ACTIVE</div>
+                    <div class="text-[10px] text-gray-400">Meta Llama-3 via Hugging Face API</div>
                 </div>
             </div>
 
@@ -128,13 +128,13 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div class="flex items-center gap-2">
                     <span class="text-sm">✨</span>
-                    <h3 id="diagnosticoTitulo" class="text-xs font-bold text-blue-400 uppercase tracking-wider">MONITORAMENTO DE IA & AUDITORIA DE BENCHMARK B2C DIGITAL</h3>
+                    <h3 id="diagnosticoTitulo" class="text-xs font-bold text-purple-400 uppercase tracking-wider">MONITORAMENTO DE IA & AUDITORIA DE BENCHMARK B2C DIGITAL</h3>
                 </div>
                 <div class="flex gap-2">
                     <button id="btnExportInsights" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-[11px] px-3 py-1.5 rounded transition flex items-center gap-1.5 shadow-md shadow-purple-950/50" disabled>
                         <span>📄</span> Exportar Relatório Executivo (.txt)
                     </button>
-                    <button id="btnGM" onclick="dispararInsightsIa()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] px-3 py-1.5 rounded transition flex items-center gap-1.5 shadow-md shadow-blue-950/50">
+                    <button id="btnGM" onclick="dispararInsightsIa()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-[11px] px-3 py-1.5 rounded transition flex items-center gap-1.5 shadow-md shadow-purple-950/50">
                         <span>🤖</span> Executar Insights IA Realtime
                     </button>
                 </div>
@@ -171,8 +171,8 @@
     </div>
 
     <script>
-        // CHAVE DE API INTEGRAL EXTRAÍDA DIRETAMENTE DO SEU GOOGLE AI STUDIO (56 CARACTERES)
-        const GEMINI_API_KEY = "AQ.Ab8RN6lvPfJo3_23ZHhDPiySZ2NmGdm_2T-VPaEEwU4LF9rj-g";
+        // MUDANÇA CONCLUÍDA: TOKEN DE INFRAESTRUTURA HUGGING FACE EMBUTIDO
+        const HF_API_TOKEN = "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";
 
         let raw2026 = []; let raw2025 = []; let rawDatabase = [];
         let chartMensal = null; let chartMotivos = null; let currentKpiFilter = 'ALL';
@@ -336,13 +336,8 @@
         [yearSelect, monthSelect, channelSelect, statusLogFilter, criticalSelect].forEach(el => el.addEventListener('change', () => applyFiltersAndRender()));
         searchInput.addEventListener('input', () => applyFiltersAndRender());
 
-        // CORREÇÃO CRÍTICA EXECUTADA: ENDPOINT ATUALIZADO SEM HEADERS DE CONFLITO
+        // EXECUÇÃO DA NOVA INTEGRAÇÃO SEM BLOQUEIO - META LLAMA 3 VIA HUGGING FACE
         async function dispararInsightsIa() {
-            if (!GEMINI_API_KEY || GEMINI_API_KEY.trim() === "") {
-                alert("Erro: Nenhuma chave de API configurada.");
-                return;
-            }
-
             const m = globalLastCalculatedMetrics;
             if(!m.total) {
                 alert("Nenhum dado importado para analisar. Por favor, insira seus arquivos CSV primeiro.");
@@ -354,78 +349,75 @@
             
             btn.disabled = true;
             btn.innerText = "⏳ Gerando Diagnóstico Operacional...";
-            boxInsight.innerHTML = "<b>Conectando à inteligência analítica...</b> Mapeando volumetria da carteira MA Hospitalar e estruturando o relatório executivo.";
+            boxInsight.innerHTML = "<b>Conectando ao cluster open-source Meta Llama-3...</b> Analisando volumetria B2C da MA Hospitalar.";
 
-            // URL limpa contendo o parâmetro key obrigatório do ecossistema AI Studio
-            const urlApi = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+            // Endpoint público da Hugging Face com o modelo Llama-3-8B-Instruct
+            const urlApi = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct";
 
-            const payload = {
-                contents: [{
-                    parts: [{
-                        text: `Você é um Consultor de IA Especialista em E-commerce B2C e Operações de Saúde da MA Hospitalar. Analise os dados da nossa carteira e devolva estritamente a MATRIZ DE INSIGHTS OPERACIONAIS organizada em 3 pilares estruturais.
+            const promptComando = `<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+Você é um consultor analítico especialista em e-commerce e saúde da MA Hospitalar. Escreva um relatório resumido e direto em português estruturado rigorosamente em 3 pilares. Seja muito profissional e não use introduções ou saudações.<|eot_id|><|start_header_id|>user<|end_header_id|>
+Gere a matriz com base nestes dados reais da nossa operação:
+- Total de Pedidos: ${m.total}
+- Faturados: ${m.atendidos} (Conversão: ${m.txConv}%)
+- Cancelados/Devoluções: ${m.devolucoes} (Taxa de Quebra: ${m.txCanc}%)
+- Retidos na Fila: ${m.aguardaAtendimento}
+- Falhas de API: ${m.apiTravaCount}
 
-                        DADOS EXTRAÍDOS DA CARTEIRA ATUAL:
-                        - Total de Pedidos Monitorados: ${m.total}
-                        - Pedidos Faturados (Sucesso): ${m.atendidos} (Taxa de Conversão: ${m.txConv}%)
-                        - Pedidos Cancelados/Devoluções: ${m.devolucoes} (Taxa de Quebra: ${m.txCanc}%)
-                        - Pedidos Retidos na Fila (Aguardando Atendimento): ${m.aguardaAtendimento} (Taxa de Pendência: ${m.txPend}%)
-                        - Travas de Sincronismo Sistêmico detectadas na API: ${m.apiTravaCount}
+Siga exatamente esta formatação estrutural:
 
-                        Ofensores Operacionais Mapeados: ${JSON.stringify(m.motivosContagem)}
-                        Distribuição da Volumetria por Canal: ${JSON.stringify(m.canaisContagem)}
+1️⃣ EFICIÊNCIA COMERCIAL & SLA B2C
+[Escreva uma análise direta sobre a taxa de faturamento de ${m.txConv}% e o ritmo operacional].
 
-                        FORMATE SUA RESPOSTA EXATAMENTE ASSIM (use quebras de linha limpas e parágrafos diretos):
+2️⃣ SAÚDE DE CONTA & REPUTAÇÃO DIGITAL
+[Analise o risco das contas e marketplaces devido às ${m.devolucoes} devoluções e ${m.apiTravaCount} falhas de integração].
 
-                        1️⃣ EFICIÊNCIA COMERCIAL & SLA B2C
-                        [Analise de forma direta os números de faturamento da MA Hospitalar, apontando se o volume atende o ritmo saudável da expedição logística].
-
-                        2️⃣ SAÚDE DE CONTA & REPUTAÇÃO DIGITAL
-                        [Avalie os riscos de reclamações e punições nos marketplaces baseando-se no volume de cancelamentos de ${m.devolucoes} ordens e travas de sincronismo].
-
-                        3️⃣ DESEMPENHO VS BENCHMARK SETORIAL
-                        [Compare os ${m.txConv}% de conversão da nossa operation atual com a média nacional de e-commerce de saúde/produtos médicos que gira em torno de 94.0%, classificando nosso nível de performance (ex: Nível Ultra, Nível Crítico, etc)].`
-                    }]
-                }]
-            };
+3️⃣ DESEMPENHO VS BENCHMARK SETORIAL
+[Compare nossos ${m.txConv}% de conversão com a média nacional de saúde que é 94%. Classifique o nível atual da MA Hospitalar de forma enfática].<|eot_id|><|start_header_id|>assistant<|end_header_id|>`;
 
             try {
-                // Realizando a chamada limpa (sem cabeçalhos customizados que forçavam a barreira de OAuth2)
                 const response = await fetch(urlApi, {
                     method: 'POST',
                     headers: { 
+                        'Authorization': `Bearer ${HF_API_TOKEN}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({
+                        inputs: promptComando,
+                        parameters: { max_new_tokens: 1000, temperature: 0.3 }
+                    })
                 });
 
                 const data = await response.json();
                 let textoFinal = "";
 
-                if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
-                    textoFinal = data.candidates[0].content.parts[0].text;
-                } else if (data && data.content && data.content.parts && data.content.parts[0]) {
-                    textoFinal = data.content.parts[0].text;
-                } else if (data && data.text) {
-                    textoFinal = data.text;
+                if (Array.isArray(data) && data[0] && data[0].generated_text) {
+                    let completo = data[0].generated_text;
+                    // Limpar as marcações do prompt do Llama se elas retornarem
+                    if (completo.includes("<|start_header_id|>assistant<|end_header_id|>")) {
+                        textoFinal = completo.split("<|start_header_id|>assistant<|end_header_id|>")[1].trim();
+                    } else {
+                        textoFinal = completo.replace(promptComando, "").trim();
+                    }
                 } else if (data && data.error) {
-                    boxInsight.innerHTML = `<span class='text-red-400'>❌ Erro retornado pela API do Google:</span> ${data.error.message}`;
+                    boxInsight.innerHTML = `<span class='text-red-400'>❌ Erro na infraestrutura:</span> ${data.error}`;
                     return;
                 }
 
                 if (textoFinal && textoFinal.trim().length > 0) {
+                    // Tratar negritos markdown simples para tags HTML b robustas
                     textoFinal = textoFinal.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
                     textoFinal = textoFinal.replace(/\*(.*?)\*/g, '<i>$1</i>');
                     
                     boxInsight.innerHTML = textoFinal;
-                    document.getElementById('diagnosticoTitulo').innerText = "DIAGNOSTICO IA: VISÃO GLOBAL OPERACIONAL & INTELIGÊNCIA DE MERCADO B2C";
+                    document.getElementById('diagnosticoTitulo').innerText = "DIAGNOSTICO IA: MODELO OPERACIONAL LLAMA-3 CONCLUÍDO";
                     btnExportInsights.disabled = false;
                 } else {
-                    boxInsight.innerHTML = "<span class='text-amber-400'>⚠️ Aviso de Estrutura:</span> Retorno de dados vazio vindo da IA. Reexecute a chamada.";
+                    boxInsight.innerHTML = "<span class='text-amber-400'>⚠️ Erro de Resposta:</span> O cluster retornou dados vazios. Tente gerar novamente.";
                 }
 
             } catch (error) {
                 console.error("Erro na chamada:", error);
-                boxInsight.innerHTML = "<span class='text-red-400'>❌ Falha Crítica na Conexão!</span> Não foi possível se comunicar com o servidor do Gemini.";
+                boxInsight.innerHTML = "<span class='text-red-400'>❌ Falha Crítica de Comunicação!</span> Não foi possível contatar o cluster open-source.";
             } finally {
                 btn.disabled = false;
                 btn.innerText = "🤖 Executar Insights IA Realtime";
@@ -451,7 +443,7 @@
                 return matchYear && matchMonth && matchSearch && matchChannel && matchStatusLog && matchCritical;
             });
 
-            globalTableData = baseFiltered.filter(row => currentKpiFilter === 'ALL' || row['STATUS_CONSOLIDATED'] === currentKpiFilter || row['STATUS_CONSOLIDADO'] === currentKpiFilter);
+            globalTableData = baseFiltered.filter(row => currentKpiFilter === 'ALL' || row['STATUS_CONSOLIDADO'] === currentKpiFilter);
             document.getElementById('activeRows').innerText = globalTableData.length.toLocaleString('pt-BR');
             processAndRender(baseFiltered, globalTableData);
         }
