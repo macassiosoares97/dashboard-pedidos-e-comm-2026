@@ -31,6 +31,17 @@
                 <p class="text-xs text-gray-400 mt-1">Gestão de Carteira e SLAs B2C</p>
             </div>
 
+            <div class="custom-card p-3 border-emerald-900/40 bg-emerald-950/10 flex items-center gap-2">
+                <span class="flex h-2 w-2 relative">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <div>
+                    <div class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">CONEXÃO GEMINI ATIVA</div>
+                    <div class="text-[10px] text-gray-400">Chave integrada ao hub operacional</div>
+                </div>
+            </div>
+
             <div class="custom-card p-4 bg-[#161f33]/30 border-blue-900/30 space-y-3">
                 <div>
                     <label class="block text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1">1. Base Atual (2026)</label>
@@ -109,7 +120,7 @@
             <div id="cardAguarda" class="custom-card p-4 border-amber-900/50 bg-amber-950/20 clickable-card">
                 <p class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Aguarda atendimento</p>
                 <div class="flex items-baseline gap-2 mt-1"><h2 id="kpiAguardaAtendimento" class="text-2xl font-extrabold text-amber-400">0</h2><span id="pctPendente" class="text-xs font-semibold text-amber-500/90">0%</span></div>
-                <p class="text-[11px] text-amber-500/70 mt-0.5">Clique para ver gargalos</p>
+                <p class="text-[11px] text-amber-500/70 mt-0.5">Clique para ver bottlenecks</p>
             </div>
         </div>
 
@@ -160,8 +171,8 @@
     </div>
 
     <script>
-        // CHAVE DE API EMBUTIDA COM SEGURANÇA E ADAPTADA PARA SUPORTAR TOKENS CORPORATIVOS/PROJETOS
-        const GEMINI_API_KEY = "AQ.Ab8RN6IvPfJo3_23ZHhDPiySZ2NmGdm_2T-VPaEEwU4LF9rj-g";
+        // CHAVE DE API ATUALIZADA - AJUSTADA APENAS PARA O ENDPOINT PADRÃO DO GOOGLE AI STUDIO
+        const GEMINI_API_KEY = "SUA_NOVA_CHAVE_AQUI";
 
         let raw2026 = []; let raw2025 = []; let rawDatabase = [];
         let chartMensal = null; let chartMotivos = null; let currentKpiFilter = 'ALL';
@@ -325,10 +336,9 @@
         [yearSelect, monthSelect, channelSelect, statusLogFilter, criticalSelect].forEach(el => el.addEventListener('change', () => applyFiltersAndRender()));
         searchInput.addEventListener('input', () => applyFiltersAndRender());
 
-        // FUNÇÃO REFORMULADA: TRATAMENTO DE SEGURANÇA E SUPORTE ROBUSTO PARA CHAVES DO TIPO "AQ." VIA HEADERS
         async function dispararInsightsIa() {
-            if (!GEMINI_API_KEY) {
-                alert("Nenhuma chave cadastrada internamente no sistema.");
+            if (GEMINI_API_KEY === "SUA_NOVA_CHAVE_AQUI" || !GEMINI_API_KEY) {
+                alert("Por favor, substitua a constante GEMINI_API_KEY no código por uma chave gerada via botão azul 'Create API Key' no AI Studio.");
                 return;
             }
 
@@ -342,10 +352,11 @@
             const btn = document.getElementById('btnGM');
             
             btn.disabled = true;
-            btn.innerText = "⏳ Estruturando Matriz Cruzada...";
-            boxInsight.innerHTML = "<b>Conectando à inteligência analítica...</b> Mapeando volumetria da carteira MA Hospitalar e gerando as visões operacionais estratégicas.";
+            btn.innerText = "⏳ Gerando Diagnóstico Humano...";
+            boxInsight.innerHTML = "<b>Conectando à inteligência analítica...</b> Mapeando volumetria da carteira MA Hospitalar e estruturando o relatório executivo.";
 
-            const urlApi = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`;
+            // Endpoint limpo focado em API Key pública padrão
+            const urlApi = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
             const payload = {
                 contents: [{
@@ -377,13 +388,9 @@
             };
 
             try {
-                // Passagem dupla (Query string + Authorization Bearer) garante o funcionamento com tokens do console de projetos
-                const response = await fetch(`${urlApi}?key=${GEMINI_API_KEY}`, {
+                const response = await fetch(urlApi, {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${GEMINI_API_KEY}`
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
@@ -397,7 +404,7 @@
                 } else if (data && data.text) {
                     textoFinal = data.text;
                 } else if (data && data.error) {
-                    boxInsight.innerHTML = `<span class='text-amber-400'>⚠️ Erro retornado pela API do Google:</span> ${data.error.message}.<br><br><b>Nota:</b> Confirme no console do Google AI Studio se a chave não possui restrições de IP ou restrições de chamadas HTTP locais.`;
+                    boxInsight.innerHTML = `<span class='text-red-400'>❌ Erro retornado pela API do Google:</span> ${data.error.message}<br><br><b>Como resolver:</b> Use uma chave padrão iniciada em <b>AIzaSy</b> criada em uma conta pessoal ou sem travas organizacionais do GCP.`;
                     return;
                 }
 
@@ -409,12 +416,12 @@
                     document.getElementById('diagnosticoTitulo').innerText = "DIAGNOSTICO IA: VISÃO GLOBAL OPERACIONAL & INTELIGÊNCIA DE MERCADO B2C";
                     btnExportInsights.disabled = false;
                 } else {
-                    boxInsight.innerHTML = "<span class='text-amber-400'>⚠️ Aviso de Estrutura:</span> O Google processou a requisição com sucesso, porém o retorno de texto divergiu. Clique em re-executar os insights.";
+                    boxInsight.innerHTML = "<span class='text-amber-400'>⚠️ Aviso de Estrutura:</span> O Google processou a requisição, mas o formato de resposta divergiu. Teste novamente.";
                 }
 
             } catch (error) {
                 console.error("Erro na chamada:", error);
-                boxInsight.innerHTML = "<span class='text-red-400'>❌ Falha Crítica na Conexão!</span> Não foi possível estabelecer conexão com o endpoint da IA. Verifique sua conexão de rede local.";
+                boxInsight.innerHTML = "<span class='text-red-400'>❌ Falha Crítica na Conexão!</span> Não foi possível conectar ao endpoint. Verifique a chave inserida no código.";
             } finally {
                 btn.disabled = false;
                 btn.innerText = "🤖 Executar Insights IA Realtime";
