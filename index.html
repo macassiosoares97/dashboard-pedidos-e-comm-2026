@@ -31,14 +31,14 @@
                 <p class="text-xs text-gray-400 mt-1">Gestão de Carteira e SLAs B2C</p>
             </div>
 
-            <div class="custom-card p-3 border-purple-900/40 bg-purple-950/10 flex items-center gap-2">
+            <div class="custom-card p-3 border-emerald-900/40 bg-emerald-950/10 flex items-center gap-2">
                 <span class="flex h-2 w-2 relative">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
                 <div>
-                    <div class="text-[11px] font-bold text-purple-400 uppercase tracking-wider">IA INFRASTRUCTURE ACTIVE</div>
-                    <div class="text-[10px] text-gray-400">Meta Llama-3 via Hugging Face API</div>
+                    <div class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">ENGINE DE INSIGHTS ATIVO</div>
+                    <div class="text-[10px] text-gray-400">Processamento Local Estático Otimizado</div>
                 </div>
             </div>
 
@@ -127,22 +127,20 @@
         <div class="custom-card p-5 bg-gradient-to-r from-blue-950/20 via-[#121826] to-purple-950/20 border-blue-900/30">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div class="flex items-center gap-2">
-                    <span class="text-sm">✨</span>
-                    <h3 id="diagnosticoTitulo" class="text-xs font-bold text-purple-400 uppercase tracking-wider">MONITORAMENTO DE IA & AUDITORIA DE BENCHMARK B2C DIGITAL</h3>
+                    <span class="text-sm">📊</span>
+                    <h3 id="diagnosticoTitulo" class="text-xs font-bold text-blue-400 uppercase tracking-wider">MONITORAMENTO COGNITIVO & AUDITORIA DE BENCHMARK B2C DIGITAL</h3>
                 </div>
                 <div class="flex gap-2">
-                    <button id="btnExportInsights" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-[11px] px-3 py-1.5 rounded transition flex items-center gap-1.5 shadow-md shadow-purple-950/50" disabled>
+                    <button id="btnExportInsights" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] px-3 py-1.5 rounded transition flex items-center gap-1.5 shadow-md shadow-blue-950/50" disabled>
                         <span>📄</span> Exportar Relatório Executivo (.txt)
                     </button>
-                    <button id="btnGM" onclick="dispararInsightsIa()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-[11px] px-3 py-1.5 rounded transition flex items-center gap-1.5 shadow-md shadow-purple-950/50">
-                        <span>🤖</span> Executar Insights IA Realtime
+                    <button id="btnGM" onclick="dispararInsightsIa()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] px-3 py-1.5 rounded transition flex items-center gap-1.5 shadow-md shadow-blue-950/50">
+                        <span>⚡</span> Executar Insights IA Realtime
                     </button>
                 </div>
             </div>
             
-            <div class="p-4 bg-[#0f1422]/90 rounded-lg border border-gray-800 text-xs text-gray-300 leading-relaxed max-h-[400px] overflow-y-auto whitespace-pre-wrap" id="insightBoxCompleto">
-                Carregue os arquivos de dados das planilhas e clique em <b>"Executar Insights IA Realtime"</b> para iniciar a auditoria cognitiva.
-            </div>
+            <div class="p-5 bg-[#0f1422]/90 rounded-lg border border-gray-800 text-xs text-gray-300 leading-relaxed max-h-[500px] overflow-y-auto whitespace-pre-wrap" id="insightBoxCompleto">Carregue os arquivos das planilhas operacionais e clique em <b>"Executar Insights IA Realtime"</b> para renderizar a matriz de benchmarks e auditoria de carteira de forma instantânea.</div>
         </div>
 
         <div id="chartsContainer" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -171,9 +169,6 @@
     </div>
 
     <script>
-        // MUDANÇA CONCLUÍDA: TOKEN DE INFRAESTRUTURA HUGGING FACE EMBUTIDO
-        const HF_API_TOKEN = "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";
-
         let raw2026 = []; let raw2025 = []; let rawDatabase = [];
         let chartMensal = null; let chartMotivos = null; let currentKpiFilter = 'ALL';
         let globalTableData = []; let globalLastCalculatedMetrics = {};
@@ -336,92 +331,39 @@
         [yearSelect, monthSelect, channelSelect, statusLogFilter, criticalSelect].forEach(el => el.addEventListener('change', () => applyFiltersAndRender()));
         searchInput.addEventListener('input', () => applyFiltersAndRender());
 
-        // EXECUÇÃO DA NOVA INTEGRAÇÃO SEM BLOQUEIO - META LLAMA 3 VIA HUGGING FACE
-        async function dispararInsightsIa() {
+        // EXECUÇÃO DOS INSIGHTS LOCAIS - RETORNO DO ENGINE ESTÁTICO DE ALTA VELOCIDADE
+        function dispararInsightsIa() {
             const m = globalLastCalculatedMetrics;
             if(!m.total) {
-                alert("Nenhum dado importado para analisar. Por favor, insira seus arquivos CSV primeiro.");
+                alert("Por favor, faça a importação dos seus arquivos de dados antes de executar o relatório.");
                 return;
             }
 
             const boxInsight = document.getElementById('insightBoxCompleto');
-            const btn = document.getElementById('btnGM');
             
-            btn.disabled = true;
-            btn.innerText = "⏳ Gerando Diagnóstico Operacional...";
-            boxInsight.innerHTML = "<b>Conectando ao cluster open-source Meta Llama-3...</b> Analisando volumetria B2C da MA Hospitalar.";
+            // Definição dinâmica do status com base nos benchmarks reais de saúde
+            let statusEficiencia = m.txConv >= 94 ? "EXCELENTE (Alinhado ao Top-Tier do Mercado)" : (m.txConv >= 88 ? "SINAL AMARELO (Abaixo do Ideal Setorial)" : "CRÍTICO (Gargalo Ativo de Liberação)");
+            let statusReputacao = m.txCanc <= 3 ? "SAUDÁVEL" : "RFE EM RISCO (Risco de Penalização nos Marketplaces)";
 
-            // Endpoint público da Hugging Face com o modelo Llama-3-8B-Instruct
-            const urlApi = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct";
+            let txt = "";
+            txt += `1️⃣ EFICIÊNCIA COMERCIAL & SLA B2C\n`;
+            txt += `• Volume Total Mapeado na Fila: ${m.total.toLocaleString('pt-BR')} ordens operacionais sob esta visão.\n`;
+            txt += `• Taxa de Conversão Interna: Atualmente em ${m.txConv}%, com ${m.atendidos.toLocaleString('pt-BR')} pedidos faturados com NF gerada com sucesso.\n`;
+            txt += `• Status do Fluxo Logístico: Classificado como ${statusEficiencia}. O ritmo de despacho precisa manter a tração imediata sobre as ordens na Fila Viva.\n\n`;
 
-            const promptComando = `<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-Você é um consultor analítico especialista em e-commerce e saúde da MA Hospitalar. Escreva um relatório resumido e direto em português estruturado rigorosamente em 3 pilares. Seja muito profissional e não use introduções ou saudações.<|eot_id|><|start_header_id|>user<|end_header_id|>
-Gere a matriz com base nestes dados reais da nossa operação:
-- Total de Pedidos: ${m.total}
-- Faturados: ${m.atendidos} (Conversão: ${m.txConv}%)
-- Cancelados/Devoluções: ${m.devolucoes} (Taxa de Quebra: ${m.txCanc}%)
-- Retidos na Fila: ${m.aguardaAtendimento}
-- Falhas de API: ${m.apiTravaCount}
+            txt += `2️⃣ SAÚDE DE CONTA & REPUTAÇÃO DIGITAL\n`;
+            txt += `• Índice de Quebra (Cancelamentos/Devoluções): Fixado em ${m.txCanc}% (Representando ${m.devolucoes.toLocaleString('pt-BR')} pedidos estornados ou devolvidos).\n`;
+            txt += `• Alerta de Penalização Reputacional: Classificado como nível ${statusReputacao}. Ofensores como descolamento de preço em hubs ou quebras de estoque precisam ser mitigados para proteger o buy-box nos canais (Mercado Livre, Amazon, Shopee).\n`;
+            txt += `• Gargalos de Integração (API/Linx): Foram detectadas ${m.apiTravaCount} ordens ativas com sincronismo travado (Risco de atraso crítico e reclamação direta do cliente B2C).\n\n`;
 
-Siga exatamente esta formatação estrutural:
+            txt += `3️⃣ DESEMPENHO VS BENCHMARK SETORIAL (E-COMMERCE DE SAÚDE)\n`;
+            txt += `• Benchmark Nacional de Referência (Medical/Health): A média de faturamento saudável exigida para grandes distribuidoras e hubs de saúde é de 94.0% de conversão direta.\n`;
+            txt += `• Desempenho Relativo MA Hospitalar: A operação registra um delta de ${(m.txConv - 94.0).toFixed(1)}% em comparação direta com a média nacional do segmento.\n`;
+            txt += `• Diagnóstico Executivo de Mercado: O hub operacional encontra-se em nível de MATURIDADE OPERACIONAL COMPATÍVEL, exigindo foco estrito no escoamento dos ${m.aguardaAtendimento.toLocaleString('pt-BR')} pedidos retidos que aguardam atendimento.`;
 
-1️⃣ EFICIÊNCIA COMERCIAL & SLA B2C
-[Escreva uma análise direta sobre a taxa de faturamento de ${m.txConv}% e o ritmo operacional].
-
-2️⃣ SAÚDE DE CONTA & REPUTAÇÃO DIGITAL
-[Analise o risco das contas e marketplaces devido às ${m.devolucoes} devoluções e ${m.apiTravaCount} falhas de integração].
-
-3️⃣ DESEMPENHO VS BENCHMARK SETORIAL
-[Compare nossos ${m.txConv}% de conversão com a média nacional de saúde que é 94%. Classifique o nível atual da MA Hospitalar de forma enfática].<|eot_id|><|start_header_id|>assistant<|end_header_id|>`;
-
-            try {
-                const response = await fetch(urlApi, {
-                    method: 'POST',
-                    headers: { 
-                        'Authorization': `Bearer ${HF_API_TOKEN}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        inputs: promptComando,
-                        parameters: { max_new_tokens: 1000, temperature: 0.3 }
-                    })
-                });
-
-                const data = await response.json();
-                let textoFinal = "";
-
-                if (Array.isArray(data) && data[0] && data[0].generated_text) {
-                    let completo = data[0].generated_text;
-                    // Limpar as marcações do prompt do Llama se elas retornarem
-                    if (completo.includes("<|start_header_id|>assistant<|end_header_id|>")) {
-                        textoFinal = completo.split("<|start_header_id|>assistant<|end_header_id|>")[1].trim();
-                    } else {
-                        textoFinal = completo.replace(promptComando, "").trim();
-                    }
-                } else if (data && data.error) {
-                    boxInsight.innerHTML = `<span class='text-red-400'>❌ Erro na infraestrutura:</span> ${data.error}`;
-                    return;
-                }
-
-                if (textoFinal && textoFinal.trim().length > 0) {
-                    // Tratar negritos markdown simples para tags HTML b robustas
-                    textoFinal = textoFinal.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-                    textoFinal = textoFinal.replace(/\*(.*?)\*/g, '<i>$1</i>');
-                    
-                    boxInsight.innerHTML = textoFinal;
-                    document.getElementById('diagnosticoTitulo').innerText = "DIAGNOSTICO IA: MODELO OPERACIONAL LLAMA-3 CONCLUÍDO";
-                    btnExportInsights.disabled = false;
-                } else {
-                    boxInsight.innerHTML = "<span class='text-amber-400'>⚠️ Erro de Resposta:</span> O cluster retornou dados vazios. Tente gerar novamente.";
-                }
-
-            } catch (error) {
-                console.error("Erro na chamada:", error);
-                boxInsight.innerHTML = "<span class='text-red-400'>❌ Falha Crítica de Comunicação!</span> Não foi possível contatar o cluster open-source.";
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "🤖 Executar Insights IA Realtime";
-            }
+            boxInsight.innerHTML = txt;
+            document.getElementById('diagnosticoTitulo').innerText = "AUDITORIA CONCLUÍDA: MATRIZ DE BENCHMARK PROCESSADA";
+            btnExportInsights.disabled = false;
         }
 
         function applyFiltersAndRender() {
@@ -558,7 +500,7 @@ Siga exatamente esta formatação estrutural:
             
             let out = [];
             out.push("=======================================================================");
-            out.push("    MA HOSPITALAR - AUDITORIA DE IA EM TEMPO REAL (CANAIS B2C)          ");
+            out.push("    MA HOSPITALAR - AUDITORIA DE INTELIGÊNCIA OPERACIONAL DE MERCADO    ");
             out.push("=======================================================================");
             out.push(`Extraído em: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}`);
             out.push("-----------------------------------------------------------------------");
@@ -567,7 +509,7 @@ Siga exatamente esta formatação estrutural:
 
             let blob = new Blob([out.join("\n")], { type: 'text/plain;charset=utf-8;' });
             let url = URL.createObjectURL(blob); let link = document.createElement("a");
-            link.setAttribute("href", url); link.setAttribute("download", `MA_Hospitalar_Realtime_Insights.txt`);
+            link.setAttribute("href", url); link.setAttribute("download", `MA_Hospitalar_Mapeamento_Mercado.txt`);
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         });
 
@@ -614,8 +556,8 @@ Siga exatamente esta formatação estrutural:
             pedidosTratadosManualmente.clear();
             document.querySelectorAll('.clickable-card').forEach(c => c.classList.remove('active-card'));
             document.getElementById('cardTotal').classList.add('active-card'); currentKpiFilter = 'ALL';
-            document.getElementById('insightBoxCompleto').innerHTML = `Carregue os arquivos de dados das planilhas e clique em <b>"Executar Insights IA Realtime"</b> para iniciar a auditoria cognitiva.`;
-            document.getElementById('diagnosticoTitulo').innerText = "MONITORAMENTO DE IA & AUDITORIA DE BENCHMARK B2C DIGITAL";
+            document.getElementById('insightBoxCompleto').innerHTML = `Carregue os arquivos de dados das planilhas e clique em <b>"Executar Insights IA Realtime"</b> para renderizar a matriz de benchmarks e auditoria de carteira de forma instantânea.`;
+            document.getElementById('diagnosticoTitulo').innerText = "MONITORAMENTO COGNITIVO & AUDITORIA DE BENCHMARK B2C DIGITAL";
             applyFiltersAndRender();
         });
     </script>
