@@ -38,7 +38,7 @@
                 </span>
                 <div>
                     <div class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">CONEXÃO GEMINI ATIVA</div>
-                    <div class="text-[10px] text-gray-400">Chave integrada ao hub operacional</div>
+                    <div class="text-[10px] text-gray-400">Chave corporativa vinculada ao hub</div>
                 </div>
             </div>
 
@@ -171,8 +171,8 @@
     </div>
 
     <script>
-        // COLE SUA CHAVE 'AQ.' EXATAMENTE AQUI ENTRE AS ASPAS
-        const GEMINI_API_KEY = "SUA_CHAVE_AQ_AQUI";
+        // CHAVE DEFINITIVA INTEGRADA COM SUCESSO
+        const GEMINI_API_KEY = "AQ.Ab8RN6KTpHukt2_HHBDTzgY1oxSeIJ-pgH1356jPKSnz3tBATw";
 
         let raw2026 = []; let raw2025 = []; let rawDatabase = [];
         let chartMensal = null; let chartMotivos = null; let currentKpiFilter = 'ALL';
@@ -336,10 +336,10 @@
         [yearSelect, monthSelect, channelSelect, statusLogFilter, criticalSelect].forEach(el => el.addEventListener('change', () => applyFiltersAndRender()));
         searchInput.addEventListener('input', () => applyFiltersAndRender());
 
-        // ADAPTAÇÃO CIRÚRGICA DE AUTENTICAÇÃO "x-goog-api-key" PARA CORREÇÃO DO ERRO OAUTH2
+        // EXECUÇÃO CIRÚRGICA ATUALIZADA - CABEÇALHO 'x-goog-api-key' PARA EVITAR TRATAMENTO OAUTH2
         async function dispararInsightsIa() {
-            if (GEMINI_API_KEY === "SUA_CHAVE_AQ_AQUI" || !GEMINI_API_KEY) {
-                alert("Por favor, edite o código na linha 156 e insira a sua chave API gerada (AQ....).");
+            if (!GEMINI_API_KEY || GEMINI_API_KEY.trim() === "") {
+                alert("Erro: Nenhuma chave de API configurada.");
                 return;
             }
 
@@ -356,7 +356,7 @@
             btn.innerText = "⏳ Gerando Diagnóstico Operacional...";
             boxInsight.innerHTML = "<b>Conectando à inteligência analítica...</b> Mapeando volumetria da carteira MA Hospitalar e estruturando o relatório executivo.";
 
-            // Endpoint de requisição limpo (sem parâmetro de URL exposto que força OAuth)
+            // Endpoint limpo que não força segurança restrita do GCP
             const urlApi = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`;
 
             const payload = {
@@ -389,7 +389,7 @@
             };
 
             try {
-                // Requisição reconfigurada com o Header nativo exigido pelo Google
+                // Injetando a chave no Header nativo
                 const response = await fetch(urlApi, {
                     method: 'POST',
                     headers: { 
@@ -409,7 +409,7 @@
                 } else if (data && data.text) {
                     textoFinal = data.text;
                 } else if (data && data.error) {
-                    boxInsight.innerHTML = `<span class='text-red-400'>❌ Erro retornado pela API do Google:</span> ${data.error.message}<br><br><b>Análise:</b> Verifique as restrições da chave no console.`;
+                    boxInsight.innerHTML = `<span class='text-red-400'>❌ Erro retornado pela API do Google:</span> ${data.error.message}`;
                     return;
                 }
 
@@ -421,12 +421,12 @@
                     document.getElementById('diagnosticoTitulo').innerText = "DIAGNOSTICO IA: VISÃO GLOBAL OPERACIONAL & INTELIGÊNCIA DE MERCADO B2C";
                     btnExportInsights.disabled = false;
                 } else {
-                    boxInsight.innerHTML = "<span class='text-amber-400'>⚠️ Aviso de Estrutura:</span> Retorno de dados vazio. Clique em re-executar os insights.";
+                    boxInsight.innerHTML = "<span class='text-amber-400'>⚠️ Aviso de Estrutura:</span> Retorno de dados vazio. Tente reenviar a chamada.";
                 }
 
             } catch (error) {
                 console.error("Erro na chamada:", error);
-                boxInsight.innerHTML = "<span class='text-red-400'>❌ Falha Crítica na Conexão!</span> Não foi possível processar a requisição com o servidor do Google.";
+                boxInsight.innerHTML = "<span class='text-red-400'>❌ Falha Crítica na Conexão!</span> Não foi possível se comunicar com o servidor do Gemini.";
             } finally {
                 btn.disabled = false;
                 btn.innerText = "🤖 Executar Insights IA Realtime";
@@ -473,7 +473,7 @@
                 if (row['STATUS_CONSOLIDADO'] === 'CANCELADO') {
                     let mot = "Falta de Estoque / Ruptura";
                     let obs = row.OBSERVACOES.toUpperCase();
-                    if(obs.includes("DESIST") || obs.includes("CLIENTE") || obs.includes("COMPRADOR")) mot = "Arrehendimento de Compra (B2C)";
+                    if(obs.includes("DESIST") || obs.includes("CLIENTE") || obs.includes("COMPRADOR")) mot = "Arrependimento de Compra (B2C)";
                     else if(obs.includes("INTEGRA") || obs.includes("API")) mot = "Erro Sincronismo Hub/Preço";
                     motivosContagem[mot] = (motivosContagem[mot] || 0) + 1;
                 }
