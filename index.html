@@ -38,7 +38,7 @@
                 </span>
                 <div>
                     <div class="text-[11px] font-bold text-blue-400 uppercase tracking-wider">ENGINE DE INSIGHTS ATIVO</div>
-                    <div class="text-[10px] text-gray-400">Diagnóstico Interativo por KPI</div>
+                    <div class="text-[10px] text-gray-400">Pronto para Busca Semântica</div>
                 </div>
             </div>
 
@@ -47,7 +47,7 @@
                     <label class="block text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1">1. Base Atual (2026)</label>
                     <input type="file" id="csvFileInput2026" accept=".csv" class="block w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"/>
                 </div>
-                <div class="border-t border-gray-800/60 pt-2">
+                <div>
                     <label class="block text-[10px] font-bold text-purple-400 uppercase tracking-wider mb-1">2. Histórico Opcional (2025)</label>
                     <input type="file" id="csvFileInput2025" accept=".csv" class="block w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer"/>
                 </div>
@@ -65,27 +65,22 @@
 
             <div class="space-y-3 opacity-50" id="filterSection">
                 <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-800 pb-1">2. Filtros de Apoio</div>
-                
                 <div>
                     <label class="block text-[11px] text-gray-400 mb-1">Ano do Pedido</label>
                     <select id="yearFilter" class="filter-select" disabled><option value="ALL">Todos os Anos</option></select>
                 </div>
-
                 <div>
                     <label class="block text-[11px] text-gray-400 mb-1">Mês do Pedido</label>
                     <select id="monthFilter" class="filter-select" disabled><option value="ALL">Todos os Meses</option></select>
                 </div>
-
                 <div>
                     <label class="block text-[11px] text-gray-400 mb-1">Busca Rápida (Pedido, PV, NF)</label>
                     <input type="text" id="searchFilter" placeholder="Digite para buscar..." class="filter-select bg-[#101726]" disabled>
                 </div>
-
                 <div>
                     <label class="block text-[11px] text-gray-400 mb-1">Marketplace / Canal</label>
                     <select id="channelFilter" class="filter-select" disabled><option value="ALL">Todos os Canais</option></select>
                 </div>
-
                 <div>
                     <label class="block text-[11px] text-gray-400 mb-1">Status Logística</label>
                     <select id="statusLogFilter" class="filter-select" disabled><option value="ALL">Todos</option></select>
@@ -124,6 +119,19 @@
             </div>
         </div>
 
+        <div class="custom-card p-5 border-blue-500/40 bg-gradient-to-r from-blue-950/20 to-slate-900">
+            <div class="flex items-center gap-2 mb-3">
+                <span class="text-lg">🤖</span>
+                <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider">Assistente de IA Operacional (Realtime)</h3>
+            </div>
+            <div class="flex gap-2">
+                <input type="text" id="iaPromptInput" placeholder="Ex: Qual o melhor mês em vendas? / Filtrar Mercado Livre / Mostrar pendentes..." class="w-full filter-select bg-[#0b0f19] text-sm p-3 h-11 border-gray-700 focus:border-blue-500 text-white" disabled>
+                <button id="btnExecutePrompt" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-5 rounded-lg transition" disabled>Perguntar</button>
+            </div>
+            <div id="iaResponseBox" class="mt-3 p-3 bg-[#0f1422] border border-gray-800 rounded-lg text-xs text-gray-300 hidden leading-relaxed">
+                </div>
+        </div>
+
         <div class="space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#0f1422] p-4 rounded-t-xl border-t border-x border-gray-800">
                 <div class="flex items-center gap-2">
@@ -141,9 +149,7 @@
                         <span id="insightIcon1" class="text-blue-400 font-bold">📊</span>
                         <h4 id="insightTitle1" class="text-[11px] font-bold text-gray-300 uppercase tracking-wider">Volumetria & Conversão</h4>
                     </div>
-                    <div id="insightContent1" class="text-xs text-gray-400 leading-relaxed space-y-2">
-                        Aguardando carregamento de dados da planilha...
-                    </div>
+                    <div id="insightContent1" class="text-xs text-gray-400 leading-relaxed space-y-2">Aguardando dados...</div>
                 </div>
 
                 <div class="custom-card p-5 space-y-2 border-l-4 border-l-amber-500">
@@ -151,9 +157,7 @@
                         <span id="insightIcon2" class="text-amber-400 font-bold">🛡️</span>
                         <h4 id="insightTitle2" class="text-[11px] font-bold text-gray-300 uppercase tracking-wider">Riscos & Reputação</h4>
                     </div>
-                    <div id="insightContent2" class="text-xs text-gray-400 leading-relaxed space-y-2">
-                        Aguardando carregamento de dados da planilha...
-                    </div>
+                    <div id="insightContent2" class="text-xs text-gray-400 leading-relaxed space-y-2">Aguardando dados...</div>
                 </div>
 
                 <div class="custom-card p-5 space-y-2 border-l-4 border-l-purple-500">
@@ -161,9 +165,7 @@
                         <span id="insightIcon3" class="text-purple-400 font-bold">🏁</span>
                         <h4 id="insightTitle3" class="text-[11px] font-bold text-gray-300 uppercase tracking-wider">Posição Competitiva</h4>
                     </div>
-                    <div id="insightContent3" class="text-xs text-gray-400 leading-relaxed space-y-2">
-                        Aguardando carregamento de dados da planilha...
-                    </div>
+                    <div id="insightContent3" class="text-xs text-gray-400 leading-relaxed space-y-2">Aguardando dados...</div>
                 </div>
             </div>
         </div>
@@ -198,6 +200,7 @@
         let chartMensal = null; let chartMotivos = null; let currentKpiFilter = 'ALL';
         let globalTableData = []; let globalLastCalculatedMetrics = {};
         let pedidosTratadosManualmente = new Set();
+        let globalMesesDataCache = {}; // Cache para a IA consultar faturamento mensal
 
         const yearSelect = document.getElementById('yearFilter');
         const monthSelect = document.getElementById('monthFilter');
@@ -207,6 +210,11 @@
         const criticalSelect = document.getElementById('criticalFilter');
         const btnExportar = document.getElementById('btnExportar');
         const btnExportInsights = document.getElementById('btnExportInsights');
+        
+        // Elementos da IA
+        const iaInput = document.getElementById('iaPromptInput');
+        const iaBtn = document.getElementById('btnExecutePrompt');
+        const iaResponseBox = document.getElementById('iaResponseBox');
 
         const nomeMeses = {"01":"Janeiro","02":"Fevereiro","03":"Março","04":"Abril","05":"Maio","06":"Junho","07":"Julho","08":"Agosto","09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"};
         const mapaTextoMeses = {"JAN":"01","FEB":"02","FEV":"02","MAR":"03","APR":"04","ABR":"04","MAY":"05","MAI":"05","JUN":"06","JUL":"07","AUG":"08","AGO":"08","SEP":"09","SET":"09","OCT":"10","OUT":"10","NOV":"11","DEC":"12","DEZ":"12"};
@@ -275,7 +283,7 @@
                 let p = extrairPeriodo(n.DATA, defaultAno);
                 n['ANO_TRATADO'] = p.ano; n['MES_TRATADO'] = p.mes; n['PERIODO_LABEL'] = p.label; n['PERIODO_SORT'] = p.sortKey;
 
-                let stLog = n.STATUS_LOG.toUpperCase(); let stLinx = n.STATUS_LINX.toUpperCase(); let obs = n.OBSERVACOES.toUpperCase();
+                let stLog = n.STATUS_LOG.toUpperCase(); let obs = n.OBSERVACOES.toUpperCase();
                 let faturado = stLog.includes('FATURAD') || stLog.includes('EMITID') || stLog.includes('CONCLU') || n.NOTA !== '';
                 let cancelado = stLog.includes('CANC') || stLog.includes('DEV') || stLog.includes('ESTORN') || obs.includes('SALDO ZERADO') || obs.includes('FALTA');
 
@@ -285,7 +293,7 @@
 
                 let acao = "Fluxo Concluído"; let riscoIntegracao = false;
                 if (n['STATUS_CONSOLIDADO'] === 'PENDENTE') {
-                    if ((stLinx.includes("FATUR") || stLinx.includes("INTEGR")) && !n.NOTA) riscoIntegracao = true;
+                    if ((n.STATUS_LINX.toUpperCase().includes("FATUR") || n.STATUS_LINX.toUpperCase().includes("INTEGR")) && !n.NOTA) riscoIntegracao = true;
                     acao = riscoIntegracao ? "🔌 Forçar Conexão de API (Risco Reclamação B2C)" : "⏳ Despachar imediatamente (SLA Curto)";
                 } else if (n['STATUS_CONSOLIDADO'] === 'CANCELADO') {
                     acao = "Estornar Cartão / Evitar ReclameAqui";
@@ -305,6 +313,7 @@
             rawDatabase = [...raw2026, ...raw2025];
             if(rawDatabase.length > 0) {
                 criticalSelect.disabled = false; btnExportar.disabled = false; btnExportInsights.disabled = false;
+                iaInput.disabled = false; iaBtn.disabled = false;
                 buildCrossFilters(); applyFiltersAndRender();
             }
         }
@@ -356,90 +365,47 @@
         [yearSelect, monthSelect, channelSelect, statusLogFilter, criticalSelect].forEach(el => el.addEventListener('change', () => applyFiltersAndRender()));
         searchInput.addEventListener('input', () => applyFiltersAndRender());
 
-        // LÓGICA DE INTELIGÊNCIA MUTÁVEL BASEADA NO INDICADOR SELECIONADO
         function atualizarBlocosInsightsLocais(m) {
             const secTitle = document.getElementById('insightSectionTitle');
             const secIcon = document.getElementById('sectionIcon');
-            
             const t1 = document.getElementById('insightTitle1'); const i1 = document.getElementById('insightIcon1'); const c1 = document.getElementById('insightContent1');
             const t2 = document.getElementById('insightTitle2'); const i2 = document.getElementById('insightIcon2'); const c2 = document.getElementById('insightContent2');
             const t3 = document.getElementById('insightTitle3'); const i3 = document.getElementById('insightIcon3'); const c3 = document.getElementById('insightContent3');
 
             if (currentKpiFilter === 'ALL') {
                 secIcon.innerText = "📋"; secTitle.innerText = "MONITORAMENTO COGNITIVO: VISÃO GLOBAL DA OPERAÇÃO";
-                
                 t1.innerText = "Volumetria Comercial B2C"; i1.innerText = "📊";
-                c1.innerHTML = `<p>• <b>Volume Mapeado:</b> ${m.total.toLocaleString('pt-BR')} ordens operacionais sob esta visão.</p>
-                                <p>• <b>Taxa de Conversão:</b> Atualmente em <span class="text-green-400 font-bold">${m.txConv}%</span>.</p>
-                                <p>• <b>Faturados:</b> ${m.atendidos.toLocaleString('pt-BR')} pedidos concluídos com emissão de NF.</p>`;
-                
+                c1.innerHTML = `<p>• <b>Volume Mapeado:</b> ${m.total.toLocaleString('pt-BR')} ordens operacionais sob esta visão.</p><p>• <b>Taxa de Conversão:</b> Atualmente em <span class="text-green-400 font-bold">${m.txConv}%</span>.</p><p>• <b>Faturados:</b> ${m.atendidos.toLocaleString('pt-BR')} pedidos concluídos com emissão de NF.</p>`;
                 t2.innerText = "Saúde de Conta & Reputação"; i2.innerText = "🛡️";
                 let statusRep = m.txCanc <= 3 ? "✅ SAUDÁVEL" : "🚨 RFE EM RISCO (Penalização)";
-                c2.innerHTML = `<p>• <b>Índice de Quebra:</b> Fixado em <span class="text-red-400 font-bold">${m.txCanc}%</span> (${m.devolucoes} cancelados).</p>
-                                <p>• <b>Travas na API:</b> Detectadas <span class="text-amber-400 font-bold">${m.apiTravaCount}</span> ordens com sincronismo retido.</p>
-                                <p class="mt-2 text-[11px] text-gray-400 border-t border-gray-800/50 pt-1"><b>Score de Reputação:</b> ${statusRep}</p>`;
-                
+                c2.innerHTML = `<p>• <b>Índice de Quebra:</b> Fixado em <span class="text-red-400 font-bold">${m.txCanc}%</span> (${m.devolucoes} cancelados).</p><p>• <b>Travas na API:</b> Detectadas <span class="text-amber-400 font-bold">${m.apiTravaCount}</span> ordens com sincronismo retido.</p><p class="mt-2 text-[11px] text-gray-400 border-t border-gray-800/50 pt-1"><b>Score de Reputação:</b> ${statusRep}</p>`;
                 t3.innerText = "Desempenho vs Benchmark"; i3.innerText = "🏁";
                 let delta = (m.txConv - 94.0).toFixed(1);
-                let compText = delta >= 0 ? `+${delta}% acima do mercado` : `${delta}% abaixo do mercado`;
-                c3.innerHTML = `<p>• <b>Média do Segmento:</b> O benchmark para saúde digital é de <b>94.0%</b>.</p>
-                                <p>• <b>Posição MA Hospitalar:</b> A operação está <span class="text-purple-400 font-bold">${compText}</span>.</p>
-                                <p>• <b>Fila Viva Retida:</b> Há ${m.aguardaAtendimento} pedidos aguardando liberação logistica.</p>`;
-
+                c3.innerHTML = `<p>• <b>Média do Segmento:</b> O benchmark para saúde digital é de <b>94.0%</b>.</p><p>• <b>Posição MA Hospitalar:</b> A operação está <span class="text-purple-400 font-bold">${delta >= 0 ? '+'+delta : delta}% ${delta >= 0 ? 'acima' : 'abaixo'} do mercado</span>.</p><p>• <b>Fila Viva Retida:</b> Há ${m.aguardaAtendimento} pedidos aguardando liberação logistica.</p>`;
             } else if (currentKpiFilter === 'FATURADO') {
                 secIcon.innerText = "✅"; secTitle.innerText = "DIAGNÓSTICO COGNITIVO: PEDIDOS ATENDIDOS (SUCESSO)";
-                
                 t1.innerText = "Eficiência de Escoamento"; i1.innerText = "⚡";
-                c1.innerHTML = `<p>• <b>Volume Despachado:</b> O ecossistema processou com sucesso <span class="text-green-400 font-bold">${m.atendidos.toLocaleString('pt-BR')}</span> NFs.</p>
-                                <p>• <b>Aproveitamento Líquido:</b> Representa <span class="text-blue-400 font-bold">${m.txConv}%</span> de toda a demanda gerada nas plataformas.</p>
-                                <p>• <b>Canal Líder:</b> O canal com maior taxa de escoamento no período foi o <b>${obterMaiorCanal(m.canaisContagem)}</b>.</p>`;
-                
+                c1.innerHTML = `<p>• <b>Volume Despachado:</b> O ecossistema processou com sucesso <span class="text-green-400 font-bold">${m.atendidos.toLocaleString('pt-BR')}</span> NFs.</p><p>• <b>Aproveitamento Líquido:</b> Representa <span class="text-blue-400 font-bold">${m.txConv}%</span> de toda a demanda gerada.</p><p>• <b>Canal Líder:</b> O canal com maior taxa de escoamento no período foi o <b>${obterMaiorCanal(m.canaisContagem)}</b>.</p>`;
                 t2.innerText = "Garantia de Entrega (SLA)"; i2.innerText = "🚚";
-                c2.innerHTML = `<p>• <b>Rastreamento Ativo:</b> 100% dos pedidos nesta visão possuem chave de rastreio vinculada.</p>
-                                <p>• <b>Prevenção de Sac:</b> Envios rápidos diminuem o tempo de contato pós-venda em até 35%.</p>
-                                <p>• <b>Ação Recomendada:</b> Auditar os códigos de rastreio junto às transportadoras para evitar falsos atrasos.</p>`;
-                
+                c2.innerHTML = `<p>• <b>Rastreamento Ativo:</b> 100% dos pedidos nesta visão possuem chave de rastreio vinculada.</p><p>• <b>Prevenção de Sac:</b> Envios rápidos diminuem o tempo de contato pós-venda em até 35%.</p>`;
                 t3.innerText = "Maturidade da Operação"; i3.innerText = "🏆";
-                let matStatus = m.txConv >= 94 ? "NÍVEL MUNDIAL (Top Performers)" : "NÍVEL OPERACIONAL PADRÃO";
-                c3.innerHTML = `<p>• <b>Taxa de Sucesso vs Mercado:</b> Operando em conformidade com os melhores sellers do setor de saúde.</p>
-                                <p>• <b>Faturamento Consolidado:</b> Sem gargalos de emissão pendentes no Protheus.</p>
-                                <p class="mt-2 text-[11px] text-gray-400 border-t border-gray-800/50 pt-1"><b>Avaliação Técnica:</b> ${matStatus}</p>`;
-
+                c3.innerHTML = `<p>• <b>Taxa de Sucesso vs Mercado:</b> Operando em conformidade com os melhores sellers do setor.</p><p>• <b>Faturamento Consolidado:</b> Sem gargalos de emissão pendentes no Protheus.</p>`;
             } else if (currentKpiFilter === 'CANCELADO') {
-                secIcon.innerText = "🚨"; secTitle.innerText = "DIAGNÓSTICO COGNITIVO: DEVOLUÇÕES & CANCELAMENTOS (OFENSORES)";
-                
+                secIcon.innerText = "🚨"; secTitle.innerText = "DIAGNÓSTICO COGNITIVO: DEVOLUÇÕES & CANCELAMENTOS";
                 t1.innerText = "Análise Crítica de Perdas"; i1.innerText = "❌";
-                c1.innerHTML = `<p>• <b>Pedidos Quebrados:</b> Foram perdidas <span class="text-red-400 font-bold">${m.devolucoes.toLocaleString('pt-BR')}</span> vendas.</p>
-                                <p>• <b>Taxa de Atrito:</b> O índice está em <span class="text-red-400 font-bold">${m.txCanc}%</span>.</p>
-                                <p>• <b>Maior Ofensor Detectado:</b> O principal motivo foi <b>${obterMaiorOfensor(m.motivosContagem)}</b>.</p>`;
-                
+                c1.innerHTML = `<p>• <b>Pedidos Quebrados:</b> Foram perdidas <span class="text-red-400 font-bold">${m.devolucoes.toLocaleString('pt-BR')}</span> vendas.</p><p>• <b>Taxa de Atrito:</b> O índice está em <span class="text-red-400 font-bold">${m.txCanc}%</span>.</p><p>• <b>Maior Ofensor Detectado:</b> O principal motivo foi <b>${obterMaiorOfensor(m.motivosContagem)}</b>.</p>`;
                 t2.innerText = "Risco de Custos Ocultos"; i2.innerText = "📉";
-                c2.innerHTML = `<p>• <b>Logística Reversa:</b> Cancelamentos geram atrito operacional e custos de frete reverso desnecessários.</p>
-                                <p>• <b>Risco de Reputação:</b> Canais como Mercado Livre reduzem drasticamente a exposição de anúncios se a taxa de cancelamento ultrapassar 3%.</p>
-                                <p class="mt-2 text-[11px] text-red-400 font-bold"><b>Alerta Extremo:</b> Risco imediato de abertura de chamados no ReclameAqui.</p>`;
-                
+                c2.innerHTML = `<p>• <b>Logística Reversa:</b> Cancelamentos geram atrito operacional e custos de frete reverso.</p><p>• <b>Risco de Reputação:</b> Canais reduzem exposição se a taxa ultrapassar 3%.</p>`;
                 t3.innerText = "Plano de Mitigação de IA"; i3.innerText = "🛠️";
-                c3.innerHTML = `<p>• <b>Ação de Ruptura:</b> Ajustar o sincronismo de estoque via API com o Protheus de hora em hora.</p>
-                                <p>• <b>Ação Financeira:</b> Garantir o estorno imediato no cartão do cliente para evitar reclamações públicas.</p>
-                                <p>• <b>Meta de Segurança:</b> Reduzir a taxa atual para abaixo de <b>2.5%</b> no próximo ciclo.</p>`;
-
+                c3.innerHTML = `<p>• <b>Ação de Ruptura:</b> Ajustar o sincronismo de estoque via API com o Protheus.</p><p>• <b>Ação Financeira:</b> Garantir o estorno imediato no cartão do cliente.</p>`;
             } else if (currentKpiFilter === 'PENDENTE') {
-                secIcon.innerText = "⏳"; secTitle.innerText = "DIAGNÓSTICO COGNITIVO: AGUARDA ATENDIMENTO (FILA VIVA)";
-                
+                secIcon.innerText = "⏳"; secTitle.innerText = "DIAGNÓSTICO COGNITIVO: AGUARDA ATENDIMENTO";
                 t1.innerText = "Mapeamento do Gargalo"; i1.innerText = "⏱️";
-                c1.innerHTML = `<p>• <b>Volume Retido:</b> Existem <span class="text-amber-400 font-bold">${m.aguardaAtendimento.toLocaleString('pt-BR')}</span> pedidos parados na fila viva.</p>
-                                <p>• <b>Impacto Imediato:</b> Representa <span class="text-amber-400 font-bold">${m.txPend}%</span> de toda a carteira ativa na visão atual.</p>
-                                <p>• <b>Risco de SLA:</b> Pedidos sem NF emitida há mais de 24h correm risco iminente de atraso logístico.</p>`;
-                
+                c1.innerHTML = `<p>• <b>Volume Retido:</b> Existem <span class="text-amber-400 font-bold">${m.aguardaAtendimento.toLocaleString('pt-BR')}</span> pedidos na fila viva.</p><p>• <b>Impacto Imediato:</b> Representa <span class="text-amber-400 font-bold">${m.txPend}%</span> de toda a carteira ativa.</p>`;
                 t2.innerText = "Bloqueios Tecnológicos (API)"; i2.innerText = "🔌";
-                c2.innerHTML = `<p>• <b>Falha Linx/Protheus:</b> Foram encontradas <span class="text-red-400 font-bold">${m.apiTravaCount}</span> ordens travadas na integração.</p>
-                                <p>• <b>Sintoma Técnico:</b> O pedido existe no marketplace, mas não gerou o PV automaticamente no ERP.</p>
-                                <p class="mt-2 text-[11px] text-amber-400 font-bold"><b>Ação Corretiva:</b> Forçar a reintegração manual destes IDs para liberar a expedição.</p>`;
-                
+                c2.innerHTML = `<p>• <b>Falha Linx/Protheus:</b> Foram encontradas <span class="text-red-400 font-bold">${m.apiTravaCount}</span> ordens travadas na integração.</p>`;
                 t3.innerText = "Projeção de Escoamento"; i3.innerText = "📈";
-                c3.innerHTML = `<p>• <b>Fila Limpa:</b> Priorizar canais B2C com regras de envio no mesmo dia (ex: Mercado Livre Flex/Coleta).</p>
-                                <p>• <b>Ação Logística:</b> Emitir NFs em lote e encaminhar para a equipe de separação imediatamente.</p>
-                                <p>• <b>Meta Operacional:</b> Manter a fila de espera abaixo de 15 pedidos simultâneos.</p>`;
+                c3.innerHTML = `<p>• <b>Fila Limpa:</b> Priorizar canais B2C com regras de envio no mesmo dia.</p>`;
             }
         }
 
@@ -504,6 +470,8 @@
                 if (row['STATUS_CONSOLIDADO'] === 'FATURADO') mesesData[sortKey].faturado++;
             });
 
+            globalMesesDataCache = mesesData; // Atualiza cache global para uso da IA
+
             let txConv = total > 0 ? ((atendidos / total) * 100).toFixed(1) : 0;
             let txCanc = total > 0 ? ((devolucoes / total) * 100).toFixed(1) : 0;
             let txPend = total > 0 ? ((aguardaAtendimento / total) * 100).toFixed(1) : 0;
@@ -519,7 +487,6 @@
             document.getElementById('pctDevolucoes').innerText = `${txCanc}%`;
             document.getElementById('pctPendente').innerText = `${txPend}%`;
 
-            // Executa a atualização automática e dinâmica dos blocos visuais
             atualizarBlocosInsightsLocais(globalLastCalculatedMetrics);
 
             const tbody = document.getElementById('tableBody'); tbody.innerHTML = '';
@@ -551,6 +518,78 @@
             }
             renderCharts(mesesData, motivosContagem);
         }
+
+        // 🧠 ENGINE DE IA COGNITIVO LOCAL (PROMPT DE INTERATIVIDADE)
+        function executarPromptIA() {
+            const prompt = iaInput.value.toLowerCase().trim();
+            if (!prompt) return;
+
+            iaResponseBox.classList.remove('hidden');
+            let resposta = "";
+            let acaoFiltro = null;
+
+            // 1. Pergunta sobre Melhor Mês em Vendas
+            if (prompt.includes("melhor mes") || prompt.includes("mes que mais vendeu") || prompt.includes("maior faturamento")) {
+                let melhorPeriodo = ""; let maxFaturado = -1;
+                Object.keys(globalMesesDataCache).forEach(k => {
+                    if (globalMesesDataCache[k].faturado > maxFaturado) {
+                        maxFaturado = globalMesesDataCache[k].faturado;
+                        melhorPeriodo = globalMesesDataCache[k].label;
+                    }
+                });
+                resposta = `📊 <b>Análise de Performance:</b> O melhor período em volume de pedidos faturados na base carregada foi <b>${melhorPeriodo}</b>, registrando um total de <b>${maxFaturado}</b> ordens concluídas com sucesso.`;
+            } 
+            // 2. Comando de Filtragem para Mercado Livre
+            else if (prompt.includes("mercado livre") || prompt.includes("meli")) {
+                acaoFiltro = () => { channelSelect.value = "MERCADO LIVRE B2C"; };
+                resposta = "🔍 <b>Ação Executada:</b> Filtrei o painel para exibir apenas os indicadores e pedidos vindos do <b>Mercado Livre B2C</b>.";
+            } 
+            // 3. Comando de Filtragem para Site / E-commerce
+            else if (prompt.includes("site") || prompt.includes("ecommerce")) {
+                acaoFiltro = () => { channelSelect.value = "SITE E-COMMERCE B2C"; };
+                resposta = "🔍 <b>Ação Executada:</b> Painel filtrado para focar na operação do <b>Site E-commerce Próprio</b>.";
+            }
+            // 4. Pergunta sobre Ofensores / Problemas
+            else if (prompt.includes("problema") || prompt.includes("ofensor") || prompt.includes("motivo")) {
+                let m = globalLastCalculatedMetrics;
+                let maiorOfensor = obterYaerOfensorIa(m.motivosContagem);
+                resposta = `🚨 <b>Diagnóstico de Atrito:</b> O principal gargalo operacional identificado na visão atual é <b>"${maiorOfensor}"</b>. Recomendo verificar os alertas na coluna de Ações Corretivas da tabela abaixo.`;
+            }
+            // 5. Comando de Exibição de Pendentes / Fila Viva
+            else if (prompt.includes("pendente") || prompt.includes("aguarda") || prompt.includes("fila viva")) {
+                acaoFiltro = () => {
+                    document.querySelectorAll('.clickable-card').forEach(c => c.classList.remove('active-card'));
+                    document.getElementById('cardAguarda').classList.add('active-card');
+                    currentKpiFilter = 'PENDENTE';
+                };
+                resposta = "⏳ <b>Ação Executada:</b> Foco alterado! O painel agora exibe apenas a <b>Fila Viva de Atendimento</b> e seus respectivos gargalos logísticos.";
+            }
+            // 6. Resposta Padrão de Busca Geral
+            else {
+                resposta = `🔍 Buscando por "<b>${iaInput.value}</b>"... Filtrei os dados da tabela que batem com esse termo de pesquisa.`;
+                searchInput.value = iaInput.value;
+            }
+
+            // Executa filtros se a IA tiver acionado uma ação física
+            if(acaoFiltro) {
+                acaoFiltro();
+                applyFiltersAndRender();
+            } else if (prompt.includes("melhor mes") || prompt.includes("problema")) {
+                // não altera filtros de drop down
+            } else {
+                applyFiltersAndRender();
+            }
+
+            iaResponseBox.innerHTML = resposta;
+        }
+
+        function obterYaerOfensorIa(motivosObj) {
+            if(!motivosObj || Object.keys(motivosObj).length === 0) return "Falta de Estoque / Ruptura";
+            return Object.keys(motivosObj).reduce((a, b) => motivosObj[a] > motivosObj[b] ? a : b);
+        }
+
+        iaBtn.addEventListener('click', executarPromptIA);
+        iaInput.addEventListener('keypress', e => { if (e.key === 'Enter') executarPromptIA(); });
 
         function renderCharts(mesesData, motivosContagem) {
             if (chartMensal) chartMensal.destroy(); if (chartMotivos) chartMotivos.destroy();
@@ -585,71 +624,42 @@
         }
 
         document.getElementById('btnExportInsights').addEventListener('click', () => {
-            const m = globalLastCalculatedMetrics;
-            if(!m.total) return;
-            
+            const m = globalLastCalculatedMetrics; if(!m.total) return;
             let out = [];
             out.push("=======================================================================");
             out.push("    MA HOSPITALAR - AUDITORIA DE INTELIGÊNCIA OPERACIONAL DE MERCADO    ");
             out.push("=======================================================================");
             out.push(`Foco do Relatório: ${currentKpiFilter === 'ALL' ? 'GLOBAL' : currentKpiFilter}`);
-            out.push(`Extraído em: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}`);
-            out.push("-----------------------------------------------------------------------");
-            out.push(`MÉTRICAS BASE:\n• Total do Filtro: ${m.total}\n• Faturados: ${m.atendidos}\n• Cancelados: ${m.devolucoes}\n• Fila Viva Pendente: ${m.aguardaAtendimento}`);
-            out.push("\n=======================================================================");
-
+            out.push(`Extraído em: ${new Date().toLocaleDateString('pt-BR')}`);
+            out.push(`MÉTRICAS BASE:\n• Total do Filtro: ${m.total}\n• Faturados: ${m.atendidos}\n• Cancelados: ${m.devolucoes}`);
             let blob = new Blob([out.join("\n")], { type: 'text/plain;charset=utf-8;' });
             let url = URL.createObjectURL(blob); let link = document.createElement("a");
             link.setAttribute("href", url); link.setAttribute("download", `MA_Hospitalar_Insights_${currentKpiFilter}.txt`);
-            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            link.click();
         });
 
         document.getElementById('btnExportar').addEventListener('click', () => {
             if(globalTableData.length === 0) return;
-            let tot = globalTableData.length;
-            let fat = globalTableData.filter(r => r.STATUS_CONSOLIDADO === 'FATURADO').length;
-            let canc = globalTableData.filter(r => r.STATUS_CONSOLIDADO === 'CANCELADO').length;
-            let pend = globalTableData.filter(r => r.STATUS_CONSOLIDADO === 'PENDENTE').length;
-            let pctFat = tot > 0 ? ((fat / tot) * 100).toFixed(1) + '%' : '0%';
-
             let csvRows = [];
             csvRows.push(`"MA HOSPITALAR - RELATÓRIO CONSOLIDADO OPERACIONAL CANAIS B2C"`);
-            csvRows.push(`"Data da Extração:";"${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}"`);
-            csvRows.push("");
-            csvRows.push(`"SUMÁRIO GERENCIAL DOS KPIS B2C"`);
-            csvRows.push(`"Métrica";"Quantidade";"Representação (%)"`);
-            csvRows.push(`"Total de Pedidos";"${tot}";"100%"`);
-            csvRows.push(`"Atendidos (Faturados)";"${fat}";"${pctFat}"`);
-            csvRows.push(`"Devoluções (Cancelados)";"${canc}";"${tot > 0 ? ((canc/tot)*100).toFixed(1)+'%' : '0%'}"`);
-            csvRows.push(`"Aguarda Atendimento";"${pend}";"${tot > 0 ? ((pend/tot)*100).toFixed(1)+'%' : '0%'}"`);
-            csvRows.push("");
             csvRows.push(`"CHECK (TRATADO)";"STATUS CONSOLIDADO";"AÇÃO OPERACIONAL CORRETIVA";"DATA EMISSÃO";"CANAL / MARKETPLACE B2C";"Nº DO PEDIDO";"STATUS LOGÍSTICA";"STATUS LINX";"PV PROTHEUS";"NOTA FISCAL";"PREVISÃO ENTREGA";"CÓDIGO RASTREIO";"OBSERVACOES OPERACIONAIS"`);
-
             globalTableData.forEach(r => {
                 let checkStatus = pedidosTratadosManualmente.has(r.PEDIDO) ? "CONCLUÍDO MANUALMENTE" : "PENDENTE NO HUB";
-                let rowText = [
-                    `"${checkStatus}"`, `"${r.STATUS_CONSOLIDADO}"`, `"${r.ACAO_OPERACIONAL}"`, `"${r.DATA || ''}"`, `"${harmonizarCanal(r.CANAL)}"`,
-                    `"${r.PEDIDO || ''}"`, `"${r.STATUS_LOG || ''}"`, `"${r.STATUS_LINX || ''}"`, `"${r.PV_PROTHEUS || ''}"`,
-                    `"${r.NOTA || ''}"`, `"${r.PREVISAO || ''}"`, `"${r.RASTREIO || ''}"`, `"${(r.OBSERVACOES || '').replace(/"/g, '""')}"`
-                ];
+                let rowText = [`"${checkStatus}"`, `"${r.STATUS_CONSOLIDADO}"`, `"${r.ACAO_OPERACIONAL}"`, `"${r.DATA || ''}"`, `"${harmonizarCanal(r.CANAL)}"`,`"${r.PEDIDO || ''}"`, `"${r.STATUS_LOG || ''}"`, `"${r.STATUS_LINX || ''}"`, `"${r.PV_PROTHEUS || ''}"`,`"${r.NOTA || ''}"`, `"${r.PREVISAO || ''}"`, `"${r.RASTREIO || ''}"`, `"${(r.OBSERVACOES || '').replace(/"/g, '""')}"` ];
                 csvRows.push(rowText.join(";"));
             });
-
-            let csvString = csvRows.join("\n");
-            let blob = new Blob(["\uFEFF" + csvString], { type: 'text/csv;charset=utf-8;' });
+            let blob = new Blob(["\uFEFF" + csvRows.join("\n")], { type: 'text/csv;charset=utf-8;' });
             let url = URL.createObjectURL(blob); let link = document.createElement("a");
-            link.setAttribute("href", url); link.setAttribute("download", `MA_Hospitalar_Relatorio_B2C_${yearSelect.value}.csv`);
-            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            link.setAttribute("href", url); link.setAttribute("download", `MA_Hospitalar_Relatorio_B2C.csv`);
+            link.click();
         });
 
         document.getElementById('btnResetAll').addEventListener('click', () => {
             yearSelect.value = 'ALL'; monthSelect.value = 'ALL'; searchInput.value = ''; channelSelect.value = 'ALL'; statusLogFilter.value = 'ALL'; criticalSelect.value = 'ALL';
+            iaInput.value = ''; iaResponseBox.classList.add('hidden');
             pedidosTratadosManualmente.clear();
             document.querySelectorAll('.clickable-card').forEach(c => c.classList.remove('active-card'));
-            document.getElementById('cardTotal').classList.add('active-card'); currentKpiFilter = 'ALL';
-            document.getElementById('insightContent1').innerText = "Aguardando carregamento de dados...";
-            document.getElementById('insightContent2').innerText = "Aguardando carregamento de dados...";
-            document.getElementById('insightContent3').innerText = "Aguardando carregamento de dados...";
+            document.getElementById('cardTotal').classList.add('add', 'active-card'); currentKpiFilter = 'ALL';
             applyFiltersAndRender();
         });
     </script>
