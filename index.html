@@ -125,7 +125,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div class="flex items-center gap-2">
                     <span class="text-sm">✨</span>
-                    <h3 id="diagnosticoTitulo" class="text-xs font-bold text-blue-400 uppercase tracking-wider">Monitoramento de IA & Auditoria de Benchmark B2C Digital</h3>
+                    <h3 id="diagnosticoTitulo" class="text-xs font-bold text-blue-400 uppercase tracking-wider">DIAGNOSTICO IA: VISÃO GLOBAL OPERACIONAL & INTELIGÊNCIA DE MERCADO B2C</h3>
                 </div>
                 <div class="flex gap-2">
                     <button id="btnExportInsights" class="bg-purple-600 hover:bg-purple-700 text-white font-bold text-[11px] px-3 py-1.5 rounded transition flex items-center gap-1.5 shadow-md shadow-purple-950/50" disabled>
@@ -137,7 +137,7 @@
                 </div>
             </div>
             
-            <div class="p-4 bg-[#0f1422]/90 rounded-lg border border-gray-800 text-xs text-gray-300 leading-relaxed max-h-60 overflow-y-auto whitespace-pre-line" id="insightBoxCompleto">
+            <div class="p-4 bg-[#0f1422]/90 rounded-lg border border-gray-800 text-xs text-gray-300 leading-relaxed max-h-[400px] overflow-y-auto whitespace-pre-wrap" id="insightBoxCompleto">
                 Carregue os arquivos de dados das planilhas e clique em <b>"Executar Insights IA Realtime"</b> para cruzar os resultados atuais da carteira B2C com dados e benchmarks de mercado.
             </div>
         </div>
@@ -333,7 +333,7 @@
         [yearSelect, monthSelect, channelSelect, statusLogFilter, criticalSelect].forEach(el => el.addEventListener('change', () => applyFiltersAndRender()));
         searchInput.addEventListener('input', () => applyFiltersAndRender());
 
-        // EXECUTAR INSIGHTS COM O CORRETO CABEÇALHO PARA EVITAR RETORNO VAZIO
+        // EXECUÇÃO E CORREÇÃO ROBUSTA DA LEITURA DE RETORNO DO GEMINI
         document.getElementById('btnGeraInsight').addEventListener('click', async () => {
             const m = globalLastCalculatedMetrics;
             if(!m.total) {
@@ -345,30 +345,36 @@
             const btn = document.getElementById('btnGeraInsight');
             
             btn.disabled = true;
-            btn.innerText = "⏳ Consultando Gemini...";
-            boxInsight.innerHTML = "<b>Iniciando conexão inteligente...</b> Mapeando métricas da carteira B2C da MA Hospitalar e estruturando prompt com auditoria de mercado.";
+            btn.innerText = "⏳ Estruturando Matriz Cruzada...";
+            boxInsight.innerHTML = "<b>Iniciando conexão inteligente...</b> Mapeando métricas atuais e gerando a Matriz de Insights Operacionais da MA Hospitalar.";
 
             const urlApi = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
             const payload = {
                 contents: [{
                     parts: [{
-                        text: `Você é um Consultor de IA Sênior especializado em E-commerce B2C de Produtos Médicos e Saúde da MA Hospitalar. Analise nossos números operacionais consolidados e gere um relatório analítico direto, com tom corporativo realista e focado em conversão e SLAs.
+                        text: `Você é um Consultor de IA Especialista em E-commerce B2C e Operações de Saúde da MA Hospitalar. Analise os dados da nossa carteira e devolva estritamente a MATRIZ DE INSIGHTS OPERACIONAIS organizada em 3 pilares estruturais.
 
-                        DADOS ATUAIS FILTRADOS NO PAINEL:
+                        DADOS EXTRAÍDOS DA CARTEIRA ATUAL:
                         - Total de Pedidos Monitorados: ${m.total}
                         - Pedidos Faturados (Sucesso): ${m.atendidos} (Taxa de Conversão: ${m.txConv}%)
                         - Pedidos Cancelados/Devoluções: ${m.devolucoes} (Taxa de Quebra: ${m.txCanc}%)
-                        - Pedidos Retidos na Fila de Atendimento: ${m.aguardaAtendimento} (Taxa de Pendência: ${m.txPend}%)
-                        - Erros Detectados de Falha Sistêmica na API (Sem Nota): ${m.apiTravaCount}
+                        - Pedidos Retidos na Fila (Aguardando Atendimento): ${m.aguardaAtendimento} (Taxa de Pendência: ${m.txPend}%)
+                        - Travas de Sincronismo Sistêmico detectadas na API: ${m.apiTravaCount}
 
-                        Principais Ofensores de Quebra de Estoque/Motivos mapeados: ${JSON.stringify(m.motivosContagem)}
-                        Distribuição por canais logísticos/marketplaces: ${JSON.stringify(m.canaisContagem)}
+                        Ofensores Operacionais Mapeados: ${JSON.stringify(m.motivosContagem)}
+                        Distribuição da Volumetria por Canal: ${JSON.stringify(m.canaisContagem)}
 
-                        INSTRUÇÕES PARA O INSIGHT:
-                        1. Avalie nossa eficiência B2C comparando com o mercado real atual (Considere que o teto aceitável de cancelamento em marketplaces é 4% para não quebrar reputação da conta e o ideal de fila de expedição ágil é abaixo de 1.5%).
-                        2. Identifique onde está o maior gargalo oculto sob esta visão.
-                        3. Aponte 2 ações cirúrgicas imediatas de logística ou estoque para proteger nossa operação comercial.`
+                        FORMATE SUA RESPOSTA EXATAMENTE ASSIM (use quebras de linha limpas):
+
+                        1️⃣ EFICIÊNCIA COMERCIAL & SLA B2C
+                        [Analise de forma direta os números de faturamento da MA Hospitalar, apontando se o volume atende o ritmo saudável da expedição logística].
+
+                        2️⃣ SAÚDE DE CONTA & REPUTAÇÃO DIGITAL
+                        [Avalie os riscos de reclamações e punições nos marketplaces baseando-se no volume de cancelamentos de ${m.devolucoes} ordens e travas de sincronismo].
+
+                        3️⃣ DESEMPENHO VS BENCHMARK SETORIAL
+                        [Compare os ${m.txConv}% de conversão da nossa operação atual com a média nacional de e-commerce de saúde/produtos médicos que gira em torno de 94.0%, classificando nosso nível de performance (ex: Nível Ultra, Nível Crítico, etc)].`
                     }]
                 }]
             };
@@ -376,27 +382,28 @@
             try {
                 const response = await fetch(urlApi, {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
                 const data = await response.json();
                 
-                if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) {
-                    let markdownTexto = data.candidates[0].content.parts[0].text;
-                    markdownTexto = markdownTexto.replace(/\*\.(.*?)\*\//g, '<b>$1</b>');
-                    markdownTexto = markdownTexto.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-                    markdownTexto = markdownTexto.replace(/\*(.*?)\*/g, '<i>$1</i>');
-                    boxInsight.innerHTML = markdownTexto;
-                    document.getElementById('diagnosticoTitulo').innerText = "Diagnóstico IA em Tempo Real (Conectado via API)";
+                // Validação e higienização correta do campo string puro enviado pelo Gemini
+                if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+                    let textoFinal = data.candidates[0].content.parts[0].text;
+                    
+                    // Tratamento simples para garantir negritos legíveis na div
+                    textoFinal = textoFinal.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+                    textoFinal = textoFinal.replace(/\*(.*?)\*/g, '<i>$1</i>');
+                    
+                    boxInsight.innerHTML = textoFinal;
+                    document.getElementById('diagnosticoTitulo').innerText = "DIAGNOSTICO IA: VISÃO GLOBAL OPERACIONAL & INTELIGÊNCIA DE MERCADO B2C";
                 } else {
-                    boxInsight.innerHTML = "<span class='text-amber-400'>⚠️ Erro de Resposta:</span> A API respondeu, mas não encontrou uma estrutura válida de texto. Tente reimportar os dados.";
+                    boxInsight.innerHTML = "<span class='text-amber-400'>⚠️ Aviso de Estrutura:</span> A API processou os dados, mas o formato de resposta divergiu. Clique novamente no botão para re-executar a sincronização.";
                 }
             } catch (error) {
                 console.error(error);
-                boxInsight.innerHTML = "<span class='text-red-400'>❌ Erro na requisição!</span> Ocorreu uma falha ao conectar com o endpoint do Google Gemini. Verifique as configurações de rede.";
+                boxInsight.innerHTML = "<span class='text-red-400'>❌ Falha na Conexão!</span> Não foi possível estruturar os dados. Verifique sua conexão com a internet.";
             } finally {
                 btn.disabled = false;
                 btn.innerText = "🤖 Executar Insights IA Realtime";
@@ -574,7 +581,7 @@
             csvRows.push(`"Devoluções (Cancelados)";"${canc}";"${tot > 0 ? ((canc/tot)*100).toFixed(1)+'%' : '0%'}"`);
             csvRows.push(`"Aguarda Atendimento";"${pend}";"${tot > 0 ? ((pend/tot)*100).toFixed(1)+'%' : '0%'}"`);
             csvRows.push("");
-            csvRows.push(`"CHECK (TRATADO)";"STATUS CONSOLIDADO";"AÇÃO OPERACIONAL CORRETIVA";"DATA EMISSÃO";"CANAL / MARKETPLACE B2C";"Nº DO PEDIDO";"STATUS LOGÍSTICA";"STATUS LINX";"PV PROTHEUS";"NOTA FISCAL";"PREVISÃO ENTREGA";"CÓDIGO RASTREIO";"OBSERVAÇÕES OPERACIONAIS"`);
+            csvRows.push(`"CHECK (TRATADO)";"STATUS CONSOLIDADO";"AÇÃO OPERACIONAL CORRETIVA";"DATA EMISSÃO";"CANAL / MARKETPLACE B2C";"Nº DO PEDIDO";"STATUS LOGÍSTICA";"STATUS LINX";"PV PROTHEUS";"NOTA FISCAL";"PREVISÃO ENTREGA";"CÓDIGO RASTREIO";"OBSERVACOES OPERACIONAIS"`);
 
             globalTableData.forEach(r => {
                 let checkStatus = pedidosTratadosManualmente.has(r.PEDIDO) ? "CONCLUÍDO MANUALMENTE" : "PENDENTE NO HUB";
@@ -599,7 +606,7 @@
             document.querySelectorAll('.clickable-card').forEach(c => c.classList.remove('active-card'));
             document.getElementById('cardTotal').classList.add('active-card'); currentKpiFilter = 'ALL';
             document.getElementById('insightBoxCompleto').innerHTML = `Carregue os arquivos de dados das planilhas e clique em <b>"Executar Insights IA Realtime"</b> para cruzar os resultados atuais da carteira B2C com dados e benchmarks de mercado.`;
-            document.getElementById('diagnosticoTitulo').innerText = "Monitoramento de IA & Auditoria de Benchmark B2C Digital";
+            document.getElementById('diagnosticoTitulo').innerText = "DIAGNOSTICO IA: VISÃO GLOBAL OPERACIONAL & INTELIGÊNCIA DE MERCADO B2C";
             applyFiltersAndRender();
         });
     </script>
