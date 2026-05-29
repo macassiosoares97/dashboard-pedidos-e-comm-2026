@@ -23,7 +23,6 @@
 </head>
 <body class="flex flex-col md:flex-row min-h-screen">
 
-    <!-- BARRA LATERAL DE FILTROS -->
     <div class="w-full md:w-80 sidebar p-6 flex flex-col justify-between">
         <div class="space-y-5">
             <div>
@@ -32,7 +31,12 @@
                 <p class="text-xs text-gray-400 mt-1">Gestão de Carteira e SLAs B2C</p>
             </div>
 
-            <!-- ENTRADA DE ARQUIVOS DUPLA -->
+            <div class="custom-card p-3 border-blue-900/40 bg-blue-950/10">
+                <label class="block text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1">🔑 Chave de API Gemini (Google)</label>
+                <input type="password" id="apiKeyInput" placeholder="Colar chave AI Studio..." class="filter-select bg-[#101726] text-xs" />
+                <p class="text-[9px] text-gray-500 mt-1">Salva apenas localmente no seu navegador. Seguro para o GitHub.</p>
+            </div>
+
             <div class="custom-card p-4 bg-[#161f33]/30 border-blue-900/30 space-y-3">
                 <div>
                     <label class="block text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1">1. Base Atual (2026)</label>
@@ -44,7 +48,6 @@
                 </div>
             </div>
 
-            <!-- TRIAGEM RÁPIDA -->
             <div class="custom-card p-4 border-amber-500/40 bg-amber-950/10">
                 <label class="block text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-2">⚡ Triagem Operacional</label>
                 <select id="criticalFilter" class="filter-select border-amber-500/30 bg-amber-950/20 text-amber-300 font-semibold" disabled>
@@ -55,7 +58,6 @@
                 </select>
             </div>
 
-            <!-- FILTROS SECUNDÁRIOS -->
             <div class="space-y-3 opacity-50" id="filterSection">
                 <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-800 pb-1">2. Filtros de Apoio</div>
                 
@@ -92,10 +94,8 @@
         </div>
     </div>
 
-    <!-- CONTEÚDO PRINCIPAL -->
     <div class="flex-1 p-6 md:p-10 space-y-6 overflow-y-auto">
         
-        <!-- CARDS DE KPIS -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div id="cardTotal" class="custom-card p-4 bg-slate-900 border-slate-800 clickable-card active-card">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total de pedidos</p>
@@ -119,11 +119,10 @@
             </div>
         </div>
 
-        <!-- PAINEL DE INSIGHTS DINÂMICOS -->
         <div class="custom-card p-5 bg-gradient-to-r from-blue-950/20 via-[#121826] to-purple-950/20 border-blue-900/30">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div class="flex items-center gap-2">
-                    <span class="text-sm">🛒</span>
+                    <span class="text-sm">✨</span>
                     <h3 id="diagnosticoTitulo" class="text-xs font-bold text-blue-400 uppercase tracking-wider">Monitoramento de IA & Auditoria de Benchmark B2C Digital</h3>
                 </div>
                 <div class="flex gap-2">
@@ -131,33 +130,21 @@
                         <span>📄</span> Exportar Relatório Executivo (.txt)
                     </button>
                     <button id="btnGeraInsight" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] px-3 py-1.5 rounded transition flex items-center gap-1.5 shadow-md shadow-blue-950/50">
-                        <span>🔄</span> Alternar Visões
+                        <span>🤖</span> Executar Insights IA Realtime
                     </button>
                 </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                <div id="insightBox1" class="p-3.5 bg-[#0f1422]/80 rounded-lg border border-gray-800 hover:border-blue-900/60 transition-all">
-                    <p id="insightTitle1" class="text-gray-400 font-semibold mb-1">🎯 Eficiência Comercial B2C</p>
-                    <p id="insightConversao" class="text-gray-300 leading-relaxed">Aguardando processamento de dados.</p>
-                </div>
-                <div id="insightBox2" class="p-3.5 bg-[#0f1422]/80 rounded-lg border border-gray-800 hover:border-amber-900/60 transition-all">
-                    <p id="insightTitle2" class="text-amber-400 font-semibold mb-1">⚠️ Saúde de Conta & Reputação</p>
-                    <p id="insightGargalo" class="text-gray-300 leading-relaxed">Sem alertas de bloqueios pendentes.</p>
-                </div>
-                <div id="insightBox3" class="p-3.5 bg-[#0f1422]/80 rounded-lg border border-gray-800 hover:border-purple-900/60 transition-all">
-                    <p id="insightTitle3" class="text-purple-400 font-semibold mb-1">📊 Desempenho vs Concorrentes B2C</p>
-                    <p id="insightBenchmark" class="text-gray-300 leading-relaxed">Aguardando métricas comparativas.</p>
-                </div>
+            
+            <div class="p-4 bg-[#0f1422]/90 rounded-lg border border-gray-800 text-xs text-gray-300 leading-relaxed max-h-60 overflow-y-auto whitespace-pre-line" id="insightBoxCompleto">
+                Insira sua API Key na barra lateral, carregue seus arquivos de dados e clique em <b>"Executar Insights IA Realtime"</b> para cruzar os resultados atuais da carteira B2C com dados e benchmarks de mercado.
             </div>
         </div>
 
-        <!-- GRÁFICOS -->
         <div id="chartsContainer" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="custom-card p-5 lg:col-span-2"><h3 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Volume Mensal vs. Taxa de Faturamento (%)</h3><div class="h-56"><canvas id="chartMensal"></canvas></div></div>
             <div class="custom-card p-5"><h3 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Principais Ofensores de Quebra</h3><div class="h-56"><canvas id="chartMotivos"></canvas></div></div>
         </div>
 
-        <!-- TABELA OPERACIONAL -->
         <div class="custom-card p-5">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                 <h3 class="text-sm font-bold text-white uppercase tracking-wider">Mapeamento Analítico da Fila</h3>
@@ -181,9 +168,7 @@
     <script>
         let raw2026 = []; let raw2025 = []; let rawDatabase = [];
         let chartMensal = null; let chartMotivos = null; let currentKpiFilter = 'ALL';
-        let insightRotationIndex = 0; let globalTableData = []; let globalLastCalculatedMetrics = {};
-        
-        // Memória para guardar os IDs dos pedidos marcados como concluídos manualmente
+        let globalTableData = []; let globalLastCalculatedMetrics = {};
         let pedidosTratadosManualmente = new Set();
 
         const yearSelect = document.getElementById('yearFilter');
@@ -233,19 +218,13 @@
 
         function processarlinhasCSV(data, defaultAno) {
             if(!data || data.length === 0) return [];
-            
             let rawHeaders = Object.keys(data[0]);
             let headerMap = {};
-            rawHeaders.forEach(h => {
-                if (h) headerMap[h.toUpperCase().trim().replace(/[\u200B-\u200D\uFEFF]/g, '')] = h;
-            });
+            rawHeaders.forEach(h => { if (h) headerMap[h.toUpperCase().trim().replace(/[\u200B-\u200D\uFEFF]/g, '')] = h; });
 
             function getVal(row, keyKeywords) {
                 for (let k of Object.keys(headerMap)) {
-                    if (keyKeywords.some(kw => k.includes(kw))) {
-                        let originalHeader = headerMap[k];
-                        return row[originalHeader] ? row[originalHeader].toString().trim() : '';
-                    }
+                    if (keyKeywords.some(kw => k.includes(kw))) return row[headerMap[k]] ? row[headerMap[k]].toString().trim() : '';
                 }
                 return '';
             }
@@ -265,14 +244,10 @@
                 };
 
                 if (!n.PEDIDO && rawHeaders[0]) n.PEDIDO = row[rawHeaders[0]];
-
                 let p = extrairPeriodo(n.DATA, defaultAno);
                 n['ANO_TRATADO'] = p.ano; n['MES_TRATADO'] = p.mes; n['PERIODO_LABEL'] = p.label; n['PERIODO_SORT'] = p.sortKey;
 
-                let stLog = n.STATUS_LOG.toUpperCase(); 
-                let stLinx = n.STATUS_LINX.toUpperCase(); 
-                let obs = n.OBSERVACOES.toUpperCase();
-                
+                let stLog = n.STATUS_LOG.toUpperCase(); let stLinx = n.STATUS_LINX.toUpperCase(); let obs = n.OBSERVACOES.toUpperCase();
                 let faturado = stLog.includes('FATURAD') || stLog.includes('EMITID') || stLog.includes('CONCLU') || n.NOTA !== '';
                 let cancelado = stLog.includes('CANC') || stLog.includes('DEV') || stLog.includes('ESTORN') || obs.includes('SALDO ZERADO') || obs.includes('FALTA');
 
@@ -287,18 +262,14 @@
                 } else if (n['STATUS_CONSOLIDADO'] === 'CANCELADO') {
                     acao = "Estornar Cartão / Evitar ReclameAqui";
                 }
-
                 n['ACAO_OPERACIONAL'] = acao; n['RISCO_INTEGRACAO'] = riscoIntegracao;
                 return n;
             }).filter(r => r.PEDIDO && r.PEDIDO.toString().trim() !== "");
         }
 
         function togglePedidoTratado(idPedido) {
-            if (pedidosTratadosManualmente.has(idPedido)) {
-                pedidosTratadosManualmente.delete(idPedido);
-            } else {
-                pedidosTratadosManualmente.add(idPedido);
-            }
+            if (pedidosTratadosManualmente.has(idPedido)) pedidosTratadosManualmente.delete(idPedido);
+            else pedidosTratadosManualmente.add(idPedido);
             applyFiltersAndRender();
         }
 
@@ -356,7 +327,90 @@
         setupKpiClick('cardTotal', 'ALL'); setupKpiClick('cardAtendidos', 'FATURADO'); setupKpiClick('cardDevolucoes', 'CANCELADO'); setupKpiClick('cardAguarda', 'PENDENTE');
         [yearSelect, monthSelect, channelSelect, statusLogFilter, criticalSelect].forEach(el => el.addEventListener('change', () => applyFiltersAndRender()));
         searchInput.addEventListener('input', () => applyFiltersAndRender());
-        document.getElementById('btnGeraInsight').addEventListener('click', () => { insightRotationIndex++; applyFiltersAndRender(); });
+
+        // VERIFICA SE JÁ EXISTE UMA CHAVE SALVA NO NAVEGADOR AO CARREGAR A PÁGINA
+        document.addEventListener('DOMContentLoaded', () => {
+            const chaveSalva = localStorage.getItem('ma_gemini_token');
+            if (chaveSalva) {
+                document.getElementById('apiKeyInput').value = chaveSalva;
+            }
+        });
+
+        // REQUISIÇÃO DIRETA PARA O GEMINI 1.5 FLASH COM PERSISTÊNCIA NO LOCALSTORAGE
+        document.getElementById('btnGeraInsight').addEventListener('click', async () => {
+            const apiKey = document.getElementById('apiKeyInput').value.trim();
+            if(!apiKey) {
+                alert("Por favor, digite ou cole sua Chave de API do Gemini no campo correspondente na barra lateral.");
+                return;
+            }
+            
+            // Grava a chave localmente no navegador para os próximos acessos
+            localStorage.setItem('ma_gemini_token', apiKey);
+
+            const m = globalLastCalculatedMetrics;
+            if(!m.total) {
+                alert("Nenhum dado importado para analisar.");
+                return;
+            }
+
+            const boxInsight = document.getElementById('insightBoxCompleto');
+            const btn = document.getElementById('btnGeraInsight');
+            
+            btn.disabled = true;
+            btn.innerText = "⏳ Consultando Gemini...";
+            boxInsight.innerHTML = "<b>Iniciando conexão inteligente...</b> Mapeando métricas da carteira B2C da MA Hospitalar e estruturando prompt com auditoria de mercado.";
+
+            const urlApi = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+            const payload = {
+                contents: [{
+                    parts: [{
+                        text: `Você é um Consultor de IA Sênior especializado em E-commerce B2C de Produtos Médicos e Saúde da MA Hospitalar. Analise nossos números operacionais consolidados e gere um relatório analítico direto, com tom corporativo realista e focado em conversão e SLAs.
+
+                        DADOS ATUAIS FILTRADOS NO PAINEL:
+                        - Total de Pedidos Monitorados: ${m.total}
+                        - Pedidos Faturados (Sucesso): ${m.atendidos} (Taxa de Conversão: ${m.txConv}%)
+                        - Pedidos Cancelados/Devoluções: ${m.devolucoes} (Taxa de Quebra: ${m.txCanc}%)
+                        - Pedidos Retidos na Fila de Atendimento: ${m.aguardaAtendimento} (Taxa de Pendência: ${m.txPend}%)
+                        - Erros Detectados de Falha Sistêmica na API (Sem Nota): ${m.apiTravaCount}
+
+                        Principais Ofensores de Quebra de Estoque/Motivos mapeados: ${JSON.stringify(m.motivosContagem)}
+                        Distribuição por canais logísticos/marketplaces: ${JSON.stringify(m.canaisContagem)}
+
+                        INSTRUÇÕES PARA O INSIGHT:
+                        1. Avalie nossa eficiência B2C comparando com o mercado real atual (Considere que o teto aceitável de cancelamento em marketplaces é 4% para não quebrar reputação da conta e o ideal de fila de expedição ágil é abaixo de 1.5%).
+                        2. Identifique onde está o maior gargalo oculto sob esta visão.
+                        3. Aponte 2 ações cirúrgicas imediatas de logística ou estoque para proteger nossa operation comercial.`
+                    }]
+                }]
+            };
+
+            try {
+                const response = await fetch(urlApi, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                
+                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    let markdownTexto = data.candidates[0].content.parts[0].text;
+                    markdownTexto = markdownTexto.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+                    markdownTexto = markdownTexto.replace(/\*(.*?)\*/g, '<i>$1</i>');
+                    boxInsight.innerHTML = markdownTexto;
+                    document.getElementById('diagnosticoTitulo').innerText = "Diagnóstico IA em Tempo Real (Conectado via API)";
+                } else {
+                    boxInsight.innerText = "A API retornou uma resposta vazia. Verifique se o formato do seu arquivo CSV está correto.";
+                }
+            } catch (error) {
+                console.error(error);
+                boxInsight.innerHTML = "<span class='text-red-400'>❌ Erro na requisição!</span> Certifique-se de que sua API Key é válida e que sua máquina possui acesso irrestrito à internet.";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "🤖 Executar Insights IA Realtime";
+            }
+        });
 
         function applyFiltersAndRender() {
             const yearVal = yearSelect.value; const monthVal = monthSelect.value; const searchVal = searchInput.value.toUpperCase();
@@ -424,47 +478,6 @@
             document.getElementById('pctDevolucoes').innerText = `${txCanc}%`;
             document.getElementById('pctPendente').innerText = `${txPend}%`;
 
-            const tituloDiag = document.getElementById('diagnosticoTitulo');
-            const box1Title = document.getElementById('insightTitle1'); const box2Title = document.getElementById('insightTitle2'); const box3Title = document.getElementById('insightTitle3');
-            const text1 = document.getElementById('insightConversao'); const text2 = document.getElementById('insightGargalo'); const text3 = document.getElementById('insightBenchmark');
-
-            let topCanal = "Nenhum"; let maxCanal = 0;
-            Object.keys(canaisContagem).forEach(c => { if(canaisContagem[c] > maxCanal) { maxCanal = canaisContagem[c]; topCanal = c; } });
-
-            if (currentKpiFilter === 'CANCELADO') {
-                tituloDiag.innerText = "Diagnóstico IA: Cancelamentos e Ruptura de Prateleira Digital (B2C)";
-                box1Title.innerText = "🛑 Índice de Ruptura Logística";
-                box2Title.innerText = "🔍 Atrito na Experiência do Usuário";
-                box3Title.innerText = "📊 Réguas de Marketplaces (Teto 4%)";
-                text1.innerHTML = `Perda líquida de <b class="text-red-400">${txCanc}%</b> dos pedidos efetuados.`;
-                text2.innerHTML = `Cancelamentos focados em <b>Falta de Estoque</b>. No B2C isso gera perda imediata de BuyBox e severas penalizações de reputação.`;
-                let bStatus = txCanc <= 4.0 ? "<b class=\"text-green-400\">DENTRO DA META</b>" : "<b class=\"text-red-400\">GRAVE (Risco de Penalização)</b>";
-                text3.innerHTML = `Média nacional B2C tolera até <b>4.0%</b> de cancelamentos forçados por estoque. Sua taxa de <b>${txCanc}%</b> está (${bStatus}).`;
-            } else if (currentKpiFilter === 'PENDENTE') {
-                tituloDiag.innerText = "Diagnóstico IA: Fila de Despacho & Gargalo de Tracking (SLA B2C)";
-                box1Title.innerText = "⏳ Tempo de Fila Viva";
-                box2Title.innerText = "🔌 Gargalo de Integração ERP";
-                box3Title.innerText = "📊 Benchmark de Expedição Rápida";
-                text1.innerHTML = `Existem <b class="text-amber-400">${aguardaAtendimento}</b> ordens em processamento (<b class="text-amber-500">${txPend}%</b> da carteira).`;
-                text2.innerHTML = apiTravaCount > 0 ? `Risco: <b class="text-red-400">${apiTravaCount} pedidos</b> com atraso de faturamento por falta de espelho de API.` : `Fluxo de envio ágil. Sem atrasos sistêmicos de faturamento.`;
-                let bStatus = txPend <= 1.5 ? "<b class=\"text-green-400\">OPERAÇÃO ÁGIL (Next-Day OK)</b>" : "<b class=\"text-amber-400\">RISCO DE ATRASO NO FRETE</b>";
-                text3.innerHTML = `Grandes e-commerces de saúde operam com fila viva máxima de <b>1.5%</b>. O Hub registra <b>${txPend}%</b> (${bStatus}).`;
-            } else {
-                tituloDiag.innerText = "Diagnóstico IA: Visão Global Operacional & Inteligência de Mercado B2C";
-                box1Title.innerText = "🎯 NPS & Sucesso de Faturamento";
-                box2Title.innerText = "⚠️ Alerta de SAC / ReclameAqui";
-                box3Title.innerText = "📊 Benchmark E-commerce de Saúde B2C";
-                text1.innerHTML = `A taxa de eficiência de entrega e faturamento digital está consolidada em <b class="text-green-400">${txConv}%</b>.`;
-                text2.innerHTML = apiTravaCount > 0 ? `Alerta: <b class="text-amber-400">${apiTravaCount} pedidos</b> exigem intervenção manual para não estourarem o prazo do frete.` : `<span class="text-green-400">✔</span> Conectividade estável. Nenhuma anomalia crítica de checkout mapeada.`;
-                if (insightRotationIndex % 2 === 0) {
-                    let bStatus = txConv >= 94.0 ? "<b class=\"text-green-400\">NÍVEL ULTRA (Referência Setorial)</b>" : "<b class=\"text-amber-400\">ESTÁVEL</b>";
-                    text3.innerHTML = `O e-commerce B2C de alta performance de saúde visa <b>94.0%</b> de faturamento limpo. Seu resultado é de <b>${txConv}%</b> (${bStatus}).`;
-                } else {
-                    box3Title.innerText = "📈 Canal de Maior Giro B2C";
-                    text3.innerHTML = `A principal volumetria operacional sob esta visão está concentrada no canal <b>${topCanal}</b>.`;
-                }
-            }
-
             const tbody = document.getElementById('tableBody'); tbody.innerHTML = '';
             if(tableData.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="13" class="p-4 text-center text-gray-500">Nenhum registro encontrado para este filtro.</td></tr>`;
@@ -472,7 +485,6 @@
                 tableData.forEach(item => {
                     let tr = document.createElement('tr'); tr.className = "border-b border-gray-800/60 hover:bg-[#161f33]/40 text-[11px]";
                     let badgeStatus = item.STATUS_CONSOLIDADO === 'FATURADO' ? "bg-green-950 text-green-400 border border-green-900/40" : (item.STATUS_CONSOLIDADO === 'CANCELADO' ? "bg-red-950 text-red-400 border border-red-900/40" : "bg-orange-950 text-orange-400 border border-orange-900/30");
-                    
                     let isChecked = pedidosTratadosManualmente.has(item.PEDIDO);
 
                     tr.innerHTML = `
@@ -529,59 +541,21 @@
         }
 
         document.getElementById('btnExportInsights').addEventListener('click', () => {
-            let m = globalLastCalculatedMetrics; if(!m.total) return;
+            let textoBox = document.getElementById('insightBoxCompleto').innerText;
+            if(textoBox.includes("Insira sua API Key")) return alert("Gere os insights antes de exportar.");
+            
             let out = [];
             out.push("=======================================================================");
-            out.push("       MA HOSPITALAR - RELATÓRIO DE INSIGHTS DE IA (CANAIS DIGITAIS B2C) ");
+            out.push("    MA HOSPITALAR - AUDITORIA DE IA EM TEMPO REAL (CANAIS B2C)          ");
             out.push("=======================================================================");
             out.push(`Extraído em: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}`);
-            out.push(`Escopo de Visão: Ano [${yearSelect.value}] | Mês [${monthSelect.value}] | Canal [${channelSelect.value}]`);
             out.push("-----------------------------------------------------------------------");
-            out.push("");
-            out.push("1. MÉTRICAS OPERACIONAIS REAIS COLETADAS");
-            out.push(`   * Volume Total Auditado no Período: ${m.total} pedidos de consumidores B2C.`);
-            out.push(`   * Taxa Líquida de Faturamento: ${m.txConv}% (${m.atendidos} notas emitidas).`);
-            out.push(`   * Taxa de Cancelamento/Quebra: ${m.txCanc}% (${m.devolucoes} vendas perdidas).`);
-            out.push(`   * Pedidos Retidos em Fila Viva: ${m.txPend}% (${m.aguardaAtendimento} pendentes).`);
-            out.push(`   * Falhas de Sincronismo Detectadas na API de Integração: ${m.apiTravaCount} erros.`);
-            out.push("");
-            out.push("2. PERFORMANCE COMPETITIVA VS BENCHMARK REAL DE MERCADO (E-COMMERCE B2C SAÚDE)");
-            
-            if(parseFloat(m.txConv) >= 94.0) {
-                out.push(`   * Sucesso de Venda [${m.txConv}%]: EXCELENTE. O benchmark de alto padrão para E-commerce B2C de saúde exige taxa mínima de 94%. A operação entrega índice de liderança digital.`);
-            } else {
-                out.push(`   * Sucesso de Venda [${m.txConv}%]: ABAIXO DA MÉDIA B2C. O varejo digital de saúde opera com 94% de faturamento limpo. É necessário auditar os gargalos pós-checkout.`);
-            }
-
-            if(parseFloat(m.txCanc) <= 4.0) {
-                out.push(`   * Índice de Quebra [${m.txCanc}%]: ZONA DE SEGURANÇA. O teto regulatório de plataformas como Mercado Livre e Amazon é de 4.0% para evitar perda de reputação comercial da conta. A MA Hospitalar está operando protegida.`);
-            } else {
-                out.push(`   * Índice de Quebra [${m.txCanc}%]: ALERTA CRÍTICO. Taxa superior ao limite de 4.0% do mercado B2C. Risco iminente de queda de posições nas buscas (SEO de Marketplace) e bloqueio de BuyBox por quebra de estoque.`);
-            }
-
-            if(parseFloat(m.txPend) <= 1.5) {
-                out.push(`   * Retenção Logística [${m.txPend}%]: PERFORMANCE OTIMIZADA. O consumidor final B2C exige agilidade total de despacho. Manter a fila viva abaixo de 1.5% atende aos critérios de frete rápido setorial.`);
-            } else {
-                out.push(`   * Retenção Logística [${m.txPend}%]: RISCO DE RECLAMAÇÃO (SAC). Fila acima de 1.5% gera estouro de prazo do frete prometido no checkout, disparando reclamações diretas e denegrindo o NPS da marca.`);
-            }
-            
-            out.push("");
-            out.push("3. DIRETRIZES E PLANOS DE AÇÃO IMEDIATOS PARA A DIRETORIA");
-            if(m.apiTravaCount > 0) {
-                out.push(`   [🔥 URGENTE] Sincronizar manualmente as ${m.apiTravaCount} ordens paradas na API Linx/Protheus para blindar o prazo de entrega ao cliente final B2C.`);
-            }
-            out.push("   [1] ESTOQUE DE SEGURANÇA: Configurar estoque virtual tampão (segurança de 1 ou 2 unidades) nos SKUs de maior giro para anular o ofensor de 'Falta de Estoque'.");
-            out.push("   [2] INTEGRAÇÃO B2C: Manter a rotina unificada via Hub de Operações para garantir a estabilidade das linhas roxas de expedição diária.");
-            out.push("");
-            out.push("=======================================================================");
-            out.push("        FIM DO RELATÓRIO EXECUTIVO B2C - MA HOSPITALAR INTELLIGENCE    ");
-            out.push("=======================================================================");
+            out.push(textoBox);
+            out.push("\n=======================================================================");
 
             let blob = new Blob([out.join("\n")], { type: 'text/plain;charset=utf-8;' });
-            let url = URL.createObjectURL(blob);
-            let link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `MA_Hospitalar_B2C_IA_Insights_${yearSelect.value}.txt`);
+            let url = URL.createObjectURL(blob); let link = document.createElement("a");
+            link.setAttribute("href", url); link.setAttribute("download", `MA_Hospitalar_Realtime_Insights.txt`);
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         });
 
@@ -604,7 +578,6 @@
             csvRows.push(`"Devoluções (Cancelados)";"${canc}";"${tot > 0 ? ((canc/tot)*100).toFixed(1)+'%' : '0%'}"`);
             csvRows.push(`"Aguarda Atendimento";"${pend}";"${tot > 0 ? ((pend/tot)*100).toFixed(1)+'%' : '0%'}"`);
             csvRows.push("");
-
             csvRows.push(`"CHECK (TRATADO)";"STATUS CONSOLIDADO";"AÇÃO OPERACIONAL CORRETIVA";"DATA EMISSÃO";"CANAL / MARKETPLACE B2C";"Nº DO PEDIDO";"STATUS LOGÍSTICA";"STATUS LINX";"PV PROTHEUS";"NOTA FISCAL";"PREVISÃO ENTREGA";"CÓDIGO RASTREIO";"OBSERVAÇÕES OPERACIONAIS"`);
 
             globalTableData.forEach(r => {
@@ -626,9 +599,11 @@
 
         document.getElementById('btnResetAll').addEventListener('click', () => {
             yearSelect.value = 'ALL'; monthSelect.value = 'ALL'; searchInput.value = ''; channelSelect.value = 'ALL'; statusLogFilter.value = 'ALL'; criticalSelect.value = 'ALL';
-            pedidosTratadosManualmente.clear(); // Limpa os checks salvos ao resetar os filtros
+            pedidosTratadosManualmente.clear();
             document.querySelectorAll('.clickable-card').forEach(c => c.classList.remove('active-card'));
             document.getElementById('cardTotal').classList.add('active-card'); currentKpiFilter = 'ALL';
+            document.getElementById('insightBoxCompleto').innerHTML = `Insira sua API Key na barra lateral, carregue seus arquivos de dados e clique em <b>"Executar Insights IA Realtime"</b> para cruzar os resultados atuais da carteira B2C com dados e benchmarks de mercado.`;
+            document.getElementById('diagnosticoTitulo').innerText = "Monitoramento de IA & Auditoria de Benchmark B2C Digital";
             applyFiltersAndRender();
         });
     </script>
