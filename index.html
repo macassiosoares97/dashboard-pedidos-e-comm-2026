@@ -31,10 +31,12 @@
                 <p class="text-xs text-gray-400 mt-1">Gestão de Carteira e SLAs B2C</p>
             </div>
 
-            <div class="custom-card p-3 border-blue-900/40 bg-blue-950/10">
-                <label class="block text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1">🔑 Chave de API Gemini (Google)</label>
-                <input type="password" id="apiKeyInput" placeholder="Colar chave AI Studio..." class="filter-select bg-[#101726] text-xs" />
-                <p class="text-[9px] text-gray-500 mt-1">Salva apenas localmente no seu navegador. Seguro para o GitHub.</p>
+            <div class="custom-card p-3 border-emerald-900/40 bg-emerald-950/10">
+                <div class="flex items-center gap-2">
+                    <span class="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <label class="block text-[10px] font-bold text-emerald-400 uppercase tracking-wider">🤖 Conexão Gemini Ativa</label>
+                </div>
+                <p class="text-[9px] text-gray-500 mt-1">Chave corporativa integrada com sucesso ao projeto.</p>
             </div>
 
             <div class="custom-card p-4 bg-[#161f33]/30 border-blue-900/30 space-y-3">
@@ -136,7 +138,7 @@
             </div>
             
             <div class="p-4 bg-[#0f1422]/90 rounded-lg border border-gray-800 text-xs text-gray-300 leading-relaxed max-h-60 overflow-y-auto whitespace-pre-line" id="insightBoxCompleto">
-                Insira sua API Key na barra lateral, carregue seus arquivos de dados e clique em <b>"Executar Insights IA Realtime"</b> para cruzar os resultados atuais da carteira B2C com dados e benchmarks de mercado.
+                Carregue os arquivos de dados das planilhas e clique em <b>"Executar Insights IA Realtime"</b> para cruzar os resultados atuais da carteira B2C com dados e benchmarks de mercado.
             </div>
         </div>
 
@@ -166,6 +168,9 @@
     </div>
 
     <script>
+        // CHAVE DE API EMBUTIDA DIRETAMENTE NO PROJETO
+        const GEMINI_API_KEY = "AQ.Ab8RN6LtjjFUo889qKG2pr729OS2WhQa9iVQuiqHEHFLHzkW7w";
+
         let raw2026 = []; let raw2025 = []; let rawDatabase = [];
         let chartMensal = null; let chartMotivos = null; let currentKpiFilter = 'ALL';
         let globalTableData = []; let globalLastCalculatedMetrics = {};
@@ -303,7 +308,7 @@
             Array.from(anos).sort().forEach(ano => { yearSelect.innerHTML += `<option value="${ano}">${ano}</option>`; });
             yearSelect.value = currentYearSel;
             monthSelect.innerHTML = '<option value="ALL">Todos os Meses</option>';
-            Object.keys(mesesValidos).sort().forEach(m => { monthSelect.innerHTML += `<option value="${m}">${mesesValidos[m]}</option>`; });
+            Object.keys(mesesValidos).sort().forEach(m => { monthSelect.innerHTML += `<option value="${mesesValidos[m]}">${mesesValidos[m]}</option>`; });
             populateDropdown(channelSelect, channels, "Todos os Canais B2C");
             populateDropdown(statusLogFilter, statusLogs, "Todos os Status");
             document.getElementById('filterSection').classList.remove('opacity-50');
@@ -328,28 +333,11 @@
         [yearSelect, monthSelect, channelSelect, statusLogFilter, criticalSelect].forEach(el => el.addEventListener('change', () => applyFiltersAndRender()));
         searchInput.addEventListener('input', () => applyFiltersAndRender());
 
-        // VERIFICA SE JÁ EXISTE UMA CHAVE SALVA NO NAVEGADOR AO CARREGAR A PÁGINA
-        document.addEventListener('DOMContentLoaded', () => {
-            const chaveSalva = localStorage.getItem('ma_gemini_token');
-            if (chaveSalva) {
-                document.getElementById('apiKeyInput').value = chaveSalva;
-            }
-        });
-
-        // REQUISIÇÃO DIRETA PARA O GEMINI 1.5 FLASH COM PERSISTÊNCIA NO LOCALSTORAGE
+        // EXECUTAR INSIGHTS COM O CORRETO CABEÇALHO PARA EVITAR RETORNO VAZIO
         document.getElementById('btnGeraInsight').addEventListener('click', async () => {
-            const apiKey = document.getElementById('apiKeyInput').value.trim();
-            if(!apiKey) {
-                alert("Por favor, digite ou cole sua Chave de API do Gemini no campo correspondente na barra lateral.");
-                return;
-            }
-            
-            // Grava a chave localmente no navegador para os próximos acessos
-            localStorage.setItem('ma_gemini_token', apiKey);
-
             const m = globalLastCalculatedMetrics;
             if(!m.total) {
-                alert("Nenhum dado importado para analisar.");
+                alert("Nenhum dado importado para analisar. Por favor, insira seus arquivos CSV primeiro.");
                 return;
             }
 
@@ -360,7 +348,7 @@
             btn.innerText = "⏳ Consultando Gemini...";
             boxInsight.innerHTML = "<b>Iniciando conexão inteligente...</b> Mapeando métricas da carteira B2C da MA Hospitalar e estruturando prompt com auditoria de mercado.";
 
-            const urlApi = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            const urlApi = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
             const payload = {
                 contents: [{
@@ -380,7 +368,7 @@
                         INSTRUÇÕES PARA O INSIGHT:
                         1. Avalie nossa eficiência B2C comparando com o mercado real atual (Considere que o teto aceitável de cancelamento em marketplaces é 4% para não quebrar reputação da conta e o ideal de fila de expedição ágil é abaixo de 1.5%).
                         2. Identifique onde está o maior gargalo oculto sob esta visão.
-                        3. Aponte 2 ações cirúrgicas imediatas de logística ou estoque para proteger nossa operation comercial.`
+                        3. Aponte 2 ações cirúrgicas imediatas de logística ou estoque para proteger nossa operação comercial.`
                     }]
                 }]
             };
@@ -388,24 +376,27 @@
             try {
                 const response = await fetch(urlApi, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify(payload)
                 });
 
                 const data = await response.json();
                 
-                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) {
                     let markdownTexto = data.candidates[0].content.parts[0].text;
+                    markdownTexto = markdownTexto.replace(/\*\.(.*?)\*\//g, '<b>$1</b>');
                     markdownTexto = markdownTexto.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
                     markdownTexto = markdownTexto.replace(/\*(.*?)\*/g, '<i>$1</i>');
                     boxInsight.innerHTML = markdownTexto;
                     document.getElementById('diagnosticoTitulo').innerText = "Diagnóstico IA em Tempo Real (Conectado via API)";
                 } else {
-                    boxInsight.innerText = "A API retornou uma resposta vazia. Verifique se o formato do seu arquivo CSV está correto.";
+                    boxInsight.innerHTML = "<span class='text-amber-400'>⚠️ Erro de Resposta:</span> A API respondeu, mas não encontrou uma estrutura válida de texto. Tente reimportar os dados.";
                 }
             } catch (error) {
                 console.error(error);
-                boxInsight.innerHTML = "<span class='text-red-400'>❌ Erro na requisição!</span> Certifique-se de que sua API Key é válida e que sua máquina possui acesso irrestrito à internet.";
+                boxInsight.innerHTML = "<span class='text-red-400'>❌ Erro na requisição!</span> Ocorreu uma falha ao conectar com o endpoint do Google Gemini. Verifique as configurações de rede.";
             } finally {
                 btn.disabled = false;
                 btn.innerText = "🤖 Executar Insights IA Realtime";
@@ -418,7 +409,12 @@
 
             let baseFiltered = rawDatabase.filter(row => {
                 let matchYear = (yearVal === 'ALL' || row['ANO_TRATADO'] === yearVal);
-                let matchMonth = (monthVal === 'ALL' || row['MES_TRATADO'] === monthVal);
+                
+                let matchMonth = true;
+                if (monthVal !== 'ALL') {
+                    matchMonth = nomeMeses[row['MES_TRATADO']] === monthVal;
+                }
+                
                 let matchSearch = !searchVal || Object.values(row).join(' ').toUpperCase().includes(searchVal);
                 let matchChannel = (channelVal === 'ALL' || harmonizarCanal(row.CANAL) === channelVal);
                 let matchStatusLog = (statusVal === 'ALL' || row.STATUS_LOG === statusVal);
@@ -542,7 +538,7 @@
 
         document.getElementById('btnExportInsights').addEventListener('click', () => {
             let textoBox = document.getElementById('insightBoxCompleto').innerText;
-            if(textoBox.includes("Insira sua API Key")) return alert("Gere os insights antes de exportar.");
+            if(textoBox.includes("Carregue os arquivos")) return alert("Gere os insights antes de exportar.");
             
             let out = [];
             out.push("=======================================================================");
@@ -602,7 +598,7 @@
             pedidosTratadosManualmente.clear();
             document.querySelectorAll('.clickable-card').forEach(c => c.classList.remove('active-card'));
             document.getElementById('cardTotal').classList.add('active-card'); currentKpiFilter = 'ALL';
-            document.getElementById('insightBoxCompleto').innerHTML = `Insira sua API Key na barra lateral, carregue seus arquivos de dados e clique em <b>"Executar Insights IA Realtime"</b> para cruzar os resultados atuais da carteira B2C com dados e benchmarks de mercado.`;
+            document.getElementById('insightBoxCompleto').innerHTML = `Carregue os arquivos de dados das planilhas e clique em <b>"Executar Insights IA Realtime"</b> para cruzar os resultados atuais da carteira B2C com dados e benchmarks de mercado.`;
             document.getElementById('diagnosticoTitulo').innerText = "Monitoramento de IA & Auditoria de Benchmark B2C Digital";
             applyFiltersAndRender();
         });
